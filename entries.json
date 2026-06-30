@@ -1,0 +1,8 @@
+[
+  {
+    "date": "2026-06-30",
+    "title": "Day 1 — 從零到公開 Live Demo on AWS",
+    "file": "2026-06-30.html",
+    "summary": "建立 repo、對齊 HOYA BIT 官方命題、接官方 OHLCV、三層信任架構、雙遠端 + v0.1.0、Wiki/skill、佈署到 AWS Lambda 與 EC2、接通真實 Bedrock Claude Sonnet 4.6、codex 安全審查。"
+  }
+]

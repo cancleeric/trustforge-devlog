@@ -1,0 +1,26 @@
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--fg:#e6edf3;--mut:#8b949e;--acc:#58a6ff;--good:#3fb950}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"PingFang TC",Segoe UI,sans-serif;line-height:1.65}
+.wrap{max-width:860px;margin:0 auto;padding:2rem 1.2rem 4rem}
+header h1{margin:0 0 .2rem;font-size:1.9rem}
+header h1 .tf{color:var(--acc)}
+.sub{color:var(--mut);margin:.2rem 0 1.4rem}
+.badges span{display:inline-block;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:.15rem .55rem;font-size:.75rem;color:var(--mut);margin:0 .3rem .3rem 0}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+.entry{display:block;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:1rem 1.2rem;margin:.8rem 0;transition:border-color .15s}
+.entry:hover{border-color:var(--acc);text-decoration:none}
+.entry .date{color:var(--mut);font-size:.8rem}
+.entry .title{font-size:1.15rem;font-weight:600;margin:.15rem 0 .35rem;color:var(--fg)}
+.entry .summary{color:var(--mut);font-size:.9rem}
+hr{border:0;border-top:1px solid var(--bd);margin:1.6rem 0}
+/* day page */
+article h2{font-size:1.5rem;margin-top:0}
+article h3{color:var(--acc);margin-top:1.6rem}
+article code{background:#21262d;padding:.1rem .35rem;border-radius:5px;font-size:.85em}
+article pre{background:#161b22;border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto}
+article ul{padding-left:1.2rem}
+.tag{color:var(--good)}
+.back{display:inline-block;margin-bottom:1rem;font-size:.9rem}
+footer{color:var(--mut);font-size:.8rem;margin-top:2rem;border-top:1px solid var(--bd);padding-top:1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;margin:.6rem 0}
+td,th{border:1px solid var(--bd);padding:.4rem .6rem;text-align:left}

@@ -1,0 +1,34 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrustForge — 開發記錄</title>
+<link rel="stylesheet" href="style.css">
+</head><body><div class="wrap">
+<header>
+  <h1><span class="tf">TrustForge</span> 開發記錄</h1>
+  <p class="sub">加密市場分析 AI Agent — 多源資訊的信任提煉｜2026 雲湧智生黑客松 · HOYA BIT 命題</p>
+  <p class="badges">
+    <span>AWS Bedrock (Claude Sonnet 4.6)</span><span>Python stdlib</span>
+    <span>多源整合 + 信任評分 + 溯源</span><span>HurricaneSoft</span>
+  </p>
+</header>
+<hr>
+<h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄</h3>
+<div id="entries">載入中…</div>
+<footer>
+  TrustForge by HurricaneSoft（颶風軟體）· 本站僅記錄開發歷程,原始碼為私有 repo。<br>
+  命題:加密市場分析 AI Agent — 多源資訊的信任提煉。
+</footer>
+</div>
+<script>
+fetch('entries.json?_=' + Date.now()).then(r=>r.json()).then(list=>{
+  const el = document.getElementById('entries');
+  if(!list.length){el.textContent='尚無記錄';return;}
+  el.innerHTML = list.map(e =>
+    `<a class="entry" href="days/${e.file}">
+       <div class="date">${e.date}</div>
+       <div class="title">${e.title}</div>
+       <div class="summary">${e.summary}</div>
+     </a>`).join('');
+}).catch(()=>{document.getElementById('entries').textContent='無法載入記錄';});
+</script>
+</body></html>
