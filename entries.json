@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "date": "2026-06-30",
+    "title": "Day 1 — 從零到公開 Live Demo on AWS",
+    "file": "2026-06-30.html",
+    "summary": "建立 repo、對齊 HOYA BIT 官方命題、接官方 OHLCV、三層信任架構(可回溯+反方證據)、離線產出 4 交付件、佈署到 AWS EC2 接通真實 Claude、公開端點安全止血。"
+  }
+]
