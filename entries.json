@@ -1,11 +1,5 @@
 [
   {
-    "date": "2026-07-01",
-    "title": "Day 2 · 2026-07-01 — 從「能跑」到「世界第一」：研究對標與一次誠實的 revert",
-    "file": "2026-07-01.html",
-    "summary": "重新分問世界第一：讀 SOTA 論文（FEVER/AVeriTeC/truth-discovery/conformal）+ 對標大廠（Messari/Nansen/Ground News/Community Notes），定位護城河「情報的情報」；核心信任演算法 W1 語意佐證經 3 輪對抗審（自測/多代理/獨立第二模型 Codex）抓到脆弱點，誠實 revert，改用 AWS Bedrock NLI。"
-  },
-  {
     "date": "2026-06-30",
     "title": "Day 1 — 從零到公開 Live Demo on AWS",
     "file": "2026-06-30.html",
