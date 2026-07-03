@@ -1,0 +1,36 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 4 · 來源有名有臉、多源夠多、系統學會信誰 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 4 · 來源有名有臉、多源夠多、系統學會信誰</h2>
+<p class="sub">2026-07-03c</p>
+<p>這一階段把「可信度」往更深、更誠實推：讓每個來源<b>有名有臉</b>、讓「多源」<b>真的夠多源</b>、也讓系統開始<b>記住哪些來源長期值得信</b>。</p>
+
+<h3>1. 每個來源，有名有臉</h3>
+<ul>
+<li>過去證據清單上是一串工程代號（像 <code>coingecko-sentiment</code>、<code>ohlcv-csv</code>）——不是給人看的。現在全部換成<b>品牌名 + 原廠 LOGO</b>：CoinGecko、Blockchain.com、Reddit、CoinTelegraph、Alternative.me…以及命題方的 <b>HOYA BIT 官方 OHLCV</b>。</li>
+<li>你一眼就知道<b>是誰說的</b>、它屬於哪一層（官方／第三方／社群）。可信度的第一步，是先看清楚來源是誰。找不到官方標誌的來源，用中性的品牌徽章，絕不張冠李戴。</li>
+<li>五大幣種（BTC/ETH/SOL/BNB/XRP）也都掛上各自的官方 LOGO，總覽一眼識別。</li>
+</ul>
+
+<h3>2. 「多源」真的夠多源了</h3>
+<ul>
+<li>加密市場資訊最怕以偏概全。這一階段把新聞來源從 2 家擴到<b>十多家</b>（CoinTelegraph、Bitcoin Magazine、The Block、CryptoSlate、Bitcoinist、NewsBTC、U.Today、Blockworks…），再補上<b>更多鏈上即時指標</b>（建議手續費、難度調整、鏈上統計）。</li>
+<li>一次分析從只有五、六個來源，變成<b>十幾個相異來源</b>交叉比對——「多源信任提煉」名副其實。</li>
+<li>每一個新來源都經過嚴格的資料品質把關：欄位、型別、數值範圍、時效、格式全驗過，抓不到或資料異常就<b>誠實跳過、絕不用壞資料覆蓋好資料</b>。多，但每一筆都是真的。</li>
+</ul>
+
+<h3>3. 系統開始「記住」誰值得信</h3>
+<ul>
+<li>新增<b>動態來源信譽</b>：當一個來源的說法反覆被其他獨立來源印證，系統會逐步調高對它的信任權重；被打臉則調低——像是給每個來源一個會隨時間演化的「信用評分」。</li>
+<li>而且是<b>透明可展開</b>的：報告會說明「這個來源的信譽維持先驗」或「被 N 個獨立來源互證而上調」，不是黑箱。當前資料還不足以判定時，就誠實顯示「維持先驗」，不硬給。</li>
+</ul>
+
+<p>可信情報的價值，在於<b>看得清來源、蒐得夠廣、且會學習誰值得信</b>。這一階段讓 TrustForge 在這三件事上都更接近世界級。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-03c</footer>
+</div></body></html>
