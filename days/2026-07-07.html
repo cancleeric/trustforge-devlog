@@ -1,0 +1,33 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 9 · 讓 AI 也讀得懂：把誠實做成機器契約 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 9 · 讓 AI 也讀得懂：把誠實做成機器契約</h2>
+<p class="sub">2026-07-07</p>
+<p>信任情報不該只有人看得懂。這一階段 TrustForge 打開了一道新的門：<b>讓 AI 助理也能直接、正確地讀懂我們的信任判斷</b>——而且是以「不會被誤用」的方式打開。</p>
+
+<h3>1. 給 AI 的一頁說明書</h3>
+<ul>
+<li>TrustForge 現在提供一份 <b>公開的 <code>/llms.txt</code></b>——專門寫給 AI 助理看的一頁指南：這個產品在做什麼、有哪些資料介面、每個信任數字代表什麼意思、什麼情況下它會選擇「不給答案」。</li>
+<li>換句話說，一個 AI agent 不需要有人在旁邊翻譯，打開這一頁就知道怎麼正確使用 TrustForge 的信任情報。</li>
+</ul>
+
+<h3>2. 一份「說到做到」的正式介面契約</h3>
+<ul>
+<li>同時提供 <b>標準的 OpenAPI 介面規格</b>（<code>/api/openapi.yaml</code>）——把每一個資料介面的欄位、格式、回應都寫成機器可讀的正式契約，逐一對照真實程式行為，不是文件寫一套、程式做另一套。</li>
+<li>最關鍵的一條契約，是我們一直堅持的誠實原則的機器版：<b>「沒有這個欄位」不等於「這項是零」</b>。當某個維度資料不足，回應裡就不會有那個數字——而不是塞一個 0 讓 AI 誤以為「查過了、確定沒問題」。這條規則被明確寫進契約，讓消費它的 AI 不會踩到「把未知當安全」的坑。</li>
+</ul>
+
+<h3>3. 差異化：信任情報，本來就該對 AI 友善</h3>
+<ul>
+<li>加密世界的資訊愈來愈多是 AI 在幫人篩選、判斷。一個「幫你判斷資訊可不可信」的工具，如果只有人類介面、AI 讀不懂，等於少了一半的用武之地。</li>
+<li>TrustForge 選擇把 AI 當作一等公民：讓它能直接接上、正確理解、誠實地知道「什麼時候該信、什麼時候資料還不夠」——這是我們認為信任情報產品該有、但目前市場上還很少見的樣子。</li>
+</ul>
+
+<p>世界級的信任情報，不只要人信得過，還要能被 AI 正確地信任與轉述。<b>把「誠實」做成連機器都不會誤讀的契約</b>，是這一階段 TrustForge 往前跨出的一步。</p>
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-07</footer>
+</div></body></html>
