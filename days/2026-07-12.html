@@ -1,0 +1,36 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 15 · 通路誠實：證明 live 走真實源 + HOYA 插口就緒；Reddit 出局 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 15 · 通路誠實：證明 live 走真實源 + HOYA 插口就緒；Reddit 出局</h2>
+<p class="sub">2026-07-12</p>
+<p>當 TrustForge 說某個訊號來自「真實來源」，這句話必須<b>經得起檢查</b>。這一天做的是「通路誠實」——證明 live 模式真的打的是真實 API 而非樣本、為即將到來的 HOYA BIT 行情備好插口，並且誠實地把一個接不上的來源（Reddit）明確排除，而不是含糊帶過。</p>
+
+<h3>1. 真實通路驗證：live 走的是真 API，不是樣本</h3>
+<ul>
+<li>我們<b>實際驗證</b>了新聞維度（真實 RSS，例如 CoinDesk）與監管維度（SEC EDGAR）在 live 模式下確實打的是<b>真實的外部 API</b>，而不是內建樣本。「用真資料」不是口號，是可被證明的事實。</li>
+<li>新聞維度也補上了<b>對稱的降級日誌</b>（沿用監管維度那套模式）：抓取真源失敗時會留下明確紀錄，而不是靜靜地少幾筆。</li>
+<li>還加了最小的<b>每來源通路開關</b>，預設<b>fail-closed 全開</b>——寧可保守設計，也要避免哪天誤關了一個真實來源卻沒發現。</li>
+</ul>
+
+<h3>2. HOYA BIT 插口就緒：等 spec 一到就能接真行情</h3>
+<ul>
+<li>我們先把 HOYA BIT 的連接器<b>介面與骨架（stub）</b>寫好：<b>預設關閉、標記為 sample、零外部呼叫</b>，不會在還沒對接前偷跑或偽裝有資料。</li>
+<li>如此一來，7/13 工作坊一拿到官方 API 規格，就能立刻接上真實的行情、深度與成交資料，無縫上線。</li>
+</ul>
+
+<h3>3. Reddit 出局：接不上就誠實排除，不硬撐</h3>
+<ul>
+<li>經查證，Reddit 於 2025 年 11 月實施「Responsible Builder Policy」，已<b>終止 self-service 的 API app 申請</b>（舊的建立 app 頁面失效），我們無法取得可用於正式生產的 OAuth 憑證。</li>
+<li>TrustForge <b>本來就不依賴 Reddit 作為信任訊號</b>——社群面只是可選的加分項，且雲端 IP 存取本就常被 403 而降級。因此我們選擇<b>明確排除 Reddit</b>，不讓一個接不上的來源卡住整條流程，也不假裝它還在線上。</li>
+<li>這背後是一條誠實原則的紅線：<b>先證明 live 走真實源，再談新增連接器</b>。能證明的才寫進產品，不能證明的就老實說出局。</li>
+</ul>
+
+<p>通路誠實，是信任的最後一哩路：不只算得誠實、壞了會說，連「我到底連到哪裡」都攤在陽光下。這一天，TrustForge 把「真實來源」四個字，變成了一句可以被驗證的承諾。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-12</footer>
+</div></body></html>

@@ -1,5 +1,29 @@
 [
   {
+    "date": "2026-07-12",
+    "title": "Day 15 · 通路誠實：證明 live 走真實源 + HOYA 插口就緒；Reddit 出局",
+    "file": "2026-07-12.html",
+    "summary": "通路誠實：實測證明news（真實RSS如CoinDesk）與regulatory（SEC EDGAR）live模式確實打真實API非樣本，news補對稱降級日誌、加最小per-source通路開關（fail-closed預設全開避免誤關真源）；HOYA BIT連接器interface/stub就緒（預設關、標sample、零外呼），7/13拿到官方spec即可接真行情/深度/成交；查證Reddit於2025-11實施Responsible Builder Policy終止self-service API申請，無法取得生產OAuth憑證，TrustForge不依賴Reddit（social為可選增強），明確排除不卡流程——先證明live走真實源再談新連接器。"
+  },
+  {
+    "date": "2026-07-11c",
+    "title": "Day 14 · 部署防護與限流鎖：把成本護欄焊死",
+    "file": "2026-07-11c.html",
+    "summary": "把成本與安全護欄焊死：部署gate因SSM呼叫編號漂移失效，改按內容標記搜尋讓healthz/probe閘防護復活；per-IP限流與每日Bedrock花費上限（live比免費real更緊）寫成測試鎖住防誤改放寬；請求入口凍結一次config快照（thread-local、只存雜湊不存明文token），消除同一請求前半段判live後半段判real導致真實花費被誤標免費的bug。"
+  },
+  {
+    "date": "2026-07-11b",
+    "title": "Day 13 · 可觀測性與安全網：壞了要知道、貴了要擋",
+    "file": "2026-07-11b.html",
+    "summary": "可觀測性與安全網收口：SEC EDGAR 全文檢索失敗不再靜默吞（每詞記WARNING+失敗計數+降級旗標，全詞失敗拋不可用讓上游知道是掛掉非查無），並修掉送SEC的User-Agent網域拼字錯誤；CI加Bedrock有界timeout不重試的回歸測試鎖住不燒credit，並訂pytest覆蓋率下限75%防安全線被偷拔無人知。"
+  },
+  {
+    "date": "2026-07-11",
+    "title": "Day 12 · 誠實性硬化：讓演算法不再自己騙自己",
+    "file": "2026-07-11.html",
+    "summary": "信任演算法一輪誠實性硬化：聰明錢背離改讀結構化報酬欄位、抽不到就明標無法判定不再靜默偽裝無背離；方向詞改最長優先去重消除子串誤殺、還原真正同向佐證；來源自我矛盾加24h時間窗閘，不再把跨時間窗的正常觀點演進誣告成前後矛盾。"
+  },
+  {
     "date": "2026-07-08b",
     "title": "Day 11 · 拿真的資料，用誠實的算法",
     "file": "2026-07-08b.html",
