@@ -119,6 +119,9 @@ article h2 { font-size: 1.5rem; margin-top: 0; }
 .legend { font-size: .78rem; color: var(--mut); margin: .2rem 0 1rem; }
 .legend b { color: var(--fg); }
 .legend .st { margin: 0 .15rem; }
+.todolist { list-style: none; padding-left: 0; }
+.todolist li { padding: .3rem 0; border-bottom: 1px dashed var(--bd); }
+.todolist li:last-child { border-bottom: 0; }
 article h3 { color: var(--acc); margin-top: 1.6rem; }
 article h4 { color: var(--mut); font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
   margin: 1.5rem 0 .5rem; border-left: 3px solid var(--acc); padding-left: .55rem; }

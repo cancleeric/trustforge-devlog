@@ -151,6 +151,87 @@
     <a href="https://github.com/features/actions" target="_blank" rel="noopener">github.com/features/actions</a></li>
 </ul>
 
+<h3>五、資料來源（可接入的公開資源大普查）</h3>
+<p class="sub" style="margin-top:-.4rem">原則：<b>只要是公開、能用、免費的資源都列入</b>；需要註冊 / API key 的也標出（🔑），方便評估成本。✅=已接入，📚=建議接入（未接），🔑=免費但需註冊/API key。目標是「資料要大量」——多源越廣，信任判斷越穩。</p>
+
+<h4>5.1 行情 / 價格（加密）</h4>
+<ul>
+  <li><span class="st st-done">✅ 已接</span> <b>CoinGecko</b> — 價格/情緒/市場，免費層（部分端點現需 key）。<br><a href="https://www.coingecko.com/en/api" target="_blank" rel="noopener">coingecko.com/en/api</a></li>
+  <li><span class="st st-ref">📚 免費</span> <b>CoinCap</b> — 即時行情，無 key 公開 API。<br><a href="https://coincap.io/" target="_blank" rel="noopener">coincap.io</a></li>
+  <li><span class="st st-ref">📚 免費</span> <b>CoinPaprika</b> — 行情/交易所/幣種覆蓋廣，免費 API。<br><a href="https://coinpaprika.com/" target="_blank" rel="noopener">coinpaprika.com</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>CoinMarketCap</b> — 行情/社群熱度，免費層需 key。<br><a href="https://coinmarketcap.com/api" target="_blank" rel="noopener">coinmarketcap.com/api</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>CryptoCompare</b> — 價格/新聞/社交量，免費 API key。<br><a href="https://min-api.cryptocompare.com/" target="_blank" rel="noopener">min-api.cryptocompare.com</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>Binance / Coinbase API</b> — 現價/深度/成交，免費層需 key。<br><a href="https://binance.com/en/binance-api" target="_blank" rel="noopener">binance-api</a> · <a href="https://docs.cloud.coinbase.com/" target="_blank" rel="noopener">coinbase docs</a></li>
+  <li><span class="st st-done">✅ 已接</span> <b>HOYA BIT</b> — 台灣交易所官方 OHLCV（價格真值基準）。<br><a href="https://www.hoyabit.com.tw/" target="_blank" rel="noopener">hoyabit.com.tw</a></li>
+</ul>
+
+<h4>5.2 鏈上指標 / DeFi</h4>
+<ul>
+  <li><span class="st st-done">✅ 已接</span> <b>Blockchain.com</b> — 鏈上即時指標（手續費/難度/統計）。<br><a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener">blockchain.com/explorer</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>Etherscan API</b> — 以太系鏈上數據，免費 key。<br><a href="https://etherscan.io/apis" target="_blank" rel="noopener">etherscan.io/apis</a></li>
+  <li><span class="st st-ref">🔑 需帳號</span> <b>Dune Analytics</b> — SQL 查鏈上/DeFi 數據，免費帳號+有限查詢。<br><a href="https://dune.com/" target="_blank" rel="noopener">dune.com</a></li>
+  <li><span class="st st-ref">📚 免費</span> <b>The Graph</b> — 去中心化鏈上索引，公開 endpoint 免 key。<br><a href="https://thegraph.com/" target="_blank" rel="noopener">thegraph.com</a></li>
+  <li><span class="st st-ref">📚 免費</span> <b>DeFiLlama</b> — TVL/協議數據，API 免 key。<br><a href="https://defillama.com/" target="_blank" rel="noopener">defillama.com</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>Messari / Coin Metrics / Glassnode</b> — 機構級鏈上指標，皆有免費層（需 key/帳號）。<br><a href="https://messari.io/api" target="_blank" rel="noopener">messari.io/api</a> · <a href="https://coinmetrics.io/" target="_blank" rel="noopener">coinmetrics.io</a> · <a href="https://glassnode.com/" target="_blank" rel="noopener">glassnode.com</a></li>
+  <li><span class="st st-ref">🔑 需帳號</span> <b>Token Terminal</b> — 協議財務指標，免費層需帳號。<br><a href="https://tokenterminal.com/" target="_blank" rel="noopener">tokenterminal.com</a></li>
+</ul>
+
+<h4>5.3 新聞 / 情緒 / 事實查核</h4>
+<ul>
+  <li><span class="st st-done">✅ 已接</span> <b>Cointelegraph</b> — 加密新聞（多源交叉比對之一）。<br><a href="https://cointelegraph.com/" target="_blank" rel="noopener">cointelegraph.com</a></li>
+  <li><span class="st st-ref">📚 免費</span> <b>RSS（CoinDesk / Cointelegraph / 各媒體）</b> — 真實 RSS feed，無 key，最適合「證明 live 走真實源」。<br><a href="https://www.coindesk.com/" target="_blank" rel="noopener">coindesk.com</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>NewsAPI / CryptoPanic</b> — 新聞聚合+社群情緒，免費層需 key。<br><a href="https://newsapi.org/" target="_blank" rel="noopener">newsapi.org</a> · <a href="https://cryptopanic.com/" target="_blank" rel="noopener">cryptopanic.com</a></li>
+  <li><span class="st st-ref">🔑 需 key</span> <b>Google Fact Check Tools API</b> — 第三方事實查核聲明庫，新聞可信度的免費（需 key）利器。<br><a href="https://developers.google.com/fact-check/tools/api" target="_blank" rel="noopener">Google Fact Check API</a></li>
+  <li><span class="st st-ref">🔑 需帳號</span> <b>BlockTempo 動區</b> — 台灣在地加密媒體。<br><a href="https://www.blocktempo.com/" target="_blank" rel="noopener">blocktempo.com</a></li>
+  <li><span class="st st-excluded">⛔ 已排除</span> <b>Reddit</b> — self-service API 終止，接不上。<br><a href="https://www.reddit.com/dev/api/" target="_blank" rel="noopener">reddit.com/dev/api</a></li>
+</ul>
+
+<h4>5.4 監管 / 合規（全球 + 台灣）</h4>
+<ul>
+  <li><span class="st st-done">✅ 已接</span> <b>SEC EDGAR（美國）</b> — 上市櫃申報全文檢索。<br><a href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">sec.gov/edgar/search</a></li>
+  <li><span class="st st-ref">📚 建議</span> <b>ESMA（歐盟）/ FCA（英國）/ MAS（新加坡）</b> — 主要監管機構的加密/揭露框架與資料。<br><a href="https://www.esma.europa.eu/" target="_blank" rel="noopener">esma.europa.eu</a> · <a href="https://www.fca.org.uk/" target="_blank" rel="noopener">fca.org.uk</a> · <a href="https://www.mas.gov.sg/" target="_blank" rel="noopener">mas.gov.sg</a></li>
+  <li><span class="st st-ref">📚 建議</span> <b>MOPS / 金管會 FSC / TWSE / TPEx（台灣）</b> — 見下方「待辦：接台灣監管源」。<br><a href="https://mops.twse.com.tw/" target="_blank" rel="noopener">mops.twse.com.tw</a> · <a href="https://www.fsc.gov.tw/" target="_blank" rel="noopener">fsc.gov.tw</a></li>
+</ul>
+
+<h4>5.5 學術資料集 / 基準（可拿來訓練或評測）</h4>
+<ul>
+  <li><span class="st st-ref">📚 基準</span> <b>TruthfulQA</b> — LLM 事實性基準。<br><a href="https://arxiv.org/abs/2109.07958" target="_blank" rel="noopener">arXiv:2109.07958</a></li>
+  <li><span class="st st-ref">📚 資料集</span> <b>FakeNewsNet / LIAR</b> — 假新聞/說法真偽標註。<br><a href="https://arxiv.org/abs/1809.01286" target="_blank" rel="noopener">arXiv:1809.01286</a></li>
+  <li><span class="st st-ref">📚 資料集</span> <b>Bitcoin OTC 信任網路（Ellis et al.）</b> — 多源信譽/圖信任經典資料集。<br><a href="https://snap.stanford.edu/data/soc-sign-bitcoin-otc.html" target="_blank" rel="noopener">Stanford SNAP</a></li>
+  <li><span class="st st-ref">📚 資料集</span> <b>BitcoinHeist / Crypto pump-dump 資料集</b> — 鏈上洗錢與泵坑行為標註。<br><a href="https://www.kaggle.com/datasets" target="_blank" rel="noopener">Kaggle</a></li>
+  <li><span class="st st-ref">🔑 需帳號</span> <b>Kaggle Datasets / Hugging Face Datasets</b> — 金融/情緒/鏈上公開資料集集散地（免費帳號）。<br><a href="https://www.kaggle.com/" target="_blank" rel="noopener">kaggle.com</a> · <a href="https://huggingface.co/datasets" target="_blank" rel="noopener">huggingface.co/datasets</a></li>
+</ul>
+
+<h3>六、技術社群 / 研究平台</h3>
+<ul>
+  <li><span class="st st-ref">📚 社群</span> <b>arXiv（cs.CR / cs.CL / cs.AI / q-fin）</b> — 信任/金融/LLM 最新預印本。<br><a href="https://arxiv.org/" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li><span class="st st-ref">📚 平台</span> <b>Papers with Code</b> — 論文+實作+SOTA 對齊。<br><a href="https://paperswithcode.com/" target="_blank" rel="noopener">paperswithcode.com</a></li>
+  <li><span class="st st-ref">📚 問答</span> <b>StackExchange（Ethereum / Bitcoin / Cross Validated）</b> — 實作與統計疑難。<br><a href="https://ethereum.stackexchange.com/" target="_blank" rel="noopener">ethereum.stackexchange.com</a></li>
+  <li><span class="st st-ref">📚 社群</span> <b>Reddit r/cryptocurrency、r/Bitcoin；Discord/Telegram 各幣社群</b> — 社群情緒與早期訊號（Reddit API 已不可用，改用 RSS/爬蟲需合規）。</li>
+  <li><span class="st st-ref">📚 清單</span> <b>GitHub Awesome 系列</b> — awesome-cryptocurrency, awesome-trust-score, awesome-llm, awesome-fact-checking。<br><a href="https://github.com/sindresorhus/awesome" target="_blank" rel="noopener">github.com/sindresorhus/awesome</a></li>
+</ul>
+
+<h3>七、大廠實作細節 / API 文件（對齊產業做法）</h3>
+<ul>
+  <li><span class="st st-done">✅ 已接</span> <b>AWS Bedrock（Claude Sonnet 4.6）</b> — 語意矛盾判斷特徵。<br><a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener">aws.amazon.com/bedrock</a></li>
+  <li><span class="st st-ref">📚 文件</span> <b>OpenAI / Anthropic 文件</b> — 事實性/工具呼叫/評測做法參考。<br><a href="https://platform.openai.com/docs" target="_blank" rel="noopener">platform.openai.com/docs</a> · <a href="https://docs.anthropic.com/" target="_blank" rel="noopener">docs.anthropic.com</a></li>
+  <li><span class="st st-ref">📚 文件</span> <b>LangChain / LlamaIndex</b> — RAG 檢索增強實作範式（我們目前從 API 抓真源，未用向量庫）。<br><a href="https://python.langchain.com/" target="_blank" rel="noopener">python.langchain.com</a> · <a href="https://docs.llamaindex.ai/" target="_blank" rel="noopener">docs.llamaindex.ai</a></li>
+  <li><span class="st st-ref">🔑 文件</span> <b>Pinecone / Weaviate / Qdrant</b> — 向量資料庫，若要做神經 RAG 檢索的可選基礎（免費層需帳號）。<br><a href="https://www.pinecone.io/" target="_blank" rel="noopener">pinecone.io</a> · <a href="https://weaviate.io/" target="_blank" rel="noopener">weaviate.io</a></li>
+  <li><span class="st st-ref">📚 文件</span> <b>Google Fact Check / Knowledge Graph API</b> — 事實查核的工程參考。<br><a href="https://developers.google.com/fact-check/tools/api" target="_blank" rel="noopener">Google Fact Check API</a></li>
+</ul>
+
+<h3>八、待辦：接台灣監管源</h3>
+<p class="sub" style="margin-top:-.4rem">對一個 HOYA BIT（台灣交易所）命題的產品，監管維度只接 SEC EDGAR 是缺口。下列為接入台灣對等來源的具體待辦（產品側執行，主 repo 處理；此處留作追蹤）：</p>
+<ul class="todolist">
+  <li>☐ 調查 <b>MOPS 公開資訊觀測站</b> 是否有可用數據介面（爬蟲/開放資料），對齊 SEC EDGAR 全文檢索做法</li>
+  <li>☐ 盤點 <b>金管會 FSC</b> 虛擬通貨 VASP 名單與警示清單，作為「合規/風險」維度來源</li>
+  <li>☐ 評估 <b>TWSE / TPEx</b> 公開揭露（上市櫃加密相關業務揭露）能否自動擷取</li>
+  <li>☐ 接入 <b>BlockTempo 動區</b> 等台灣在地媒體 RSS，補新聞維度的在地來源</li>
+  <li>☐ 建立「台灣監管」維度與既有多維信任雷達的對接（誠實標註資料不足時留白）</li>
+  <li>☐ 驗證台灣源 live 模式確實打真實介面（沿用「證明 live 走真實源」的對稱降級日誌與 fail-closed 開關）</li>
+  <li>☐ 更新本參考頁狀態：MOPS/FSC/TWSE 由 📚 建議接入 → ✅ 已接</li>
+</ul>
+
 <p>方法論上，我們不盲目套用單一論文：同源只算一票、資料不足就棄權不硬給數、動態信譽用先驗保留避免少數源被放大——這些都是把學術真理發現「誠實地」落到產品上的工程選擇。</p>
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· 參考資料頁</footer>
