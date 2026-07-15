@@ -84,6 +84,16 @@ a:hover { text-decoration: underline; }
 .entry .tag:hover { background: rgba(247,120,186,.18); }
 .empty { text-align: center; color: var(--mut); padding: 2.5rem 0; }
 
+/* pager */
+.pager { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; justify-content: center; margin: 1.4rem 0 .4rem; }
+.pg { cursor: pointer; font: inherit; font-size: .85rem; padding: .4rem .7rem; border-radius: 8px;
+  border: 1px solid var(--bd); background: var(--card); color: var(--fg); transition: all .12s; }
+.pg:hover:not(:disabled):not(.ell) { border-color: var(--acc); }
+.pg.active { background: var(--acc); border-color: var(--acc); color: #04101f; font-weight: 600; }
+.pg:disabled { opacity: .4; cursor: not-allowed; }
+.pg.ell { border: 0; background: none; cursor: default; }
+.pg-info { font-size: .78rem; color: var(--mut); margin-left: .5rem; }
+
 hr { border: 0; border-top: 1px solid var(--bd); margin: 1.6rem 0; }
 
 /* day page */
