@@ -10,132 +10,133 @@
 
 <h3>一、學術方法 / 論文（信任提煉的許多面向）</h3>
 <p class="sub" style="margin-top:-.4rem">TrustForge 的「多源信任提煉」橫跨多個研究領域。以下按<strong>面向</strong>整理我們所參考／對齊的方法論。連結均為公開可驗證資源（arXiv / DOI / Google Scholar），未直接實作的方法也列出其脈絡，方便讀者追溯我們的設計依據。</p>
+<p class="legend"><b>圖例：</b><span class="st st-done">✅ 已實作/上線</span> <span class="st st-research">🔬 研究中(已寫未上線)</span> <span class="st st-ref">📚 方法論/概念參考</span> <span class="st st-excluded">⛔ 已排除</span></p>
 
 <h4>1. 真理發現 · 多源衝突聚合（Truth Discovery）</h4>
 <ul>
-  <li><b>Dawid–Skene (1979)</b> — 最大似然估計觀察者錯誤率，眾源信譽推斷的奠基方法；我們以 EM 離線兜底實作動態信譽收斂。<br><a href="https://doi.org/10.1093/biomet/63.1.83" target="_blank" rel="noopener">doi:10.1093/biomet/63.1.83</a> · <a href="https://scholar.google.com/scholar?q=Dawid+Skene+Maximum+Likelihood+Estimation+Observer+Error-Rates" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Yin et al. (2008)</b> — Truth Discovery with Multiple Conflicting Information Providers on the Web (ICDE)，Copy-Resolved Truth Discovery 一脈。<br><a href="https://scholar.google.com/scholar?q=Truth+Discovery+Multiple+Conflicting+Information+Providers+Web" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Li et al. (2014)</b> — Conflicts to Harmony: Resolving Conflicts in Heterogeneous Data by Truth Discovery (CATD, IEEE TKDE)。<br><a href="https://scholar.google.com/scholar?q=Conflicts+to+Harmony+Truth+Discovery+Heterogeneous+Data" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Dong et al. (2009)</b> — A Bayesian Approach to Discovering Truth from Conflicting Sources (Invest, PVLDB)。<br><a href="https://scholar.google.com/scholar?q=Bayesian+Approach+Discovering+Truth+Conflicting+Sources" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Wang et al. (2016)</b> — Latent Truth Model (LTM, KDD)，以潛變數建模來源可靠度。<br><a href="https://scholar.google.com/scholar?q=Latent+Truth+Model+KDD+2016" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Pasternack &amp; Roth (2010)</b> — Knowing What to Believe: A Truth Logic (ACCU, KDD)。<br><a href="https://scholar.google.com/scholar?q=Knowing+What+to+Believe+Truth+Logic+KDD+2010" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Pasternack &amp; Roth (2013)</b> — Latent Credibility Analysis (WWW)。<br><a href="https://scholar.google.com/scholar?q=Latent+Credibility+Analysis+WWW+2013" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Ma et al. (2013)</b> — FaitCrowd: Crowd-Based Factual Knowledge Discovery (SIGMOD)。<br><a href="https://scholar.google.com/scholar?q=FaitCrowd+Crowd+Based+Factual+Knowledge+Discovery" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Truth Discovery Algorithms: An Experimental Evaluation (TKDE 2018)</b> — 各真理發現演算法的實證比較基準。<br><a href="https://scholar.google.com/scholar?q=Truth+Discovery+Algorithms+Experimental+Evaluation" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-done">✅ 已實作</span> <b>Dawid–Skene (1979)</b> — 最大似然估計觀察者錯誤率，眾源信譽推斷的奠基方法；我們以 EM 離線兜底實作動態信譽收斂。<br><a href="https://doi.org/10.1093/biomet/63.1.83" target="_blank" rel="noopener">doi:10.1093/biomet/63.1.83</a> · <a href="https://scholar.google.com/scholar?q=Dawid+Skene+Maximum+Likelihood+Estimation+Observer+Error-Rates" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Yin et al. (2008)</b> — Truth Discovery with Multiple Conflicting Information Providers on the Web (ICDE)，Copy-Resolved Truth Discovery 一脈。<br><a href="https://scholar.google.com/scholar?q=Truth+Discovery+Multiple+Conflicting+Information+Providers+Web" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Li et al. (2014)</b> — Conflicts to Harmony: Resolving Conflicts in Heterogeneous Data by Truth Discovery (CATD, IEEE TKDE)。<br><a href="https://scholar.google.com/scholar?q=Conflicts+to+Harmony+Truth+Discovery+Heterogeneous+Data" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Dong et al. (2009)</b> — A Bayesian Approach to Discovering Truth from Conflicting Sources (Invest, PVLDB)。<br><a href="https://scholar.google.com/scholar?q=Bayesian+Approach+Discovering+Truth+Conflicting+Sources" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Wang et al. (2016)</b> — Latent Truth Model (LTM, KDD)，以潛變數建模來源可靠度。<br><a href="https://scholar.google.com/scholar?q=Latent+Truth+Model+KDD+2016" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Pasternack &amp; Roth (2010)</b> — Knowing What to Believe: A Truth Logic (ACCU, KDD)。<br><a href="https://scholar.google.com/scholar?q=Knowing+What+to+Believe+Truth+Logic+KDD+2010" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Pasternack &amp; Roth (2013)</b> — Latent Credibility Analysis (WWW)。<br><a href="https://scholar.google.com/scholar?q=Latent+Credibility+Analysis+WWW+2013" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Ma et al. (2013)</b> — FaitCrowd: Crowd-Based Factual Knowledge Discovery (SIGMOD)。<br><a href="https://scholar.google.com/scholar?q=FaitCrowd+Crowd+Based+Factual+Knowledge+Discovery" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Truth Discovery Algorithms: An Experimental Evaluation (TKDE 2018)</b> — 各真理發現演算法的實證比較基準。<br><a href="https://scholar.google.com/scholar?q=Truth+Discovery+Algorithms+Experimental+Evaluation" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>2. 來源信譽 · 動態權重 · 聲譽系統</h4>
 <ul>
-  <li><b>Kamvar et al. (2003)</b> — EigenTrust: 對等網路的分散式聲譽機制 (WWW)。<br><a href="https://scholar.google.com/scholar?q=EigenTrust+Reputation+Peer+to+Peer+Networks" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Resnick et al. (2000)</b> — Reputation systems (CACM)，聲譽系統的經典綜述。<br><a href="https://scholar.google.com/scholar?q=Reputation+systems+Resnick+Zeckhauser+Friedman" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Jøsang et al. (2007)</b> — A survey of trust and reputation systems for online service provision (Annals of TISC)。<br><a href="https://scholar.google.com/scholar?q=survey+trust+reputation+systems+online+service+provision" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Kamvar et al. (2003)</b> — EigenTrust: 對等網路的分散式聲譽機制 (WWW)。<br><a href="https://scholar.google.com/scholar?q=EigenTrust+Reputation+Peer+to+Peer+Networks" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Resnick et al. (2000)</b> — Reputation systems (CACM)，聲譽系統的經典綜述。<br><a href="https://scholar.google.com/scholar?q=Reputation+systems+Resnick+Zeckhauser+Friedman" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Jøsang et al. (2007)</b> — A survey of trust and reputation systems for online service provision (Annals of TISC)。<br><a href="https://scholar.google.com/scholar?q=survey+trust+reputation+systems+online+service+provision" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>3. 信任校準 · 不確定性量化（Calibration / Uncertainty）</h4>
 <ul>
-  <li><b>Guo et al. (2017)</b> — On Calibration of Modern Neural Networks (ICML)；我們的「資訊完整度」分層對齊此精神。<br><a href="https://arxiv.org/abs/1706.04599" target="_blank" rel="noopener">arXiv:1706.04599</a></li>
-  <li><b>Niculescu-Mizil &amp; Caruana (2005)</b> — Predicting Good Probabilities with Supervised Learning (ICML，Platt scaling 基準)。<br><a href="https://scholar.google.com/scholar?q=Predicting+Good+Probabilities+Supervised+Learning+Platt+Scaling" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Kuleshov et al. (2018)</b> — Accurate Uncertainties for Deep Learning via Distribution Distillation。<br><a href="https://arxiv.org/abs/1806.10909" target="_blank" rel="noopener">arXiv:1806.10909</a></li>
-  <li><b>Lakshminarayanan et al. (2017)</b> — Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles (NeurIPS)。<br><a href="https://arxiv.org/abs/1612.01474" target="_blank" rel="noopener">arXiv:1612.01474</a></li>
-  <li><b>Ovadia et al. (2019)</b> — Can you trust your model's uncertainty? (NeurIPS)。<br><a href="https://arxiv.org/abs/1906.02530" target="_blank" rel="noopener">arXiv:1906.02530</a></li>
+  <li><span class="st st-research">🔬 研究中(未上線)</span> <b>Guo et al. (2017)</b> — On Calibration of Modern Neural Networks (ICML)；我們的「資訊完整度」分層對齊此精神。<br><a href="https://arxiv.org/abs/1706.04599" target="_blank" rel="noopener">arXiv:1706.04599</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Niculescu-Mizil &amp; Caruana (2005)</b> — Predicting Good Probabilities with Supervised Learning (ICML，Platt scaling 基準)。<br><a href="https://scholar.google.com/scholar?q=Predicting+Good+Probabilities+Supervised+Learning+Platt+Scaling" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Kuleshov et al. (2018)</b> — Accurate Uncertainties for Deep Learning via Distribution Distillation。<br><a href="https://arxiv.org/abs/1806.10909" target="_blank" rel="noopener">arXiv:1806.10909</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Lakshminarayanan et al. (2017)</b> — Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles (NeurIPS)。<br><a href="https://arxiv.org/abs/1612.01474" target="_blank" rel="noopener">arXiv:1612.01474</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Ovadia et al. (2019)</b> — Can you trust your model's uncertainty? (NeurIPS)。<br><a href="https://arxiv.org/abs/1906.02530" target="_blank" rel="noopener">arXiv:1906.02530</a></li>
 </ul>
 
 <h4>4. LLM 事實性 · 幻覺 · 檢索增強（Factuality / Hallucination / RAG）</h4>
 <ul>
-  <li><b>Lin, Hilton &amp; Evans (2022)</b> — TruthfulQA: 測量語言模型是否模仿人類誤判 (ACL)。<br><a href="https://arxiv.org/abs/2109.07958" target="_blank" rel="noopener">arXiv:2109.07958</a></li>
-  <li><b>Asai et al. (2023)</b> — Self-RAG: 透過自我反思檢索增強生成 (EMNLP)。<br><a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener">arXiv:2310.11511</a></li>
-  <li><b>Lewis et al. (2020)</b> — Retrieval-Augmented Generation for Knowledge-Intensive NLP (NeurIPS, RAG)。<br><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">arXiv:2005.11401</a></li>
-  <li><b>Huang et al. (2023)</b> — A Survey on Hallucination in Large Language Models。<br><a href="https://arxiv.org/abs/2309.01219" target="_blank" rel="noopener">arXiv:2309.01219</a></li>
-  <li><b>Zhao et al. (2023)</b> — A Survey of Large Language Models (可信度/對齊章節)。<br><a href="https://arxiv.org/abs/2303.18223" target="_blank" rel="noopener">arXiv:2303.18223</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Lin, Hilton &amp; Evans (2022)</b> — TruthfulQA: 測量語言模型是否模仿人類誤判 (ACL)。<br><a href="https://arxiv.org/abs/2109.07958" target="_blank" rel="noopener">arXiv:2109.07958</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Asai et al. (2023)</b> — Self-RAG: 透過自我反思檢索增強生成 (EMNLP)。<br><a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener">arXiv:2310.11511</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Lewis et al. (2020)</b> — Retrieval-Augmented Generation for Knowledge-Intensive NLP (NeurIPS, RAG)。<br><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">arXiv:2005.11401</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Huang et al. (2023)</b> — A Survey on Hallucination in Large Language Models。<br><a href="https://arxiv.org/abs/2309.01219" target="_blank" rel="noopener">arXiv:2309.01219</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Zhao et al. (2023)</b> — A Survey of Large Language Models (可信度/對齊章節)。<br><a href="https://arxiv.org/abs/2303.18223" target="_blank" rel="noopener">arXiv:2303.18223</a></li>
 </ul>
 
 <h4>5. 情感分析 · 社群情緒（Sentiment / Social）</h4>
 <ul>
-  <li><b>Hutto &amp; Gilbert (2014)</b> — VADER: 社群媒體情感分析 (AAAI ICWSM)。<br><a href="https://scholar.google.com/scholar?q=VADER+Sentiment+Analysis+Social+Media+Hutto+Gilbert" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Araci (2019)</b> — FinBERT: 金融領域情感模型。<br><a href="https://arxiv.org/abs/1908.10063" target="_blank" rel="noopener">arXiv:1908.10063</a></li>
-  <li><b>加密市場情緒－價格 研究脈絡</b> — 社群情緒與價格動量的相關文獻。<br><a href="https://scholar.google.com/scholar?q=cryptocurrency+social+media+sentiment+price+movement" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Hutto &amp; Gilbert (2014)</b> — VADER: 社群媒體情感分析 (AAAI ICWSM)。<br><a href="https://scholar.google.com/scholar?q=VADER+Sentiment+Analysis+Social+Media+Hutto+Gilbert" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Araci (2019)</b> — FinBERT: 金融領域情感模型。<br><a href="https://arxiv.org/abs/1908.10063" target="_blank" rel="noopener">arXiv:1908.10063</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>加密市場情緒－價格 研究脈絡</b> — 社群情緒與價格動量的相關文獻。<br><a href="https://scholar.google.com/scholar?q=cryptocurrency+social+media+sentiment+price+movement" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>6. 鏈上指標 · 市場效率（On-chain / Market）</h4>
 <ul>
-  <li><b>Narayanan et al. (2016)</b> — Bitcoin and Cryptocurrency Technologies（普林斯頓免費線上教科書）。<br><a href="https://bitcoinbook.cs.princeton.edu/" target="_blank" rel="noopener">bitcoinbook.cs.princeton.edu</a></li>
-  <li><b>Fama (1970)</b> — Efficient Capital Markets: 效率市場假說 (EMH, JFE)。<br><a href="https://scholar.google.com/scholar?q=Efficient+Capital+Markets+A+Review+of+Theory+Empirical+Work+Fama" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>鏈上指標研究脈絡</b> — 手續費 / 難度 / 活躍地址等鏈上訊號與價格的相關文獻。<br><a href="https://scholar.google.com/scholar?q=on-chain+metrics+bitcoin+price+correlation" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Narayanan et al. (2016)</b> — Bitcoin and Cryptocurrency Technologies（普林斯頓免費線上教科書）。<br><a href="https://bitcoinbook.cs.princeton.edu/" target="_blank" rel="noopener">bitcoinbook.cs.princeton.edu</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Fama (1970)</b> — Efficient Capital Markets: 效率市場假說 (EMH, JFE)。<br><a href="https://scholar.google.com/scholar?q=Efficient+Capital+Markets+A+Review+of+Theory+Empirical+Work+Fama" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>鏈上指標研究脈絡</b> — 手續費 / 難度 / 活躍地址等鏈上訊號與價格的相關文獻。<br><a href="https://scholar.google.com/scholar?q=on-chain+metrics+bitcoin+price+correlation" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>7. 操縱 · 協同 · 泵坑檢測（Manipulation / Coordination / Pump-Dump）</h4>
 <ul>
-  <li><b>Xu &amp; Livshits (2019)</b> — The Anatomy of a Cryptocurrency Pump-and-Dump Scheme (USENIX WOOT)。<br><a href="https://arxiv.org/abs/1811.10109" target="_blank" rel="noopener">arXiv:1811.10109</a></li>
-  <li><b>協同行為檢測脈絡</b> — 社群媒體協同操縱 / 資訊作戰的識別文獻（我們「疑似協同」中性提示的依據）。<br><a href="https://scholar.google.com/scholar?q=coordinated+behavior+detection+social+media+manipulation" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>Sybil / 垃圾來源</b> — 偽造來源與女巫攻擊防禦（見 EigenTrust 聲譽一脈）。<br><a href="https://scholar.google.com/scholar?q=sybil+attack+defense+reputation" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Xu &amp; Livshits (2019)</b> — The Anatomy of a Cryptocurrency Pump-and-Dump Scheme (USENIX WOOT)。<br><a href="https://arxiv.org/abs/1811.10109" target="_blank" rel="noopener">arXiv:1811.10109</a></li>
+  <li><span class="st st-research">🔬 研究中(未上線)</span> <b>協同行為檢測脈絡</b> — 社群媒體協同操縱 / 資訊作戰的識別文獻（我們「疑似協同」中性提示的依據）。<br><a href="https://scholar.google.com/scholar?q=coordinated+behavior+detection+social+media+manipulation" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Sybil / 垃圾來源</b> — 偽造來源與女巫攻擊防禦（見 EigenTrust 聲譽一脈）。<br><a href="https://scholar.google.com/scholar?q=sybil+attack+defense+reputation" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>8. 新聞可信度 · 假新聞（News Credibility / Fake News）</h4>
 <ul>
-  <li><b>Shu et al. (2018)</b> — FakeNewsNet: 假新聞檢測資料集與基準 (ICDM)。<br><a href="https://arxiv.org/abs/1809.01286" target="_blank" rel="noopener">arXiv:1809.01286</a></li>
-  <li><b>Wang (2017)</b> — LIAR: 語法層級假新聞標註資料集 (TACL)。<br><a href="https://scholar.google.com/scholar?q=LIAR+Dataset+Media+Bias+Fact+Check" target="_blank" rel="noopener">Google Scholar</a></li>
-  <li><b>多源可信度</b> — 跨源交叉驗證提升新聞可信度判斷的文獻。<br><a href="https://scholar.google.com/scholar?q=multi-source+credibility+fake+news+detection" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Shu et al. (2018)</b> — FakeNewsNet: 假新聞檢測資料集與基準 (ICDM)。<br><a href="https://arxiv.org/abs/1809.01286" target="_blank" rel="noopener">arXiv:1809.01286</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Wang (2017)</b> — LIAR: 語法層級假新聞標註資料集 (TACL)。<br><a href="https://scholar.google.com/scholar?q=LIAR+Dataset+Media+Bias+Fact+Check" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-done">✅ 已實作</span> <b>多源可信度</b> — 跨源交叉驗證提升新聞可信度判斷的文獻。<br><a href="https://scholar.google.com/scholar?q=multi-source+credibility+fake+news+detection" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h4>9. 可解釋 · 溯源（Explainability / Provenance）</h4>
 <ul>
-  <li><b>Ribeiro et al. (2016)</b> — "Why Should I Trust You?": LIME 局部可解釋模型 (KDD)。<br><a href="https://arxiv.org/abs/1602.04938" target="_blank" rel="noopener">arXiv:1602.04938</a></li>
-  <li><b>Lundberg &amp; Lee (2017)</b> — A Unified Approach to Interpreting Model Predictions (SHAP, NeurIPS)。<br><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener">arXiv:1705.07874</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Ribeiro et al. (2016)</b> — "Why Should I Trust You?": LIME 局部可解釋模型 (KDD)。<br><a href="https://arxiv.org/abs/1602.04938" target="_blank" rel="noopener">arXiv:1602.04938</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Lundberg &amp; Lee (2017)</b> — A Unified Approach to Interpreting Model Predictions (SHAP, NeurIPS)。<br><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener">arXiv:1705.07874</a></li>
 </ul>
 
 <h4>10. 統計基礎 · 多數決（Statistical Foundations）</h4>
 <ul>
-  <li><b>Condorcet's Jury Theorem</b> — 多獨立判斷者多數決的統計基礎（我們「同源只算一票」的對照）。<br><a href="https://en.wikipedia.org/wiki/Condorcet%27s_jury_theorem" target="_blank" rel="noopener">Wikipedia</a></li>
-  <li><b>Grofman et al. (1983)</b> — Judgmental Competence: 多數決與專家判斷的聚合。<br><a href="https://scholar.google.com/scholar?q=Judgmental+Competence+Information+Pooling+Grofman" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Condorcet's Jury Theorem</b> — 多獨立判斷者多數決的統計基礎（我們「同源只算一票」的對照）。<br><a href="https://en.wikipedia.org/wiki/Condorcet%27s_jury_theorem" target="_blank" rel="noopener">Wikipedia</a></li>
+  <li><span class="st st-ref">📚 方法論參考</span> <b>Grofman et al. (1983)</b> — Judgmental Competence: 多數決與專家判斷的聚合。<br><a href="https://scholar.google.com/scholar?q=Judgmental+Competence+Information+Pooling+Grofman" target="_blank" rel="noopener">Google Scholar</a></li>
 </ul>
 
 <h3>二、產業大廠 / 真實資料源（我們實際接入或對齊的）</h3>
 <ul>
-  <li><b>HOYA BIT（颯倍斯）</b> — 黑客松命題方；官方 OHLCV 為我們的價格真值基準。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>HOYA BIT（颯倍斯）</b> — 黑客松命題方；官方 OHLCV 為我們的價格真值基準。<br>
     <a href="https://www.hoyabit.com.tw/" target="_blank" rel="noopener">hoyabit.com.tw</a></li>
-  <li><b>CoinGecko</b> — 價格 / 情緒 / 市場數據 API（我們的多源行情與冷卻協調來源）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>CoinGecko</b> — 價格 / 情緒 / 市場數據 API（我們的多源行情與冷卻協調來源）。<br>
     <a href="https://www.coingecko.com/en/api" target="_blank" rel="noopener">coingecko.com/en/api</a></li>
-  <li><b>SEC EDGAR</b> — 美國證管會全文檢索（監管維度的真實申報來源，如 Bitcoin ETF / 上市公司持幣揭露）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>SEC EDGAR</b> — 美國證管會全文檢索（監管維度的真實申報來源，如 Bitcoin ETF / 上市公司持幣揭露）。<br>
     <a href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">sec.gov/edgar/search</a></li>
-  <li><b>Blockchain.com</b> — 鏈上即時指標（手續費 / 難度 / 鏈上統計）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>Blockchain.com</b> — 鏈上即時指標（手續費 / 難度 / 鏈上統計）。<br>
     <a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener">blockchain.com/explorer</a></li>
-  <li><b>Cointelegraph</b> — 加密新聞來源（多源交叉比對之一）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>Cointelegraph</b> — 加密新聞來源（多源交叉比對之一）。<br>
     <a href="https://cointelegraph.com/" target="_blank" rel="noopener">cointelegraph.com</a></li>
-  <li><b>Reddit</b> — 社群維度（經查證已終止 self-service API，TrustForge 明確排除，不卡流程）。<br>
+  <li><span class="st st-excluded">⛔ 已排除(接不上)</span> <b>Reddit</b> — 社群維度（經查證已終止 self-service API，TrustForge 明確排除，不卡流程）。<br>
     <a href="https://www.reddit.com/dev/api/" target="_blank" rel="noopener">reddit.com/dev/api</a></li>
 </ul>
 
 <h3>三、基礎設施 / 模型</h3>
 <ul>
-  <li><b>AWS Bedrock — Claude Sonnet 4.6</b> — 語意矛盾判斷（僅當特徵，最終信任分由自家確定性公式產生，守反作弊）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>AWS Bedrock — Claude Sonnet 4.6</b> — 語意矛盾判斷（僅當特徵，最終信任分由自家確定性公式產生，守反作弊）。<br>
     <a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener">aws.amazon.com/bedrock</a></li>
-  <li><b>GitHub Pages</b> — 本開發記錄的靜態託管（entries.json 為客戶端可查詢資料集）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>GitHub Pages</b> — 本開發記錄的靜態託管（entries.json 為客戶端可查詢資料集）。<br>
     <a href="https://pages.github.com/" target="_blank" rel="noopener">pages.github.com</a></li>
-  <li><b>SQLite</b> — 開發記錄的來源真相資料庫（build_db.py 由 DB 生成靜態站）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>SQLite</b> — 開發記錄的來源真相資料庫（build_db.py 由 DB 生成靜態站）。<br>
     <a href="https://www.sqlite.org/" target="_blank" rel="noopener">sqlite.org</a></li>
 </ul>
 
 <h3>四、選定技術 / 技術堆疊（TrustForge 實際採用）</h3>
 <ul>
-  <li><b>Python 3（後端，以標準庫為主）</b> — 信任評分、多源攝取、Hermes 自主改進框架的核心。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>Python 3（後端，以標準庫為主）</b> — 信任評分、多源攝取、Hermes 自主改進框架的核心。<br>
     <a href="https://www.python.org/" target="_blank" rel="noopener">python.org</a></li>
-  <li><b>TypeScript + React（前端）</b> — 專業金融情報儀表板（信任雷達 / 星系總覽 / 多幣總覽）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>TypeScript + React（前端）</b> — 專業金融情報儀表板（信任雷達 / 星系總覽 / 多幣總覽）。<br>
     <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener">typescriptlang.org</a> · <a href="https://react.dev/" target="_blank" rel="noopener">react.dev</a></li>
-  <li><b>Vite + Vitest</b> — 前端建構與單元測試。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>Vite + Vitest</b> — 前端建構與單元測試。<br>
     <a href="https://vitejs.dev/" target="_blank" rel="noopener">vitejs.dev</a> · <a href="https://vitest.dev/" target="_blank" rel="noopener">vitest.dev</a></li>
-  <li><b>pytest</b> — 後端回歸 / 反作弊 / 成本鎖測試，並設覆蓋率下限。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>pytest</b> — 後端回歸 / 反作弊 / 成本鎖測試，並設覆蓋率下限。<br>
     <a href="https://docs.pytest.org/" target="_blank" rel="noopener">docs.pytest.org</a></li>
-  <li><b>AWS App Runner</b> — 後端服務部署（apprunner.yaml）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>AWS App Runner</b> — 後端服務部署（apprunner.yaml）。<br>
     <a href="https://aws.amazon.com/apprunner/" target="_blank" rel="noopener">aws.amazon.com/apprunner</a></li>
-  <li><b>AWS Systems Manager (SSM) + EventBridge</b> — 部署防護閘與 Hermes cycle 定時排程。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>AWS Systems Manager (SSM) + EventBridge</b> — 部署防護閘與 Hermes cycle 定時排程。<br>
     <a href="https://aws.amazon.com/systems-manager/" target="_blank" rel="noopener">aws.amazon.com/systems-manager</a> · <a href="https://aws.amazon.com/eventbridge/" target="_blank" rel="noopener">aws.amazon.com/eventbridge</a></li>
-  <li><b>SQLite</b> — 快取、永久成本帳本與租約、開發記錄來源真相。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>SQLite</b> — 快取、永久成本帳本與租約、開發記錄來源真相。<br>
     <a href="https://www.sqlite.org/" target="_blank" rel="noopener">sqlite.org</a></li>
-  <li><b>nginx</b> — 前端靜態服務與零停機切流（host-wide flock 防競爭）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>nginx</b> — 前端靜態服務與零停機切流（host-wide flock 防競爭）。<br>
     <a href="https://nginx.org/" target="_blank" rel="noopener">nginx.org</a></li>
-  <li><b>Docker</b> — 服務容器化（Dockerfile）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>Docker</b> — 服務容器化（Dockerfile）。<br>
     <a href="https://www.docker.com/" target="_blank" rel="noopener">docker.com</a></li>
-  <li><b>GitHub Actions</b> — CI（部署健康監控、release smoke、覆蓋率門）。<br>
+  <li><span class="st st-done">✅ 已實作</span> <b>GitHub Actions</b> — CI（部署健康監控、release smoke、覆蓋率門）。<br>
     <a href="https://github.com/features/actions" target="_blank" rel="noopener">github.com/features/actions</a></li>
 </ul>
 

@@ -109,6 +109,16 @@ hr { border: 0; border-top: 1px solid var(--bd); margin: 1.6rem 0; }
 
 /* day page */
 article h2 { font-size: 1.5rem; margin-top: 0; }
+
+/* references status badges + legend (references.html) */
+.st { display: inline-block; font-size: .68rem; font-weight: 600; padding: .05rem .45rem; border-radius: 999px; margin-right: .4rem; vertical-align: middle; border: 1px solid; }
+.st-done { color: var(--good); border-color: var(--good); background: rgba(63,185,80,.1); }
+.st-research { color: var(--warn); border-color: var(--warn); background: rgba(210,153,34,.1); }
+.st-ref { color: var(--mut); border-color: var(--bd); background: var(--card); }
+.st-excluded { color: #f85149; border-color: #f85149; background: rgba(248,81,73,.1); }
+.legend { font-size: .78rem; color: var(--mut); margin: .2rem 0 1rem; }
+.legend b { color: var(--fg); }
+.legend .st { margin: 0 .15rem; }
 article h3 { color: var(--acc); margin-top: 1.6rem; }
 article h4 { color: var(--mut); font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
   margin: 1.5rem 0 .5rem; border-left: 3px solid var(--acc); padding-left: .55rem; }
