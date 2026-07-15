@@ -4,32 +4,109 @@
 <link rel="stylesheet" href="style.css">
 </head><body><div class="wrap">
 <header>
-  <h1><span class="tf">TrustForge</span> 開發記錄 <span style="font-size:.5em;vertical-align:middle;padding:.15em .55em;border:1px solid var(--mut,#888);border-radius:.5em;color:var(--mut,#888);font-weight:normal;letter-spacing:.03em">v0.14.15</span></h1>
+  <h1><span class="tf">TrustForge</span> 開發記錄 <span style="font-size:.5em;vertical-align:middle;padding:.15em .55em;border:1px solid var(--mut,#888);border-radius:.5em;color:var(--mut,#888);font-weight:normal;letter-spacing:.03em" id="ver">…</span></h1>
   <p class="sub">加密市場分析 AI Agent — 多源資訊的信任提煉｜2026 雲湧智生黑客松 · HOYA BIT 命題</p>
-  <p><a href="https://trustforge.hurricanesoft.com.tw/" target="_blank" rel="noopener" style="display:inline-block;padding:.45em 1em;background:var(--tf,#4a86e8);color:#fff;border-radius:.5em;text-decoration:none;font-weight:600">▶ Live Demo（HTTPS）</a></p>
+  <div class="cta">
+    <a class="primary" href="https://trustforge.hurricanesoft.com.tw/" target="_blank" rel="noopener">▶ Live Demo（HTTPS）</a>
+    <a href="https://github.com/cancleeric/trustforge" target="_blank" rel="noopener">⌥ 原始碼（私有）</a>
+  </div>
   <p class="badges">
     <span>AWS Bedrock (Claude Sonnet 4.6)</span><span>Python stdlib</span>
     <span>多源整合 + 信任評分 + 溯源</span><span>HurricaneSoft</span>
   </p>
 </header>
-<hr>
-<h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄</h3>
-<div id="entries">載入中…</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <input class="search" id="search" type="search" placeholder="搜尋開發記錄（標題 / 摘要 / 標籤）…" autocomplete="off">
+  <div class="chips" id="cats"></div>
+  <div class="active-tags" id="activeTags"></div>
+</div>
+
+<h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄（時間軸）</h3>
+<div class="entries" id="entries">載入中…</div>
+
 <footer>
   TrustForge by HurricaneSoft（颶風軟體）· 本站僅記錄開發歷程,原始碼為私有 repo。<br>
-  命題:加密市場分析 AI Agent — 多源資訊的信任提煉。
+  命題:加密市場分析 AI Agent — 多源資訊的信任提煉。資料層 <code>entries.json</code> 為可查詢結構化資料集。
 </footer>
 </div>
+
 <script>
-fetch('entries.json?_=' + Date.now()).then(r=>r.json()).then(list=>{
-  const el = document.getElementById('entries');
-  if(!list.length){el.textContent='尚無記錄';return;}
-  el.innerHTML = list.map(e =>
-    `<a class="entry" href="days/${e.file}">
-       <div class="date">${e.date}</div>
-       <div class="title">${e.title}</div>
-       <div class="summary">${e.summary}</div>
-     </a>`).join('');
-}).catch(()=>{document.getElementById('entries').textContent='無法載入記錄';});
+const state = { q: "", cat: "全部", tags: new Set() };
+
+fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
+  const meta = data.meta || {};
+  const list = (data.entries || []).slice();
+  document.getElementById('ver').textContent = meta.version || "";
+
+  // stats
+  const days = new Set(list.map(e => e.date)).size;
+  const span = meta.first_date && meta.last_date
+    ? Math.round((new Date(meta.last_date) - new Date(meta.first_date)) / 864e5) + 1 : "—";
+  document.getElementById('stats').innerHTML = [
+    ["篇", list.length], ["開發天", days], ["版本", (meta.version || "—").replace(/^v/, "")],
+    ["跨度(天)", span]
+  ].map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // category chips
+  const cats = ["全部", ...(meta.categories || [...new Set(list.map(e => e.category))])];
+  const catEl = document.getElementById('cats');
+  catEl.innerHTML = cats.map(c =>
+    `<span class="chip${c === state.cat ? ' active' : ''}" data-cat="${c}">${c}</span>`).join('');
+  catEl.addEventListener('click', e => {
+    const c = e.target.dataset.cat; if (!c) return;
+    state.cat = c;
+    [...catEl.children].forEach(x => x.classList.toggle('active', x.dataset.cat === c));
+    render();
+  });
+
+  function renderTags() {
+    const el = document.getElementById('activeTags');
+    el.innerHTML = state.tags.size
+      ? '已選標籤: ' + [...state.tags].map(t => `<span class="t">#${t}</span>`).join(' ') + '（點下方標籤或此處文字清除）'
+      : '';
+    el.onclick = () => { state.tags.clear(); render(); };
+  }
+
+  function render() {
+    renderTags();
+    const q = state.q.trim().toLowerCase();
+    const out = list.filter(e => {
+      if (state.cat !== "全部" && e.category !== state.cat) return false;
+      if (state.tags.size && !(e.tags || []).some(t => state.tags.has(t))) return false;
+      if (q) {
+        const hay = (e.title + ' ' + e.summary + ' ' + (e.tags || []).join(' ')).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    const box = document.getElementById('entries');
+    if (!out.length) { box.innerHTML = '<div class="empty">沒有符合的開發記錄。</div>'; return; }
+    box.innerHTML = out.map(e => {
+      const dn = e.day != null ? `Day ${e.day}` : '';
+      const tags = (e.tags || []).map(t =>
+        `<span class="tag" data-tag="${t}">#${t}</span>`).join('');
+      const cat = e.category ? `<span class="cat">${e.category}</span>` : '';
+      return `<a class="entry" href="days/${e.file}">
+        <div class="day"><div class="dn">${dn.replace('Day ', '')}</div><div class="dl">DAY</div></div>
+        <h3 class="title">${e.title}</h3>
+        <div class="meta">${cat}<span class="date">${e.date}</span></div>
+        <p class="summary">${e.summary}</p>
+        <div class="tags">${tags}</div>
+      </a>`;
+    }).join('');
+    box.querySelectorAll('.tag').forEach(t => t.onclick = ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      const tg = t.dataset.tag;
+      state.tags.has(tg) ? state.tags.delete(tg) : state.tags.add(tg);
+      render();
+    });
+  }
+
+  document.getElementById('search').addEventListener('input', e => { state.q = e.target.value; render(); });
+  render();
+}).catch(() => { document.getElementById('entries').textContent = '無法載入記錄'; });
 </script>
 </body></html>

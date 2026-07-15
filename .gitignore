@@ -1,0 +1,5 @@
+.DS_Store
+.claude/
+devlog.db
+__pycache__/
+*.pyc
