@@ -1,7 +1,13 @@
 <!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TrustForge — 開發記錄</title>
+<meta name="description" content="TrustForge 開發記錄：加密市場分析 AI Agent（HOYA BIT 黑客松）的多源信任提煉開發歷程、方法論與參考資料。">
+<meta property="og:title" content="TrustForge — 開發記錄">
+<meta property="og:description" content="加密市場分析 AI Agent 的多源信任提煉開發歷程、方法論與參考資料。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cancleeric.github.io/trustforge-devlog/">
 <link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/atom+xml" title="TrustForge 開發記錄" href="feed.xml">
 </head><body><div class="wrap">
 <header>
   <h1><span class="tf">TrustForge</span> 開發記錄 <span style="font-size:.5em;vertical-align:middle;padding:.15em .55em;border:1px solid var(--mut,#888);border-radius:.5em;color:var(--mut,#888);font-weight:normal;letter-spacing:.03em" id="ver">…</span></h1>
@@ -9,6 +15,8 @@
   <div class="cta">
     <a class="primary" href="https://trustforge.hurricanesoft.com.tw/" target="_blank" rel="noopener">▶ Live Demo（HTTPS）</a>
     <a href="https://github.com/cancleeric/trustforge" target="_blank" rel="noopener">⌥ 原始碼（私有）</a>
+    <a href="references.html">📚 參考資料 / 技術堆疊</a>
+    <a href="feed.xml">⊕ RSS (Atom)</a>
   </div>
   <p class="badges">
     <span>AWS Bedrock (Claude Sonnet 4.6)</span><span>Python stdlib</span>
@@ -26,6 +34,7 @@
 </div>
 
 <h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄（時間軸）</h3>
+<div class="cloud" id="cloud"></div>
 <div class="entries" id="entries">載入中…</div>
 <div class="pager" id="pager"></div>
 
@@ -52,6 +61,22 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     ["篇", list.length], ["開發天", days], ["版本", (meta.version || "—").replace(/^v/, "")],
     ["跨度(天)", span]
   ].map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // tag cloud (frequency based)
+  const freq = {};
+  list.forEach(e => (e.tags || []).forEach(t => freq[t] = (freq[t] || 0) + 1));
+  const maxF = Math.max(1, ...Object.values(freq));
+  const cloudEl = document.getElementById('cloud');
+  cloudEl.innerHTML = Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([t, c]) => {
+    const sz = 0.72 + 0.5 * (c / maxF);
+    const on = state.tags.has(t);
+    return `<span class="cloud-tag${on ? ' on' : ''}" data-tag="${t}" style="font-size:${sz.toFixed(2)}rem">#${t}</span>`;
+  }).join('');
+  cloudEl.querySelectorAll('.cloud-tag').forEach(x => x.onclick = () => {
+    const t = x.dataset.tag;
+    state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t);
+    state.page = 1; render();
+  });
 
   // category chips
   const cats = ["全部", ...(meta.categories || [...new Set(list.map(e => e.category))])];
@@ -100,7 +125,18 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     });
   }
 
+  function hl(s) {
+    s = String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const q = state.q.trim();
+    if (q) {
+      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      s = s.replace(re, m => `<mark>${m}</mark>`);
+    }
+    return s;
+  }
+
   function render() {
+    selIdx = 0;
     renderTags();
     const out = filtered();
     const totalPages = Math.max(1, Math.ceil(out.length / PAGE_SIZE));
@@ -115,11 +151,11 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
         const dn = e.day != null ? `Day ${e.day}` : '';
         const tags = (e.tags || []).map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('');
         const cat = e.category ? `<span class="cat">${e.category}</span>` : '';
-        return `<a class="entry" href="days/${e.file}">
+        return `<a class="entry" href="days/${e.file}" data-href="days/${e.file}">
           <div class="day"><div class="dn">${dn.replace('Day ', '')}</div><div class="dl">DAY</div></div>
-          <h3 class="title">${e.title}</h3>
+          <h3 class="title">${hl(e.title)}</h3>
           <div class="meta">${cat}<span class="date">${e.date}</span></div>
-          <p class="summary">${e.summary}</p>
+          <p class="summary">${hl(e.summary)}</p>
           <div class="tags">${tags}</div>
         </a>`;
       }).join('');
@@ -157,9 +193,30 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
+    markSel(false);
   }
 
   document.getElementById('search').addEventListener('input', e => { state.q = e.target.value; state.page = 1; render(); });
+
+  // keyboard shortcuts: / focus search, j/k move, Enter open
+  let selIdx = 0;
+  function markSel(scroll) {
+    const cards = [...document.querySelectorAll('#entries .entry')];
+    cards.forEach((c, i) => c.classList.toggle('sel', i === selIdx));
+    if (scroll !== false && cards[selIdx]) cards[selIdx].scrollIntoView({ block: 'nearest' });
+  }
+  document.addEventListener('keydown', e => {
+    const inSearch = document.activeElement === document.getElementById('search');
+    if (e.key === '/' && !inSearch) { e.preventDefault(); document.getElementById('search').focus(); return; }
+    if (e.key === 'Escape' && inSearch) { document.getElementById('search').blur(); state.q = ''; state.page = 1; render(); return; }
+    if (inSearch) return;
+    const cards = [...document.querySelectorAll('#entries .entry')];
+    if (!cards.length) return;
+    if (e.key === 'j') { selIdx = Math.min(cards.length - 1, selIdx + 1); markSel(); e.preventDefault(); }
+    else if (e.key === 'k') { selIdx = Math.max(0, selIdx - 1); markSel(); e.preventDefault(); }
+    else if (e.key === 'Enter') { const a = cards[selIdx]; if (a) location.href = a.getAttribute('href'); }
+  });
+
   render();
 }).catch(() => { document.getElementById('entries').textContent = '無法載入記錄'; });
 </script>

@@ -84,6 +84,17 @@ a:hover { text-decoration: underline; }
 .entry .tag:hover { background: rgba(247,120,186,.18); }
 .empty { text-align: center; color: var(--mut); padding: 2.5rem 0; }
 
+/* tag cloud */
+.cloud { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 1.1rem; }
+.cloud-tag { cursor: pointer; user-select: none; color: var(--pink); background: rgba(247,120,186,.07);
+  border: 1px solid rgba(247,120,186,.22); border-radius: 999px; padding: .1rem .6rem; line-height: 1.5; transition: all .12s; }
+.cloud-tag:hover { background: rgba(247,120,186,.18); }
+.cloud-tag.on { background: var(--pink); color: #1a0a14; border-color: var(--pink); }
+
+/* search highlight + keyboard selection */
+mark { background: rgba(210,153,34,.35); color: inherit; border-radius: 3px; padding: 0 1px; }
+.entry.sel { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+
 /* pager */
 .pager { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; justify-content: center; margin: 1.4rem 0 .4rem; }
 .pg { cursor: pointer; font: inherit; font-size: .85rem; padding: .4rem .7rem; border-radius: 8px;
@@ -114,3 +125,23 @@ td, th { border: 1px solid var(--bd); padding: .4rem .6rem; text-align: left; }
     padding: 0 0 .5rem; margin-bottom: .4rem; }
   .entry .day .dn { font-size: 1.2rem; }
 }
+
+/* day-page nav / toc / related (day-common.js) */
+.dn-navbar { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin: .4rem 0 1.4rem; }
+.dn-nav { display: flex; gap: .5rem; align-items: center; padding: .6rem .8rem; border: 1px solid var(--bd);
+  border-radius: 10px; background: var(--card); color: var(--mut); font-size: .8rem; transition: border-color .15s; }
+.dn-nav.next { justify-content: flex-end; text-align: right; }
+.dn-nav:hover { border-color: var(--acc); text-decoration: none; color: var(--fg); }
+.dn-nav .dn-dir { font-size: 1.2rem; color: var(--acc); }
+.dn-nav .dn-t b { color: var(--fg); font-weight: 600; }
+.toc { margin: 1rem 0 1.2rem; border: 1px solid var(--bd); border-radius: 10px; background: var(--card); padding: .6rem .9rem; }
+.toc summary { cursor: pointer; color: var(--acc); font-size: .9rem; }
+.toc ol { margin: .5rem 0 0; padding-left: 1.2rem; }
+.toc li { margin: .2rem 0; }
+.toc a { color: var(--mut); font-size: .88rem; }
+.toc a:hover { color: var(--fg); }
+.dn-related { margin-top: 2rem; border-top: 1px solid var(--bd); padding-top: 1rem; }
+.dn-related h3 { color: var(--acc); font-size: 1rem; }
+.dn-related ul { padding-left: 1.1rem; }
+.dn-related li { margin: .35rem 0; }
+.dn-cat { font-size: .7rem; color: var(--good); border: 1px solid var(--good); border-radius: 999px; padding: 0 .45rem; margin-left: .3rem; }

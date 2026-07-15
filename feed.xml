@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>TrustForge 開發記錄</title>
+  <id>https://cancleeric.github.io/trustforge-devlog/</id>
+  <updated>2026-07-15T00:00:00+08:00</updated>
+  <author><name>HurricaneSoft（颶風軟體）</name></author>
+  <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
+  <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
+  <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 16 · Hermes Galaxy dashboard 完成 + bridge HUD 深化 + 全站誠實態</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-15.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-15.html"/>
+    <updated>2026-07-15T00:00:00+08:00</updated>
+    <published>2026-07-15T00:00:00+08:00</published>
+    <summary>完成 Hermes Galaxy dashboard 與 bridge HUD 深化；工作區產品化（響應式 + 本地化 + BridgeWorkspaceShell 元件化）；Analyze/Compare/Costs/History/Status 全站接入資訊完整度分層與信任溯源。</summary>
+    <category term="Hermes"/>
+  </entry>
+  <entry>
+    <title>Day 15 · 穩定性大爆發：零停機部署 + Hermes 星系 redesign + v0.13→v0.14.6</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-14.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-14.html"/>
+    <updated>2026-07-14T00:00:00+08:00</updated>
+    <published>2026-07-14T00:00:00+08:00</published>
+    <summary>生產防護焊死：零停機部署驗證、成本/限流鎖、永久帳本與租約；HERMES 整站暗色星系 redesign + Galaxy dashboard + 響應式工作區；自動化改進量測與歷史重放；同日連發 v0.13.0 至 v0.14.6 皆附生產驗證證據。</summary>
+    <category term="生產穩定"/>
+  </entry>
+  <entry>
+    <title>Day 14 · Hermes 自主改進框架 + 誠實收口 + secops 審計</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-13.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-13.html"/>
+    <updated>2026-07-13T00:00:00+08:00</updated>
+    <published>2026-07-13T00:00:00+08:00</published>
+    <summary>建立 Hermes 自主改進框架與可觀察執行工作流、五年 OHLCV 譜系釘死；Dawid-Skene EM 離線兜底讓動態信譽收斂可解釋；Evidence Trail Cards 溯源概覽 + 離散分層評分 UI；secops/netops 硬化審計通過並修正過度宣稱話術。</summary>
+    <category term="Hermes"/>
+  </entry>
+  <entry>
+    <title>Day 13 · 通路誠實：證明 live 走真實源 + HOYA 插口就緒；Reddit 出局</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-12.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-12.html"/>
+    <updated>2026-07-12T00:00:00+08:00</updated>
+    <published>2026-07-12T00:00:00+08:00</published>
+    <summary>通路誠實：實測證明news（真實RSS如CoinDesk）與regulatory（SEC EDGAR）live模式確實打真實API非樣本，news補對稱降級日誌、加最小per-source通路開關（fail-closed預設全開避免誤關真源）；HOYA BIT連接器interface/stub就緒（預設關、標sample、零外呼），7/13拿到官方spec即可接真行情/深度/成交；查證Reddit於2025-11實施Responsible Builder Policy終止self-service API申請，無法取得生產OAuth憑證，TrustForge不依賴Reddit（social為可選增強），明確排除不卡流程——先證明live走真實源再談新連接器。</summary>
+    <category term="誠實性"/>
+  </entry>
+  <entry>
+    <title>Day 12 · 部署防護與限流鎖：把成本護欄焊死</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-11c.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-11c.html"/>
+    <updated>2026-07-11T00:00:00+08:00</updated>
+    <published>2026-07-11T00:00:00+08:00</published>
+    <summary>把成本與安全護欄焊死：部署gate因SSM呼叫編號漂移失效，改按內容標記搜尋讓healthz/probe閘防護復活；per-IP限流與每日Bedrock花費上限（live比免費real更緊）寫成測試鎖住防誤改放寬；請求入口凍結一次config快照（thread-local、只存雜湊不存明文token），消除同一請求前半段判live後半段判real導致真實花費被誤標免費的bug。</summary>
+    <category term="部署營運"/>
+  </entry>
+  <entry>
+    <title>Day 12 · 可觀測性與安全網：壞了要知道、貴了要擋</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-11b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-11b.html"/>
+    <updated>2026-07-11T00:00:00+08:00</updated>
+    <published>2026-07-11T00:00:00+08:00</published>
+    <summary>可觀測性與安全網收口：SEC EDGAR 全文檢索失敗不再靜默吞（每詞記WARNING+失敗計數+降級旗標，全詞失敗拋不可用讓上游知道是掛掉非查無），並修掉送SEC的User-Agent網域拼字錯誤；CI加Bedrock有界timeout不重試的回歸測試鎖住不燒credit，並訂pytest覆蓋率下限75%防安全線被偷拔無人知。</summary>
+    <category term="生產穩定"/>
+  </entry>
+  <entry>
+    <title>Day 12 · 誠實性硬化：讓演算法不再自己騙自己</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-11.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-11.html"/>
+    <updated>2026-07-11T00:00:00+08:00</updated>
+    <published>2026-07-11T00:00:00+08:00</published>
+    <summary>信任演算法一輪誠實性硬化：聰明錢背離改讀結構化報酬欄位、抽不到就明標無法判定不再靜默偽裝無背離；方向詞改最長優先去重消除子串誤殺、還原真正同向佐證；來源自我矛盾加24h時間窗閘，不再把跨時間窗的正常觀點演進誣告成前後矛盾。</summary>
+    <category term="誠實性"/>
+  </entry>
+  <entry>
+    <title>Day 11 · 拿真的資料，用誠實的算法</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-08b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-08b.html"/>
+    <updated>2026-07-08T00:00:00+08:00</updated>
+    <published>2026-07-08T00:00:00+08:00</published>
+    <summary>監管維度接上 SEC 全文檢索：撈真實加密相關申報(Bitcoin ETF/上市公司持幣揭露)，過去常查無、現在有紮實素材；每筆標出命中關鍵詞讓你看得出為何相關。獨立來源算法收緊：同源不管出現幾次只算一票，真正獨立的聲音才算數——同源反覆發聲時更果斷選擇資料不足暫不判斷。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 10 · 信任雷達，刻度誠實、跨幣可比</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-08.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-08.html"/>
+    <updated>2026-07-08T00:00:00+08:00</updated>
+    <published>2026-07-08T00:00:00+08:00</published>
+    <summary>多維度信任雷達改用固定絕對 0-100% 刻度：每個維度畫在真實位置（50%就在半徑一半）、忠實反映信任強弱；同一維度可跨幣直接公平比較（A幣鏈上 vs B幣鏈上用同一把尺）；資料不足維度依然誠實留白。呈現的誠實再進一步。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 9 · 讓 AI 也讀得懂：把誠實做成機器契約</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-07.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-07.html"/>
+    <updated>2026-07-07T00:00:00+08:00</updated>
+    <published>2026-07-07T00:00:00+08:00</published>
+    <summary>打開 AI 友善介面：公開 /llms.txt（給 AI 助理的一頁指南）+ OpenAPI 正式介面規格，逐一對照真實程式；最關鍵契約「缺欄位≠零」——資料不足就不給數字，不讓 AI 把未知當安全。信任情報對 AI 一等公民。</summary>
+    <category term="基礎建設"/>
+  </entry>
+  <entry>
+    <title>Day 8 · 把話說準：資訊完整度、一致的主角數字、誠實的趨勢</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-06b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-06b.html"/>
+    <updated>2026-07-06T00:00:00+08:00</updated>
+    <published>2026-07-06T00:00:00+08:00</published>
+    <summary>圍繞誠實呈現的三項改進：信心分數正名為「資訊完整度」（衡量資訊充足度非預測把握）、首頁內頁主角數字統一口徑、分析頁嵌入信任趨勢且缺資料時老實標「較前次快照」不假裝較昨日。</summary>
+    <category term="誠實性"/>
+  </entry>
+  <entry>
+    <title>Day 7 · 排行榜與操縱風險徽章：把誠實做成產品</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-06.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-06.html"/>
+    <updated>2026-07-06T00:00:00+08:00</updated>
+    <published>2026-07-06T00:00:00+08:00</published>
+    <summary>首頁跨幣信任排行+三級操縱風險徽章：風險看最嚴重訊號不被平均稀釋、資料不足明示「未評分」；防重複執行覆蓋所有入口、常用查詢預先備料更快、存取憑證不再進網址。</summary>
+    <category term="產品體驗"/>
+  </entry>
+  <entry>
+    <title>Day 6 · 開大招前先繫安全帶：防重複執行與每日花費上限</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-05.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-05.html"/>
+    <updated>2026-07-05T00:00:00+08:00</updated>
+    <published>2026-07-05T00:00:00+08:00</published>
+    <summary>為全面開啟真 AI 分析做的可靠性工程：同一問題短時間重複送出只認真執行一次、AI 呼叫加每日花費上限、亮暗主題切換、上線流程整輪強化。</summary>
+    <category term="生產穩定"/>
+  </entry>
+  <entry>
+    <title>Day 5 · 誠實的獨立來源計數與更值得信任的體驗</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-04b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-04b.html"/>
+    <updated>2026-07-04T00:00:00+08:00</updated>
+    <published>2026-07-04T00:00:00+08:00</published>
+    <summary>同一家媒體多篇報導不再灌水成多個獨立來源；TrustForge 也換上正式網址與加密連線，操作更順、更安心。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 5 · 信任不只一個數字：多維度信任雷達</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-04.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-04.html"/>
+    <updated>2026-07-04T00:00:00+08:00</updated>
+    <published>2026-07-04T00:00:00+08:00</published>
+    <summary>把可信度拆開給你看:①多維度信任雷達——同一份分析按來源類型拆成新聞信任/鏈上信任/社群信任/監管信任/價格信任各自一個分數,一眼看出這個判斷是靠什麼在撐(新聞面一致?鏈上數據強?還是只有社群在喊),每維標幾個來源幾筆證據可回溯;同樣一個中性背後結構完全不同,雷達讓你看見結構不只結論 ②只有一張嘴的維度誠實標⚠單一來源+說明不等於多來源交叉驗證,不把單一說法包裝成眾口一致 ③沒資料的維度直接顯示無資料不硬給篤定數字,會誠實承認哪裡沒看到的工具更值得信。信任從一個數字變成一張看得懂結構的雷達。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 4 · 來源有名有臉、多源夠多、系統學會信誰</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-03c.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-03c.html"/>
+    <updated>2026-07-03T00:00:00+08:00</updated>
+    <published>2026-07-03T00:00:00+08:00</published>
+    <summary>把可信度往更深更誠實推:①每個來源有名有臉——證據清單從工程代號(coingecko-sentiment/ohlcv-csv)換成品牌名+原廠LOGO(CoinGecko/Blockchain.com/Reddit/CoinTelegraph/HOYA BIT官方OHLCV),一眼知道是誰說的+屬哪層(官方/第三方/社群),五幣也掛官方LOGO ②多源真的夠多源——新聞2家擴到十多家+更多鏈上即時指標(手續費/難度/鏈上統計),一次分析十幾個相異源交叉比對,每筆經嚴格資料品質把關壞資料絕不覆蓋好資料 ③系統開始記住誰值得信——動態來源信譽:反覆被獨立來源印證就調高信任權重,透明可展開(維持先驗/被N源互證上調)非黑箱。看得清來源+蒐得夠廣+會學習誰值得信。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 4 · 多幣信任總覽：打開就給你一個可信度全景</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-03b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-03b.html"/>
+    <updated>2026-07-03T00:00:00+08:00</updated>
+    <published>2026-07-03T00:00:00+08:00</published>
+    <summary>把「打開就懂、一眼看全局」做到位:①首頁多幣信任總覽——BTC/ETH/SOL/BNB/XRP五幣信任分卡(信任分/方向/校準信心與決策狀態/時間戳),背景排程真實分析快照非樣本,開站零等待卻真資料 ②預設就是真資料(多源真來源真評分可回溯零成本),差異化直接可見 ③誠實時效:官方歷史基準價(標涵蓋日)與即時現價(真API標取得時間)並列各帶時間戳,不用會失準的近兩週 ④系統自己也透明(排程/鮮度/成本/版本+每張卡可追溯哪輪快照)。從輸入才有輸出→打開就給可信度全景。</summary>
+    <category term="產品體驗"/>
+  </entry>
+  <entry>
+    <title>Day 4 · 從功能到產品：讓第一眼就像世界級</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-03.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-03.html"/>
+    <updated>2026-07-03T00:00:00+08:00</updated>
+    <published>2026-07-03T00:00:00+08:00</published>
+    <summary>回答一個更誠實的問題:打開第一眼像不像世界級產品?①首頁從空白表單→有定位+怎麼運作三步驟+範例入口的產品 ②真資料流更穩更乾淨(修復新聞源連線、優化即時價節流、更多真源乾淨流入,對外抓取嚴格安全檢查只連白名單擋內部位址) ③誠實面對時間(不用會失準的'近兩週',標明各幣基準日期+即時現價並列各標時間戳) ④讓真資料成預設體驗(核心差異化不藏參數後,示範樣本退為可選) ⑤成本與系統狀態全透明(token進出/換算成本/連接器用量/快取節省+系統狀態頁)。世界級不只演算法深,是第一眼就讓人願意相信。</summary>
+    <category term="產品體驗"/>
+  </entry>
+  <entry>
+    <title>Day 3 · 世界級深度與介面：誠實判斷 + 頂級操作台</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-02.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-02.html"/>
+    <updated>2026-07-02T00:00:00+08:00</updated>
+    <published>2026-07-02T00:00:00+08:00</published>
+    <summary>把產品推進到頂級分析終端:①更誠實的判斷力——信心綜合獨立來源數/佐證/反方算證據強度,分正常/低信心/棄權三態,資料不足就明說「不足以判斷」而非硬給方向 ②更即時真資料——現價+24h變動補鮮度、群眾情緒投票、開發活躍度,全免費零成本 ③抗操縱透明化——多源雷同文案標示「疑似協同供判讀」中性提示但不自動扣分(相似≠操縱,合法聯播也相似) ④頂級操作台——信任儀表+分項WHY、跨源分歧誠實標來源數(非假百分比)、來源權威/獨立標籤、推理鏈+運行統計 ⑤系統狀態頁——各源健康鮮度/排程/成本/版本模式全透明。</summary>
+    <category term="產品體驗"/>
+  </entry>
+  <entry>
+    <title>Day 2 · 第二階段 — 真資料上線：真連接器 + 快取 + 商業儀表板</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-01-p2.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-01-p2.html"/>
+    <updated>2026-07-01T00:00:00+08:00</updated>
+    <published>2026-07-01T00:00:00+08:00</published>
+    <summary>把產品從離線示範推進到真實資料：直接接真加密新聞/鏈上/社群/監管來源+官方HOYA價格,信任層作用在真資料上。免費API靠背景定時抓取+雲端快取(自動過期),使用者從快取讀、不打爆來源;信任評分是自家確定性演算法免大型模型→真資料路徑零成本。介面升級為專業金融情報儀表板(信任儀表+四分項WHY+跨源分歧卡+資料透明)。v0.4.0 上線固定網址。</summary>
+    <category term="基礎建設"/>
+  </entry>
+  <entry>
+    <title>Day 2 — 信任層深化：從「字面重疊」到「讀懂語意」</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-01.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-01.html"/>
+    <updated>2026-07-01T00:00:00+08:00</updated>
+    <published>2026-07-01T00:00:00+08:00</published>
+    <summary>深化產品核心信任層：讓它分辨『用詞相近、立場相反』的來源——用 AWS Bedrock 基礎模型判斷主張間是支持/矛盾/無關，矛盾來源不計入佐證；判斷只當一個特徵，最終信任分數仍由自家公式產生（守反作弊）；結構化輸出+快取確保離線可重現。</summary>
+    <category term="信任演算法"/>
+  </entry>
+  <entry>
+    <title>Day 1 — 從零到公開 Live Demo on AWS</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-06-30.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-06-30.html"/>
+    <updated>2026-06-30T00:00:00+08:00</updated>
+    <published>2026-06-30T00:00:00+08:00</published>
+    <summary>建立 repo、對齊 HOYA BIT 官方命題、接官方 OHLCV、三層信任架構(可回溯+反方證據)、離線產出 4 交付件、佈署到 AWS EC2 接通真實 Claude、公開端點安全止血。</summary>
+    <category term="基礎建設"/>
+  </entry>
+</feed>

@@ -104,6 +104,13 @@ def build():
     ENTRIES.write_text(json.dumps({"meta": meta, "entries": entries},
                                   ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"已由 {DB} 重建 entries.json（{len(entries)} 篇）")
+    try:
+        import build_feed
+        build_feed.generate()
+        import build_sitemap
+        build_sitemap.generate()
+    except Exception as ex:
+        print(f"（跳過 feed/sitemap 重建：{ex}）")
 
 
 def add(args):

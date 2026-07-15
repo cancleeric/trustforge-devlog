@@ -36,7 +36,7 @@ PAGE = """<!doctype html><html lang="zh-Hant"><head>
 {body}
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· {date}</footer>
-</div></body></html>
+</div><script src="../day-common.js"></script></body></html>
 """
 
 
@@ -88,6 +88,13 @@ def main():
 
     ej.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"已加入 {a.date}（Day {day}）：days/{a.date}.html + entries.json（共 {len(entries)} 篇）")
+    try:
+        import build_feed
+        build_feed.generate()
+        import build_sitemap
+        build_sitemap.generate()
+    except Exception as ex:
+        print(f"（跳過 feed/sitemap 重建：{ex}）")
 
 
 if __name__ == "__main__":

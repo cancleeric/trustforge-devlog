@@ -22,15 +22,32 @@ index.html  (靜態渲染:統計/搜尋/分類與標籤篩選/時間軸)
 - `entries.json` 是結構化資料集:`{ meta:{version,total,categories,…}, entries:[{id,day,date,title,summary,category,tags,file}] }`。
 - 想接**真正動態查詢**時,把 `build` 步驟換成後端(Cloudflare Workers / TrustForge 自家 API)即時查 SQLite 回傳 JSON 即可,前端不用改。
 
+## 功能
+- **分頁**：每頁 10 筆 + 頁碼摺疊，扛住 50/100+ 筆不卡。
+- **搜尋**：即時過濾標題/摘要/標籤，命中詞 `<mark>` 高亮。
+- **篩選**：分類 chips、月份跳轉 chips、標籤雲（按頻率）、點標籤多重疊加。
+- **鍵盤快捷**：`/` 聚焦搜尋、`j/k` 上下篇、`Enter` 打開、`Esc` 清除。
+- **參考頁** `references.html`：學術論文方法 + 產業大廠真實來源 + 選定技術堆疊。
+- **每篇日誌** `day-common.js`：上一篇/下一篇時間軸導覽、文內目錄(TOC)、相關文章(共用標籤)。
+- **訂閱** `feed.xml`(Atom) + **SEO** `sitemap.xml` / `robots.txt` / OG meta。
+
 ## 結構
 ```
-index.html        首頁(JS 讀 entries.json:統計/搜尋/分類+標籤篩選/時間軸)
+index.html        首頁(統計/分頁/搜尋/分類+月份+標籤雲篩選)
 entries.json      每日索引(結構化資料集,可由 DB 生成)
 devlog.db         SQLite 來源真相(可選;build_db.py 管理)
-days/<date>.html  每日一頁
+days/<date>.html  每日一頁(自帶 day-common.js 導覽/TOC/相關)
+day-common.js     每篇日誌通用行為(客戶端,無後端)
+references.html   參考資料:論文 / 大廠來源 / 選定技術堆疊
+feed.xml          Atom 訂閱源(build_feed.py 生成)
+sitemap.xml       SEO 網址清單(build_sitemap.py 生成)
+robots.txt        指向 sitemap
 style.css         共用樣式(暗色 + 響應式)
-add_day.py        加一篇每日記錄(自動算 Day 編號 + 分類/標籤)
-build_db.py       資料庫層:init / build / add / shell
+add_day.py        加一篇每日記錄(自動算 Day 編號 + 分類/標籤,並重建 feed/sitemap)
+build_db.py       資料庫層:init / build / add / shell(並重建 feed/sitemap)
+build_feed.py     由 entries.json 生成 feed.xml
+build_sitemap.py  由 entries.json 生成 sitemap.xml
+draft_from_git.py 由 trustforge git log 半自動產生日誌草稿(按類型聚合)
 .nojekyll         停用 Jekyll(直接服務靜態檔)
 ```
 

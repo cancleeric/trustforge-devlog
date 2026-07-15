@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cancleeric.github.io/trustforge-devlog/sitemap.xml

@@ -1,0 +1,82 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>參考資料 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="style.css">
+</head><body><div class="wrap">
+<a class="back" href="index.html">← 回開發記錄首頁</a>
+<article>
+<h2>參考資料：TrustForge 的方法與產業根基</h2>
+<p class="sub">TrustForge 的「多源信任提煉」並非空談——底下是把我們的演算法接上學術方法、以及實際打的真實來源與基礎設施。連結皆為公開可驗證資源。</p>
+
+<h3>一、學術方法 / 論文（信任發現 · 校準 · 反操縱）</h3>
+<ul>
+  <li><b>Dawid–Skene (1979)</b> — 最大似然估計觀察者錯誤率，眾源信譽推斷的奠基方法。我們以 EM 離線兜底實作動態信譽收斂。<br>
+    <a href="https://doi.org/10.1093/biomet/63.1.83" target="_blank" rel="noopener">doi:10.1093/biomet/63.1.83</a> · <a href="https://scholar.google.com/scholar?q=Dawid+Skene+Maximum+Likelihood+Estimation+Observer+Error-Rates" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><b>Truth Discovery / CATD (Li et al.)</b> — 異質資料衝突和諧化的真理發現框架（Conflicts to Harmony）。<br>
+    <a href="https://scholar.google.com/scholar?q=Conflicts+to+Harmony+Truth+Discovery+Heterogeneous+Data" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><b>CRH (Yin et al., 2008)</b> — 多衝突資訊源的真相發現（Copy-Resolved Truth Discovery 一脈）。<br>
+    <a href="https://scholar.google.com/scholar?q=Truth+Discovery+Multiple+Conflicting+Information+Providers+Web" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><b>LTM — Latent Truth Model (Wang et al., KDD 2016)</b> — 以潛變數建模來源可靠度。<br>
+    <a href="https://scholar.google.com/scholar?q=Latent+Truth+Model+KDD+2016" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><b>Invest (Dong et al., PVLDB 2009)</b> — 貝氏途徑從衝突來源發現真相，真理發現經典論文。<br>
+    <a href="https://scholar.google.com/scholar?q=Bayesian+Approach+Discovering+Truth+Conflicting+Sources" target="_blank" rel="noopener">Google Scholar</a></li>
+  <li><b>Confidence Calibration — Guo et al., ICML 2017</b> — 現代神經網路校准（On Calibration of Modern Neural Networks），我們的「資訊完整度」分層對齊此精神。<br>
+    <a href="https://arxiv.org/abs/1706.04599" target="_blank" rel="noopener">arXiv:1706.04599</a></li>
+  <li><b>Manipulation / Coordination Detection</b> — 協同文案與操縱風險識別的文獻脈絡。<br>
+    <a href="https://scholar.google.com/scholar?q=cryptocurrency+social+media+manipulation+coordinated+behavior+detection" target="_blank" rel="noopener">Google Scholar</a></li>
+</ul>
+
+<h3>二、產業大廠 / 真實資料源（我們實際接入或對齊的）</h3>
+<ul>
+  <li><b>HOYA BIT（颯倍斯）</b> — 黑客松命題方；官方 OHLCV 為我們的價格真值基準。<br>
+    <a href="https://www.hoyabit.com.tw/" target="_blank" rel="noopener">hoyabit.com.tw</a></li>
+  <li><b>CoinGecko</b> — 價格 / 情緒 / 市場數據 API（我們的多源行情與冷卻協調來源）。<br>
+    <a href="https://www.coingecko.com/en/api" target="_blank" rel="noopener">coingecko.com/en/api</a></li>
+  <li><b>SEC EDGAR</b> — 美國證管會全文檢索（監管維度的真實申報來源，如 Bitcoin ETF / 上市公司持幣揭露）。<br>
+    <a href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">sec.gov/edgar/search</a></li>
+  <li><b>Blockchain.com</b> — 鏈上即時指標（手續費 / 難度 / 鏈上統計）。<br>
+    <a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener">blockchain.com/explorer</a></li>
+  <li><b>Cointelegraph</b> — 加密新聞來源（多源交叉比對之一）。<br>
+    <a href="https://cointelegraph.com/" target="_blank" rel="noopener">cointelegraph.com</a></li>
+  <li><b>Reddit</b> — 社群維度（經查證已終止 self-service API，TrustForge 明確排除，不卡流程）。<br>
+    <a href="https://www.reddit.com/dev/api/" target="_blank" rel="noopener">reddit.com/dev/api</a></li>
+</ul>
+
+<h3>三、基礎設施 / 模型</h3>
+<ul>
+  <li><b>AWS Bedrock — Claude Sonnet 4.6</b> — 語意矛盾判斷（僅當特徵，最終信任分由自家確定性公式產生，守反作弊）。<br>
+    <a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener">aws.amazon.com/bedrock</a></li>
+  <li><b>GitHub Pages</b> — 本開發記錄的靜態託管（entries.json 為客戶端可查詢資料集）。<br>
+    <a href="https://pages.github.com/" target="_blank" rel="noopener">pages.github.com</a></li>
+  <li><b>SQLite</b> — 開發記錄的來源真相資料庫（build_db.py 由 DB 生成靜態站）。<br>
+    <a href="https://www.sqlite.org/" target="_blank" rel="noopener">sqlite.org</a></li>
+</ul>
+
+<h3>四、選定技術 / 技術堆疊（TrustForge 實際採用）</h3>
+<ul>
+  <li><b>Python 3（後端，以標準庫為主）</b> — 信任評分、多源攝取、Hermes 自主改進框架的核心。<br>
+    <a href="https://www.python.org/" target="_blank" rel="noopener">python.org</a></li>
+  <li><b>TypeScript + React（前端）</b> — 專業金融情報儀表板（信任雷達 / 星系總覽 / 多幣總覽）。<br>
+    <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener">typescriptlang.org</a> · <a href="https://react.dev/" target="_blank" rel="noopener">react.dev</a></li>
+  <li><b>Vite + Vitest</b> — 前端建構與單元測試。<br>
+    <a href="https://vitejs.dev/" target="_blank" rel="noopener">vitejs.dev</a> · <a href="https://vitest.dev/" target="_blank" rel="noopener">vitest.dev</a></li>
+  <li><b>pytest</b> — 後端回歸 / 反作弊 / 成本鎖測試，並設覆蓋率下限。<br>
+    <a href="https://docs.pytest.org/" target="_blank" rel="noopener">docs.pytest.org</a></li>
+  <li><b>AWS App Runner</b> — 後端服務部署（apprunner.yaml）。<br>
+    <a href="https://aws.amazon.com/apprunner/" target="_blank" rel="noopener">aws.amazon.com/apprunner</a></li>
+  <li><b>AWS Systems Manager (SSM) + EventBridge</b> — 部署防護閘與 Hermes cycle 定時排程。<br>
+    <a href="https://aws.amazon.com/systems-manager/" target="_blank" rel="noopener">aws.amazon.com/systems-manager</a> · <a href="https://aws.amazon.com/eventbridge/" target="_blank" rel="noopener">aws.amazon.com/eventbridge</a></li>
+  <li><b>SQLite</b> — 快取、永久成本帳本與租約、開發記錄來源真相。<br>
+    <a href="https://www.sqlite.org/" target="_blank" rel="noopener">sqlite.org</a></li>
+  <li><b>nginx</b> — 前端靜態服務與零停機切流（host-wide flock 防競爭）。<br>
+    <a href="https://nginx.org/" target="_blank" rel="noopener">nginx.org</a></li>
+  <li><b>Docker</b> — 服務容器化（Dockerfile）。<br>
+    <a href="https://www.docker.com/" target="_blank" rel="noopener">docker.com</a></li>
+  <li><b>GitHub Actions</b> — CI（部署健康監控、release smoke、覆蓋率門）。<br>
+    <a href="https://github.com/features/actions" target="_blank" rel="noopener">github.com/features/actions</a></li>
+</ul>
+
+<p>方法論上，我們不盲目套用單一論文：同源只算一票、資料不足就棄權不硬給數、動態信譽用先驗保留避免少數源被放大——這些都是把學術真理發現「誠實地」落到產品上的工程選擇。</p>
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 參考資料頁</footer>
+</div></body></html>
