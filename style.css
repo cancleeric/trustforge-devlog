@@ -110,6 +110,8 @@ hr { border: 0; border-top: 1px solid var(--bd); margin: 1.6rem 0; }
 /* day page */
 article h2 { font-size: 1.5rem; margin-top: 0; }
 article h3 { color: var(--acc); margin-top: 1.6rem; }
+article h4 { color: var(--mut); font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
+  margin: 1.5rem 0 .5rem; border-left: 3px solid var(--acc); padding-left: .55rem; }
 article code { background: #21262d; padding: .1rem .35rem; border-radius: 5px; font-size: .85em; }
 article pre { background: #161b22; border: 1px solid var(--bd); border-radius: 8px; padding: .9rem; overflow: auto; }
 article ul { padding-left: 1.2rem; }
