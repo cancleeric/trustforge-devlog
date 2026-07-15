@@ -1,0 +1,35 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 18 · Hermes Galaxy dashboard 完成 + bridge HUD 深化 + 全站誠實態 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 18 · Hermes Galaxy dashboard 完成 + bridge HUD 深化 + 全站誠實態</h2>
+<p class="sub">2026-07-15</p>
+<p>這一天把 Hermes 星系操作台推到<b>可交付的精緻度</b>：完成 Galaxy dashboard 的細節打磨、深化 bridge HUD，並把工作區真正做成跨裝置、跨語言的產品級體驗。同時前端多頁同步接入信任態（資訊完整度分層 + 溯源），讓「誠實」貫穿每一個入口。</p>
+
+<h3>1. 完成 Hermes Galaxy dashboard</h3>
+<ul>
+  <li><b>完整化 Galaxy dashboard</b>：星系總覽不再是骨架，多幣信任以星座般的可視化鋪開，每個節點都可下鑽到該幣的來源結構與證據。</li>
+  <li><b>深化 bridge HUD</b>：跨幣/跨源橋接狀態從單一指標升級為多維 HUD，一眼看見哪些橋接在線、哪些退化、退化的原因是否誠實標出。</li>
+</ul>
+
+<h3>2. 工作區產品化：響應式 + 本地化</h3>
+<ul>
+  <li>把 Hermes 範例正式轉為<b>響應式工作區</b>：桌機到手機都流暢、資訊密度自適應，不再是大螢幕專用。</li>
+  <li>完成 <b>Hermes workspace 本地化</b>（i18n）：介面文案多語化、貨幣星系與左右欄跟隨語系切換，對國際評審更友好。</li>
+  <li>新增 <b>BridgeWorkspaceShell / BridgeHologramContext</b> 等元件與 layout contract 測試，把「橋接工作區」抽成可組合、可測試的結構，後續擴充不再動到骨架。</li>
+</ul>
+
+<h3>3. 前端全站接入誠實態</h3>
+<ul>
+  <li>Analyze / Compare / Costs / History / Status 等頁面同步接入<b>資訊完整度分層與信任溯源</b>，頂欄（TopBar）與 StageBar 重做互動與樣式（hermes.css 大改版）。</li>
+  <li>Header / HermesTopBar 的測試隨 UI 重構同步更新，確保重構不破壞行為；ErrorBoundary 與分層評分的誠實語意延續到每一頁。</li>
+</ul>
+
+<p>這一天，TrustForge 的 Hermes 操作台從「能跑的 demo」變成「<b>能交付的產品</b>」：星空般的可視化、跨裝置跨語言的工作區、以及貫穿全站的可信賴狀態——誠實，終於長成了使用者每天會打開的那個樣子。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-15</footer>
+</div></body></html>

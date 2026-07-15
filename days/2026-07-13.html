@@ -1,0 +1,43 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 16 · Hermes 自主改進框架 + 誠實收口 + secops 審計 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 16 · Hermes 自主改進框架 + 誠實收口 + secops 審計</h2>
+<p class="sub">2026-07-13</p>
+<p>這一天 TrustForge 從「會分析」走向「會自己變好」：把誠實性收口做進自主改進框架、把溯源攤開成看得見的卡、並補完一輪安全審計。核心命题是——<b>不只是演算法誠實，連「系統如何改進自己」也要誠實且可審。</b></p>
+
+<h3>1. Hermes 自主改進框架：讓 Agent 自己打磨自己</h3>
+<ul>
+  <li>建立了 <b>Hermes 自主改進框架（autonomous improvement framework）</b>，把「讀執行紀錄 → 找出可改進點 → 量測改進前後差異」變成一條自洽的閉環。</li>
+  <li>向外暴露了 <b>Hermes agent 執行工作流（execution workflow）</b>，讓每一步可被觀察、可被回溯，而不是黑箱自我演化。</li>
+  <li>把五年級 OHLCV 證據<b>譜系（lineage）</b>釘死：每一筆用來訓練/校準的資料，都標明來源與取得時間，杜絕「不知道從哪來的數字」。</li>
+</ul>
+
+<h3>2. 動態信譽的誠實收口：Dawid-Skene 離線兜底</h3>
+<ul>
+  <li>為 W2 動態信譽補上 <b>Dawid-Skene EM 離線兜底</b>：當線上共識不足時，改用經典統計法收斂各來源權重，不因資料稀疏就瞎給分。</li>
+  <li>所有來源統一採 <b>r=0.5 先驗保留（prior-preserving）</b>，避免少數來源被系統悄悄放大；並把 <code>reputation_mode</code> 移出數值信任分量，語意不再混淆。</li>
+  <li>補齊誠實 docstring：Reddit 接線方式、以及基於關鍵詞的操縱訊號標記，都如實寫進程式註解，不再讓註解與行為矛盾。</li>
+</ul>
+
+<h3>3. 信任溯源概覽 + 誠實分層 UI</h3>
+<ul>
+  <li>新增 <b>Evidence Trail Cards（信任溯源概覽）</b>：一眼看見這個判斷是「靠哪些證據撐起來的」，每張卡都可回溯到原始來源。</li>
+  <li>把評分介面正名為<b>離散分層評分（Tier Label / 資訊完整度分層）</b>——codex 對抗審抓出的「穿幫」措辭全部修正，分層不再被誤讀成連續信心區間。</li>
+  <li>前端加 <b>ErrorBoundary runtime 兜底</b>（隨路由 reset），消除裸空白頁；並補齊 CHANGELOG v0.11/v0.12 與 ROADMAP，讓文件與實際進度不再脫節。</li>
+</ul>
+
+<h3>4. secops / netops 硬化審計通過</h3>
+<ul>
+  <li>合併 #113 並產出 <b>secops/netops 硬化審計驗證報告</b>：部署加 host-wide flock 防 nginx 與切流競爭、vitest 作用域收斂到 TrustRadarChart，安全線不再被偷拔。</li>
+  <li>補上<b>稽核落差修復計劃</b>與<b>修正後錯誤聲明（false claims）附錄</b>，把過去過度宣稱的話術（如「信心區間」）一筆筆改正，對外敘事回歸可驗證。</li>
+</ul>
+
+<p>這一天把「誠實」從產品功能，推進到<b>系統的自我改進機制與對外敘事本身</b>：框架可審、信譽收斂可解釋、溯源可見、聲明可被稽核。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-13</footer>
+</div></body></html>

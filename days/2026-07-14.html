@@ -1,0 +1,43 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 17 · 穩定性大爆發：零停機部署 + Hermes 星系 redesign + v0.13→v0.14.6 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 17 · 穩定性大爆發：零停機部署 + Hermes 星系 redesign + v0.13→v0.14.6</h2>
+<p class="sub">2026-07-14</p>
+<p>這是 TrustForge 的<b>穩定性大爆發日</b>：一邊把生產部署焊上多重防護、一邊把 Hermes 整站重做成「星系級」暗色操作台，並一口氣從 v0.13.0 推進到 v0.14.6。目標只有一個——<b>真東西要能 7×24 不中斷地活著，且活得漂亮。</b></p>
+
+<h3>1. 生產防護：把部署與成本護欄焊死</h3>
+<ul>
+  <li><b>零停機部署</b>證明通過：CI 在後端部署期間監控公眾健康、互動 canary 實測不中斷；SSM 授權修正（父路徑 + 啟動清理權限收斂）讓 healthz/probe 閘防護復活。</li>
+  <li><b>成本與限流鎖</b>：per-IP 限流、每日 Bedrock 花費上限寫成回歸測試鎖住；CoinGecko provider 協調冷卻、rate limit 後停止來源 fanout，避免真實花費被誤標免費或打爆來源。</li>
+  <li><b>永久性帳本與租約（durable ledger + shared lease）</b>：成本帳本可持久化鑽取歷史、本地分析租約可回收/可重複引導，壞一次不會永久卡死。</li>
+</ul>
+
+<h3>2. Hermes 星系 redesign：暗色視覺 + 星系總覽</h3>
+<ul>
+  <li><b>HERMES 整站 redesign</b>：改用暗色視覺語言，並以<b>星系總覽（Galaxy overview）</b>為核心概念重排資訊架構——多幣信任像星座一樣一眼鋪開。</li>
+  <li>完成 <b>Hermes Galaxy dashboard</b> 與執行旅程 UX（execution journey）刷新：分析從「輸入才有輸出」變成「打開就給你一張可信度全景 + 流暢的操作旅程」。</li>
+  <li>把 Hermes 範例升級為<b>響應式工作區（responsive workspace）</b>並做<b>本地化</b>，跨裝置與跨語言都順手。</li>
+</ul>
+
+<h3>3. 可觀測性與自動化量測</h3>
+<ul>
+  <li>把 <b>Hermes 改進量測自動化</b>：連接器可靠性政策（connector reliability policy）形式化，並在每個 Hermes cycle 量測連接器可靠度，壞了有數字、好了有證據。</li>
+  <li>加入 <b>Hermes 歷史重放 runner（historical replay）</b> 與 <b>校準器 ModelHub 訓練包</b>，每日從 OHLCV 標註重放結果；模型訓練被明確<b>延後到系統穩定之後</b>，先把地基打牢。</li>
+  <li>EventBridge 排程 Hermes cycle、release smoke 相容 CI，讓「自主改進」真的能定時跑、跑完能被驗證。</li>
+</ul>
+
+<h3>4. 連發釋出 v0.13.0 → v0.14.6</h3>
+<ul>
+  <li>同日連發 v0.13.0、v0.13.1，並一口氣推到 <b>v0.14.0 ~ v0.14.6</b>：每版都附生產驗證證據（prefetch / cooldown / provider verification），release 不再只是貼版本號，而是「可證明地上線」。</li>
+  <li>執行紀錄匯出成標準 JSON、前端 header 顯示 live 版本號，讓使用者隨時知道現在跑的是哪一版、是真資料還是樣本。</li>
+</ul>
+
+<p>這一天，TrustForge 把「誠實的分析」裝進了「牢不可破的生產殼」：部署零停機、成本有頂、改進可被量測，而一切以一張星空般的操作台呈現給你。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-14</footer>
+</div></body></html>

@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-07-15",
+    "title": "Day 18 · Hermes Galaxy dashboard 完成 + bridge HUD 深化 + 全站誠實態",
+    "file": "2026-07-15.html",
+    "summary": "完成 Hermes Galaxy dashboard 與 bridge HUD 深化；工作區產品化（響應式 + 本地化 + BridgeWorkspaceShell 元件化）；Analyze/Compare/Costs/History/Status 全站接入資訊完整度分層與信任溯源。"
+  },
+  {
+    "date": "2026-07-14",
+    "title": "Day 17 · 穩定性大爆發：零停機部署 + Hermes 星系 redesign + v0.13→v0.14.6",
+    "file": "2026-07-14.html",
+    "summary": "生產防護焊死：零停機部署驗證、成本/限流鎖、永久帳本與租約；HERMES 整站暗色星系 redesign + Galaxy dashboard + 響應式工作區；自動化改進量測與歷史重放；同日連發 v0.13.0 至 v0.14.6 皆附生產驗證證據。"
+  },
+  {
+    "date": "2026-07-13",
+    "title": "Day 16 · Hermes 自主改進框架 + 誠實收口 + secops 審計",
+    "file": "2026-07-13.html",
+    "summary": "建立 Hermes 自主改進框架與可觀察執行工作流、五年 OHLCV 譜系釘死；Dawid-Skene EM 離線兜底讓動態信譽收斂可解釋；Evidence Trail Cards 溯源概覽 + 離散分層評分 UI；secops/netops 硬化審計通過並修正過度宣稱話術。"
+  },
+  {
     "date": "2026-07-12",
     "title": "Day 15 · 通路誠實：證明 live 走真實源 + HOYA 插口就緒；Reddit 出局",
     "file": "2026-07-12.html",
