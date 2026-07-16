@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-15",
-    "total": 22,
+    "generated": "2026-07-16",
+    "total": 23,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-15",
+    "last_date": "2026-07-16",
     "categories": [
       "信任演算法",
       "誠實性",
@@ -17,6 +17,23 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-16",
+      "day": 17,
+      "date": "2026-07-16",
+      "title": "Day 17 · Hermes 持續智慧 + 升級治理控制平面 + 五年歷史回填",
+      "summary": "Hermes 變成持續運轉且升級需人類批准的治理型系統：五階段分析流水線、SQLite 取代 JSON、RAG 問答 lineage、durable 升級閘門、SEC 五年可審計回填。",
+      "category": "Hermes",
+      "tags": [
+        "hermes",
+        "continuous-intelligence",
+        "upgrade-governance",
+        "sqlite",
+        "rag",
+        "historical-backfill"
+      ],
+      "file": "2026-07-16.html"
+    },
     {
       "id": "2026-07-15",
       "day": 16,

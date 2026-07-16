@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 17 · Hermes 持續智慧 + 升級治理控制平面 + 五年歷史回填 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 17 · Hermes 持續智慧 + 升級治理控制平面 + 五年歷史回填</h2>
+<p class="sub">2026-07-16</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#hermes #continuous-intelligence #upgrade-governance #sqlite #rag #historical-backfill</p>
+<p>Hermes 從「能跑的 demo」跨進「<b>會自己持續思考、但凡事先問人</b>」的治理型系統。今天 17 個 commit 串起兩條主軸：讓分析變成<span>持續、可檢索、可追線</span>的智力流水線，以及把「系統升級自己」這件事收進一層層需要人類批准的閘門。</p>
+
+<h3>1. Hermes 持續智慧（Continuous Intelligence）</h3>
+<ul>
+  <li><b>五階段持續分析矩陣</b>：所有幣／模式／活躍問題跑 snapshot-isolated 的持續分析（<code>analysis_flow.py</code>，664 行新邏輯），執行鎖定在不可變快照上，UI 導航保持唯讀並在交換時保留最後完整快照。</li>
+  <li><b>SQLite 取代 JSON 快取／帳本</b>：本地快取與成本帳本從 JSON 檔遷移到 SQLite，附可重複執行的遷移工具（<code>migrate_json_cache_to_sqlite.py</code> / <code>migrate_json_ledger_to_sqlite.py</code>），快取層重寫 192 行。</li>
+  <li><b>問答 RAG + 對話 lineage</b>：加入 SQLite 問題 RAG、使用者／Hermes 對話紀錄、以及 run／snapshot 的來源 lineage；<code>/api/analysis-question-context</code> 實測回傳 SQLite 檢索、五筆匹配、對話歷史、<code>job_id</code> 與 <code>snapshot_id</code>。</li>
+  <li><b>真實遙測下鑽</b>：統一幣種選擇、暴露真實管線遙測與下鑽；HermesDashboard 大改（390 行變動），修正遙測輪詢競態（serialize polling），左右欄職責與右欄空間利用率重新規劃。</li>
+  <li><b>本地守護進程</b>：新增 analysis-flow / local-refresh / local-web 三個 launchd plist，讓持續智慧在本地背景常駐；並有 <code>sync_cloud_cache_to_local.py</code> 把雲端快取同步回本地。</li>
+</ul>
+
+<h3>2. 升級治理控制平面（Upgrade Governance）</h3>
+<ul>
+  <li><b>Flagship 升級控制平面</b>：<code>upgrade_control.py</code> 新增 89 行控制平面，註冊完整的「外部升級介面」（outer upgrade surface），把升級建模為<b>系統拓撲</b>而非零散腳本。</li>
+  <li><b>Data-driven LLM 升級審查清迴圈</b>：<code>upgrade_review.py</code> 讓 LLM 基於歷史管線測量結果，提出需人類批准的「外部框架改進提案」；前端 UpgradeShip 顯示提案與釋出版本號。</li>
+  <li><b>Durable 人類升級閘門</b>：升級候選人持久化進 upgrade queue（含本地前端 plist），重啟後重試狀態與 DLQ 不丟失；新增 durable human upgrade gate，寫入端點限速、待辦受容量約束。</li>
+  <li><b>Sandbox 啟用治理</b>：sandbox 啟用納入治理（<code>run_skill_sandbox.py</code> + <code>upgrade_queue.py</code> 81 行），沙盒重播（replay）不碰生產。</li>
+</ul>
+
+<h3>3. 可審計歷史來源回填</h3>
+<ul>
+  <li><b>SEC 歷史元資料配接器</b>：<code>historical_sources.py</code> 新增 SEC historical metadata adapter，<code>fetch_public_history.py</code> 支援回填。</li>
+  <li><b>五年可審計來源回填</b>：建立可審計的五年歷史來源回填流程，回填的歷史結論<b>僅作參考、絕不進入當前 Trust Evidence</b>——誠實邊界再次畫清。</li>
+</ul>
+
+<h3>安全與誠實底線</h3>
+<ul>
+  <li>改進一律「<b>只提案</b>」：sandbox/replay + 人類批准才放行，<b>禁止自動生產變更</b>；寫入端點限速、待辦容量有界。</li>
+  <li>檢索到的歷史結論標記為非證據性，不污染當前信任證據。</li>
+</ul>
+
+<p>今日驗證：Python <b>2099 passed / 6 skipped</b>（覆蓋率 90.88%）、前端 <b>252 passed</b>、TypeScript 與 Vite 生產建置通過；Wiki 3145 更新、HurricaneSoft 記憶索引、SkillHub 套件校驗完成。Hermes 現在既是「持續運轉的智力引擎」，也是「每一步升級都先舉手等批准」的守規矩系統。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-16</footer>
+</div><script src="../day-common.js"></script></body></html>

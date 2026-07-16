@@ -2,11 +2,20 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-15T00:00:00+08:00</updated>
+  <updated>2026-07-16T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 17 · Hermes 持續智慧 + 升級治理控制平面 + 五年歷史回填</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-16.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-16.html"/>
+    <updated>2026-07-16T00:00:00+08:00</updated>
+    <published>2026-07-16T00:00:00+08:00</published>
+    <summary>Hermes 變成持續運轉且升級需人類批准的治理型系統：五階段分析流水線、SQLite 取代 JSON、RAG 問答 lineage、durable 升級閘門、SEC 五年可審計回填。</summary>
+    <category term="Hermes"/>
+  </entry>
   <entry>
     <title>Day 16 · Hermes Galaxy dashboard 完成 + bridge HUD 深化 + 全站誠實態</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-15.html</id>
