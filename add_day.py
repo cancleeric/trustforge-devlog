@@ -36,7 +36,11 @@ PAGE = """<!doctype html><html lang="zh-Hant"><head>
 {body}
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· {date}</footer>
-</div><script src="../day-common.js"></script></body></html>
+</div><script type="application/ld+json">
+{{"@context":"https://schema.org","@type":"BlogPosting","headline":{jtitle},"datePublished":{jdate},"author":{{"@type":"Organization","name":"HurricaneSoft"}},"articleSection":{jcat}}}
+</script>
+<script src="../day-common.js"></script>
+</body></html>
 """
 
 
@@ -65,9 +69,14 @@ def main():
                  + '</p>') if a.category != "未分類" or tags else ''
 
     body = pathlib.Path(a.body).read_text(encoding="utf-8")
+    import json as _json
+    jtitle = _json.dumps(a.title, ensure_ascii=False)
+    jdate = _json.dumps(calendar_date, ensure_ascii=False)
+    jcat = _json.dumps(a.category, ensure_ascii=False)
     (ROOT / "days").mkdir(exist_ok=True)
     (ROOT / "days" / f"{a.date}.html").write_text(
-        PAGE.format(title=a.title, date=a.date, meta=meta_line, body=body), encoding="utf-8")
+        PAGE.format(title=a.title, date=a.date, meta=meta_line, body=body,
+                    jtitle=jtitle, jdate=jdate, jcat=jcat), encoding="utf-8")
 
     ej = ROOT / "entries.json"
     data = json.loads(ej.read_text(encoding="utf-8")) if ej.exists() else {"meta": {}, "entries": []}

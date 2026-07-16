@@ -9,10 +9,12 @@ feed 規格: https://validator.w3.org/feed/docs/atom/
 import datetime
 import json
 import pathlib
+import re
 import xml.sax.saxutils as su
 
 ROOT = pathlib.Path(__file__).resolve().parent
 ENTRIES = ROOT / "entries.json"
+DAYS = ROOT / "days"
 FEED = ROOT / "feed.xml"
 SITE = "https://cancleeric.github.io/trustforge-devlog"
 AUTHOR = "HurricaneSoft（颶風軟體）"
@@ -20,6 +22,21 @@ AUTHOR = "HurricaneSoft（颶風軟體）"
 
 def esc(s):
     return su.escape(str(s), {'"': "&quot;"})
+
+
+def article_body(file_name):
+    """從 days/<file> 抓靜態 <article> 內文，供 feed content 使用（不含 JS 注入的 nav/toc/related）。"""
+    p = DAYS / file_name
+    if not p.exists():
+        return ""
+    html = p.read_text(encoding="utf-8")
+    m = re.search(r"<article>(.*?)</article>", html, re.S)
+    if not m:
+        return ""
+    body = m.group(1)
+    # 去掉文末由 day-common.js 注入的「相關文章」section（靜態不含，但防禦性清理 back/footer）
+    body = re.sub(r'<a class="back"[^>]*>.*?</a>', "", body, flags=re.S)
+    return body.strip()
 
 
 def generate():
@@ -53,6 +70,9 @@ def generate():
         ]
         if e.get("category"):
             out.append(f'    <category term="{esc(e["category"])}"/>')
+        body = article_body(e["file"])
+        if body:
+            out.append(f"    <content type=\"html\"><![CDATA[{body}]]></content>")
         out.append("  </entry>")
 
     out.append("</feed>")
