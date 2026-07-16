@@ -117,9 +117,15 @@ article h2 { font-size: 1.5rem; margin-top: 0; }
 .st-research { color: var(--warn); border-color: var(--warn); background: rgba(210,153,34,.1); }
 .st-ref { color: var(--mut); border-color: var(--bd); background: var(--card); }
 .st-excluded { color: #f85149; border-color: #f85149; background: rgba(248,81,73,.1); }
+.st-core { color: #a371f7; border-color: #a371f7; background: rgba(163,113,247,.12); }
+.st-outer { color: #58a6ff; border-color: #58a6ff; background: rgba(88,166,255,.1); }
+.tier-core > li { border-left: 2px solid rgba(163,113,247,.5); padding-left: .5rem; }
 .legend { font-size: .78rem; color: var(--mut); margin: .2rem 0 1rem; }
 .legend b { color: var(--fg); }
 .legend .st { margin: 0 .15rem; }
+.tier-intro { background: var(--card); border: 1px solid var(--bd); border-radius: 10px; padding: .8rem 1rem; margin: .6rem 0 1.2rem; }
+.tier-intro p { margin: .4rem 0; font-size: .9rem; color: var(--fg); }
+.tier-intro b { color: var(--acc); }
 .todolist { list-style: none; padding-left: 0; }
 .todolist li { padding: .3rem 0; border-bottom: 1px dashed var(--bd); }
 .todolist li:last-child { border-bottom: 0; }
