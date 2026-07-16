@@ -78,10 +78,11 @@ a:hover { text-decoration: underline; }
 .entry .cat { font-size: .72rem; padding: .08rem .5rem; border-radius: 999px; border: 1px solid var(--good);
   color: var(--good); }
 .entry .summary { color: var(--mut); font-size: .9rem; margin: 0; }
-.entry .tags { margin-top: .5rem; display: flex; flex-wrap: wrap; gap: .35rem; }
-.entry .tag { font-size: .7rem; color: var(--pink); background: rgba(247,120,186,.08);
-  border: 1px solid rgba(247,120,186,.25); border-radius: 6px; padding: .05rem .45rem; cursor: pointer; }
-.entry .tag:hover { background: rgba(247,120,186,.18); }
+.entry .tags { margin-top: .55rem; display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+.entry .tag { font-size: .64rem; line-height: 1.4; letter-spacing: .01em; color: var(--pink);
+  background: rgba(247,120,186,.07); border: 1px solid rgba(247,120,186,.22);
+  border-radius: 999px; padding: .1rem .5rem; cursor: pointer; opacity: .9; transition: background .15s, opacity .15s; }
+.entry .tag:hover { background: rgba(247,120,186,.18); opacity: 1; }
 .empty { text-align: center; color: var(--mut); padding: 2.5rem 0; }
 
 /* tag cloud */

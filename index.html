@@ -149,7 +149,10 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     else {
       box.innerHTML = pageItems.map(e => {
         const dn = e.day != null ? `Day ${e.day}` : '';
-        const tags = (e.tags || []).map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('');
+        const allTags = e.tags || [];
+        const shown = allTags.slice(0, 3);
+        const tags = shown.map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('')
+          + (allTags.length > shown.length ? `<span class="tag more">+${allTags.length - shown.length}</span>` : '');
         const cat = e.category ? `<span class="cat">${e.category}</span>` : '';
         return `<a class="entry" href="days/${e.file}" data-href="days/${e.file}">
           <div class="day"><div class="dn">${dn.replace('Day ', '')}</div><div class="dl">DAY</div></div>
