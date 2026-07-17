@@ -1,0 +1,72 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate</h2>
+<p class="sub">2026-07-17</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#hermes #continuous-analysis #upgrade-governance #sqlite #rag #sandbox #human-gate</p>
+<p>今天把 TrustForge 主專案拉回來做實際分析。這次資料來源是 Gitea 上的 <code>hurricanesoft/trustforge</code>，目前 HEAD 為 <code>ea14d634</code>，已合併 <code>develop</code> 並包含 PR #186～#189。GitHub 私有主 repo 仍需要登入，因此本篇不把 GitHub 視為已驗證來源；開發內容以這次可讀到的 Gitea mirror 與 git history 為準。</p>
+
+<h3>1. 主要工程變更：Hermes 從頁面功能升級成持續分析服務</h3>
+<ul>
+  <li><b>持續分析矩陣落地</b>：<code>src/trustforge/analysis_flow.py</code> 新增約 670 行，將 crawler update 之後的資料鎖進 immutable SQLite snapshot，再依 coin × mode × active question 切成 package，交給 source、claim、trust、Evidence、report 五階 worker 處理。</li>
+  <li><b>UI 不再擁有分析生命週期</b>：瀏覽器只切換與讀取已發布 snapshot，不再靠按鈕或導頁觸發真實分析；新結果未完成前保留上一個完整結果，避免使用者看到空白或半成品。</li>
+  <li><b>持久 retry / DLQ / stage telemetry</b>：queue、duration、retry、dead letter、coin、mode、question、run 與 snapshot lineage 都成為可觀測狀態，讓分析服務能在重啟後繼續，而不是重跑或遺失。</li>
+</ul>
+
+<h3>2. 問題記憶與 RAG：把 Hermes 對話變成可檢索歷史</h3>
+<ul>
+  <li><b>新增 question memory</b>：<code>analysis_questions</code> 保存活躍分析意圖，<code>analysis_conversation</code> 保存使用者問題與 Hermes 已發布回答。</li>
+  <li><b>中英混合檢索</b>：相似問題用 deterministic token / character bigram overlap 排名，支援中文情境，不依賴外部 embedding。</li>
+  <li><b>歷史結論只作 continuity</b>：檢索到的過去回答會帶 <code>snapshot_id</code>、<code>job_id</code> 與發布時間，但標記為 non-evidentiary，不會進入當前 Trust Evidence，也不會改 Trust scoring。</li>
+</ul>
+
+<h3>3. 升級治理控制平面：能提案，但不能自己升級自己</h3>
+<ul>
+  <li><b>Upgrade topology</b>：<code>src/trustforge/upgrade_control.py</code> 建立 Hermes outer upgrade surface，把 Data Plane、Intelligence、Delivery、Operations 等模組放進可盤點的拓撲，而不是零散腳本。</li>
+  <li><b>LLM review 只能審查不能啟用</b>：<code>src/trustforge/upgrade_review.py</code> 與 <code>scripts/review_hermes_upgrades.py</code> 讓 Bedrock / LLM 對候選改進做對抗式審查，但輸出永遠 <code>can_activate=false</code>。</li>
+  <li><b>Durable human gate</b>：<code>src/trustforge/upgrade_queue.py</code> 新增約 213 行，保存 proposal、review、sandbox artifact hash、操作者、理由與狀態；只有 <code>sandbox_passed</code> 才能被人工 approve，且 approve 不等於 activation。</li>
+  <li><b>Sandbox activation control</b>：<code>scripts/run_skill_sandbox.py</code> 可把真實 sandbox pass/fail 與 artifact hash 寫回 queue；終局 decision 不可被 diagnostic refresh 覆蓋。</li>
+</ul>
+
+<h3>4. 前端與 API：從 dashboard 到控制室</h3>
+<ul>
+  <li><b>HermesDashboard 大幅重構</b>：<code>frontend/src/pages/HermesDashboard.tsx</code> 在 <code>v0.14.15..HEAD</code> 區間有 416 行變動，接入連續分析狀態、upgrade queue、stage drilldown 與左右欄職責重排。</li>
+  <li><b>Bridge workspace 產品化</b>：新增 <code>BridgeWorkspaceShell</code>、<code>BridgeHologramContext</code>、<code>CoinSelect</code>、<code>HermesModuleDeck</code>，讓 Analyze / Compare / Costs / History / Status 等頁面共享一致的工作區骨架。</li>
+  <li><b>OpenAPI 補齊</b>：<code>docs/api/openapi.yaml</code> 增加約 222 行，記錄 Hermes continuous intelligence 與 upgrade gate 相關 API，避免前端「有按鈕但後端沒契約」。</li>
+  <li><b>Polling 競態修正</b>：<code>fix: serialize Hermes telemetry polling</code> 讓輪詢序列化，上一個 request settle 後才排下一次，unmount 時 abort，避免 UI flicker 與連線洩漏。</li>
+</ul>
+
+<h3>5. 資料與本地服務耐久化</h3>
+<ul>
+  <li><b>JSON → SQLite 遷移</b>：新增 <code>migrate_json_cache_to_sqlite.py</code> 與 <code>migrate_json_ledger_to_sqlite.py</code>，cache 與成本 ledger 從容易破碎的 JSON 檔改為 SQLite。</li>
+  <li><b>本機守護服務</b>：新增 <code>com.hurricanesoft.trustforge-analysis-flow.plist</code>、<code>local-refresh</code>、<code>local-web</code>、<code>local-frontend</code>，讓 backend、frontend、refresh、analysis flow 可以由 launchd KeepAlive 維持。</li>
+  <li><b>雲端快取同步回本機</b>：<code>sync_cloud_cache_to_local.py</code> 支援把 Cloud cache 回灌本地，讓 local Hermes UI 不只靠 fixture。</li>
+</ul>
+
+<h3>6. 測試與回歸鎖</h3>
+<ul>
+  <li><b>新增測試面</b>：<code>tests/test_analysis_flow.py</code>、<code>tests/test_upgrade_control.py</code>、<code>tests/test_upgrade_queue.py</code>、<code>tests/test_upgrade_review.py</code> 補上分析流、升級拓撲、queue、人類閘門與 LLM review 的回歸鎖。</li>
+  <li><b>變更規模</b>：從 <code>v0.14.15</code> 到目前 HEAD，共 69 個檔案變動，約 <b>4703 行新增、467 行刪除</b>。</li>
+  <li><b>尚未在本輪重跑完整測試</b>：本篇是 repo 分析與日誌更新，不宣稱今日已重新跑完整 backend/frontend gate；測試通過狀態以主 repo 既有 commit 與 CI 紀錄為準。</li>
+</ul>
+
+<h3>誠實邊界</h3>
+<ul>
+  <li>本篇分析來源是 Gitea mirror <code>hurricanesoft/trustforge</code>，不是尚未登入的 GitHub private repo。</li>
+  <li>不宣稱已部署、不宣稱已啟用 production，也不宣稱自動升級可以繞過人類 gate。</li>
+  <li>Trust Kernel、模型、權重、completed reports 與 production deploy 仍在人工審查與 release 流程外，不允許 Hermes 自行改動。</li>
+</ul>
+
+<p>今天的結論很明確：TrustForge 的 Hermes 線已經從「可展示的 dashboard」往「可常駐、可追蹤、可審批、可回復的持續分析控制平面」前進。真正重要的不是多了一個 UI，而是每個分析結果、每個改進提案、每次 sandbox 與每個人工決策都開始留下 durable lineage。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-17</footer>
+</div><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate","datePublished":"2026-07-17","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Hermes"}
+</script>
+<script src="../day-common.js"></script>
+</body></html>
