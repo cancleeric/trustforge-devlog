@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-16",
-    "total": 23,
+    "generated": "2026-07-17",
+    "total": 24,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-16",
+    "last_date": "2026-07-17",
     "categories": [
       "信任演算法",
       "誠實性",
@@ -17,6 +17,23 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-17",
+      "day": 18,
+      "date": "2026-07-17",
+      "title": "Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理",
+      "summary": "Isabella 正式接手 TrustForge 開發日誌工作流：確認 GitHub Pages devlog repo、修正 Gitea/Wiki 與 HOME 認證路徑、驗證 sudo 權限、停用本機 skills 並改以 SkillHub MCP 作為唯一技能來源，同時誠實標註 GitHub 主 repo 尚待認證。",
+      "category": "基礎建設",
+      "tags": [
+        "isabella",
+        "devlog",
+        "skillhub",
+        "gitea",
+        "github",
+        "workflow"
+      ],
+      "file": "2026-07-17.html"
+    },
     {
       "id": "2026-07-16",
       "day": 17,

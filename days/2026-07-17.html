@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css">
+</head><body><div class="wrap">
+<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<article>
+<h2>Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理</h2>
+<p class="sub">2026-07-17</p>
+<p class="sub" style="margin-top:-.6rem">分類：基礎建設 ｜ 標籤：#isabella #devlog #skillhub #gitea #github #workflow</p>
+<p>今天的主題不是新增一個炫目的功能，而是把 TrustForge 的「開發記錄工作流」正式接到可持續運作的軌道上：讓 Isabella 具備寫日誌、讀 repo、查 SkillHub、使用 Gitea / GitHub 線索、並誠實標註資料來源邊界的能力。這是把開發歷程從「人手回憶」推向「可追溯、可驗證、可交接」的一天。</p>
+
+<h3>1. 開發日誌 repo 接手</h3>
+<ul>
+  <li><b>確認公開日誌站來源</b>：GitHub 上找到並 clone <code>cancleeric/trustforge-devlog</code>，確認這是 TrustForge 每日開發記錄的 GitHub Pages repo。</li>
+  <li><b>確認目前最新公開日誌</b>：站內最新一篇為 <code>2026-07-16</code>（Day 17），主題是 Hermes 持續智慧、升級治理控制平面與五年歷史回填。</li>
+  <li><b>確認資料結構</b>：日誌站採 <code>entries.json</code> 作為靜態資料索引，<code>days/*.html</code> 作為單篇頁面，<code>feed.xml</code> 與 <code>sitemap.xml</code> 由腳本重建。</li>
+  <li><b>確認新增流程</b>：使用 <code>add_day.py</code> 新增每日 HTML 頁、更新首頁索引、重建 Atom feed 與 sitemap。</li>
+</ul>
+
+<h3>2. Isabella 的開發工具與權限整理</h3>
+<ul>
+  <li><b>Gitea / Wiki 存取修復</b>：容器內的 Gitea / Wiki 教學文件確認位於 <code>/opt/data/GITEA-WIKI-ACCESS.md</code>；修正 <code>HOME=/opt/data/home</code> 導致 <code>git</code> / <code>tea</code> 讀不到原本認證檔的問題。</li>
+  <li><b>Gitea 驗收通過</b>：<code>tea whoami</code> 回到 <code>isabella</code>，<code>git ls-remote</code> 可讀 <code>hurricanesoft/wiki-docs</code>，Gitea API 版本檢查成功。</li>
+  <li><b>sudo 權限確認</b>：容器內 <code>hermes</code> 使用者已有免密碼 sudo，可用 <code>apt-get</code> 安裝缺少的開發工具，也可用 sudo 寫入 <code>/usr/local/bin</code>。</li>
+  <li><b>GitHub 現況誠實標註</b>：公開的 <code>trustforge-devlog</code> 可讀；主專案 <code>cancleeric/TrustForge</code> 目前仍需要 GitHub 認證才能讀取，因此本篇不宣稱讀過私有主 repo 的新 commit。</li>
+</ul>
+
+<h3>3. SkillHub-only 工作流落地</h3>
+<ul>
+  <li><b>停用本機 skills</b>：Eric 明確授權後，Isabella 將本機 skills 移出 active 目錄，避免再由本機 <code>skill_view</code> / <code>skills_list</code> 當主要技能來源。</li>
+  <li><b>阻止重啟自動 re-seed</b>：Hermes 重啟後曾自動補回 bundled skills；補上 <code>/opt/data/.no-bundled-skills</code> marker 後，確認 <code>sync_skills</code> 進入 opt-out。</li>
+  <li><b>驗證 prompt 乾淨</b>：重測 prompt builder，<code>skills_prompt_len = 0</code>、<code>contains_available_skills = False</code>、<code>contains_skill_view = False</code>。</li>
+  <li><b>SkillHub 成為單一技能來源</b>：TrustForge 任務透過 <code>mcp_skillhub_search_skills</code> 搜尋，並用 <code>mcp_skillhub_load_skill</code> 載入 <code>trustforge-continuous-analysis</code>。</li>
+</ul>
+
+<h3>4. 對 TrustForge 的實際意義</h3>
+<ul>
+  <li><b>開發歷程不再只靠記憶</b>：日誌 repo、entries 索引、feed、sitemap、SkillHub 技能與持久記憶被串成一條可重複的工作線。</li>
+  <li><b>資料來源邊界更清楚</b>：能讀到的公開 devlog 與 Gitea 線索會寫入；暫時讀不到的 GitHub 私有主 repo 不會被想像成已驗證事實。</li>
+  <li><b>後續可半自動化</b>：一旦 GitHub 主 repo 認證完成，就可用 <code>draft_from_git.py</code> 依每日 commit 自動整理草稿，再由 Isabella 潤飾成公開、可追溯的開發日誌。</li>
+</ul>
+
+<h3>今日驗收</h3>
+<ul>
+  <li><code>TrustForge-devlog</code> 已 clone 到 Isabella 容器。</li>
+  <li>SkillHub-only 模式已修正並驗證。</li>
+  <li>TrustForge 相關 SkillHub 技能已成功載入。</li>
+  <li>新增本篇 Day 18 開發日誌，並重建 <code>entries.json</code>、<code>feed.xml</code>、<code>sitemap.xml</code>。</li>
+</ul>
+
+<p>今天的成果比較像替 TrustForge 裝上「紀錄用的神經系統」：還沒碰主 repo 的私有程式碼，但已把日誌、技能、認證、權限與誠實邊界整理好。下一步只差 GitHub 主 repo 認證完成，就能把每日 commit 轉成更細的工程日誌。</p>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-17</footer>
+</div><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理","datePublished":"2026-07-17","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"基礎建設"}
+</script>
+<script src="../day-common.js"></script>
+</body></html>
