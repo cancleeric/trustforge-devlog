@@ -1,60 +1,72 @@
 <!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理 — TrustForge 開發記錄</title>
+<title>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate — TrustForge 開發記錄</title>
 <link rel="stylesheet" href="../style.css">
 </head><body><div class="wrap">
 <a class="back" href="../index.html">← 回開發記錄首頁</a>
 <article>
-<h2>Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理</h2>
+<h2>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate</h2>
 <p class="sub">2026-07-17</p>
-<p class="sub" style="margin-top:-.6rem">分類：基礎建設 ｜ 標籤：#isabella #devlog #skillhub #gitea #github #workflow</p>
-<p>今天的主題不是新增一個炫目的功能，而是把 TrustForge 的「開發記錄工作流」正式接到可持續運作的軌道上：讓 Isabella 具備寫日誌、讀 repo、查 SkillHub、使用 Gitea / GitHub 線索、並誠實標註資料來源邊界的能力。這是把開發歷程從「人手回憶」推向「可追溯、可驗證、可交接」的一天。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#hermes #continuous-analysis #upgrade-governance #sqlite #rag #sandbox #human-gate</p>
+<p>今天把 TrustForge 主專案拉回來做實際分析。這次資料來源是 Gitea 上的 <code>hurricanesoft/trustforge</code>，目前 HEAD 為 <code>ea14d634</code>，已合併 <code>develop</code> 並包含 PR #186～#189。GitHub 私有主 repo 仍需要登入，因此本篇不把 GitHub 視為已驗證來源；開發內容以這次可讀到的 Gitea mirror 與 git history 為準。</p>
 
-<h3>1. 開發日誌 repo 接手</h3>
+<h3>1. 主要工程變更：Hermes 從頁面功能升級成持續分析服務</h3>
 <ul>
-  <li><b>確認公開日誌站來源</b>：GitHub 上找到並 clone <code>cancleeric/trustforge-devlog</code>，確認這是 TrustForge 每日開發記錄的 GitHub Pages repo。</li>
-  <li><b>確認目前最新公開日誌</b>：站內最新一篇為 <code>2026-07-16</code>（Day 17），主題是 Hermes 持續智慧、升級治理控制平面與五年歷史回填。</li>
-  <li><b>確認資料結構</b>：日誌站採 <code>entries.json</code> 作為靜態資料索引，<code>days/*.html</code> 作為單篇頁面，<code>feed.xml</code> 與 <code>sitemap.xml</code> 由腳本重建。</li>
-  <li><b>確認新增流程</b>：使用 <code>add_day.py</code> 新增每日 HTML 頁、更新首頁索引、重建 Atom feed 與 sitemap。</li>
+  <li><b>持續分析矩陣落地</b>：<code>src/trustforge/analysis_flow.py</code> 新增約 670 行，將 crawler update 之後的資料鎖進 immutable SQLite snapshot，再依 coin × mode × active question 切成 package，交給 source、claim、trust、Evidence、report 五階 worker 處理。</li>
+  <li><b>UI 不再擁有分析生命週期</b>：瀏覽器只切換與讀取已發布 snapshot，不再靠按鈕或導頁觸發真實分析；新結果未完成前保留上一個完整結果，避免使用者看到空白或半成品。</li>
+  <li><b>持久 retry / DLQ / stage telemetry</b>：queue、duration、retry、dead letter、coin、mode、question、run 與 snapshot lineage 都成為可觀測狀態，讓分析服務能在重啟後繼續，而不是重跑或遺失。</li>
 </ul>
 
-<h3>2. Isabella 的開發工具與權限整理</h3>
+<h3>2. 問題記憶與 RAG：把 Hermes 對話變成可檢索歷史</h3>
 <ul>
-  <li><b>Gitea / Wiki 存取修復</b>：容器內的 Gitea / Wiki 教學文件確認位於 <code>/opt/data/GITEA-WIKI-ACCESS.md</code>；修正 <code>HOME=/opt/data/home</code> 導致 <code>git</code> / <code>tea</code> 讀不到原本認證檔的問題。</li>
-  <li><b>Gitea 驗收通過</b>：<code>tea whoami</code> 回到 <code>isabella</code>，<code>git ls-remote</code> 可讀 <code>hurricanesoft/wiki-docs</code>，Gitea API 版本檢查成功。</li>
-  <li><b>sudo 權限確認</b>：容器內 <code>hermes</code> 使用者已有免密碼 sudo，可用 <code>apt-get</code> 安裝缺少的開發工具，也可用 sudo 寫入 <code>/usr/local/bin</code>。</li>
-  <li><b>GitHub 現況誠實標註</b>：公開的 <code>trustforge-devlog</code> 可讀；主專案 <code>cancleeric/TrustForge</code> 目前仍需要 GitHub 認證才能讀取，因此本篇不宣稱讀過私有主 repo 的新 commit。</li>
+  <li><b>新增 question memory</b>：<code>analysis_questions</code> 保存活躍分析意圖，<code>analysis_conversation</code> 保存使用者問題與 Hermes 已發布回答。</li>
+  <li><b>中英混合檢索</b>：相似問題用 deterministic token / character bigram overlap 排名，支援中文情境，不依賴外部 embedding。</li>
+  <li><b>歷史結論只作 continuity</b>：檢索到的過去回答會帶 <code>snapshot_id</code>、<code>job_id</code> 與發布時間，但標記為 non-evidentiary，不會進入當前 Trust Evidence，也不會改 Trust scoring。</li>
 </ul>
 
-<h3>3. SkillHub-only 工作流落地</h3>
+<h3>3. 升級治理控制平面：能提案，但不能自己升級自己</h3>
 <ul>
-  <li><b>停用本機 skills</b>：Eric 明確授權後，Isabella 將本機 skills 移出 active 目錄，避免再由本機 <code>skill_view</code> / <code>skills_list</code> 當主要技能來源。</li>
-  <li><b>阻止重啟自動 re-seed</b>：Hermes 重啟後曾自動補回 bundled skills；補上 <code>/opt/data/.no-bundled-skills</code> marker 後，確認 <code>sync_skills</code> 進入 opt-out。</li>
-  <li><b>驗證 prompt 乾淨</b>：重測 prompt builder，<code>skills_prompt_len = 0</code>、<code>contains_available_skills = False</code>、<code>contains_skill_view = False</code>。</li>
-  <li><b>SkillHub 成為單一技能來源</b>：TrustForge 任務透過 <code>mcp_skillhub_search_skills</code> 搜尋，並用 <code>mcp_skillhub_load_skill</code> 載入 <code>trustforge-continuous-analysis</code>。</li>
+  <li><b>Upgrade topology</b>：<code>src/trustforge/upgrade_control.py</code> 建立 Hermes outer upgrade surface，把 Data Plane、Intelligence、Delivery、Operations 等模組放進可盤點的拓撲，而不是零散腳本。</li>
+  <li><b>LLM review 只能審查不能啟用</b>：<code>src/trustforge/upgrade_review.py</code> 與 <code>scripts/review_hermes_upgrades.py</code> 讓 Bedrock / LLM 對候選改進做對抗式審查，但輸出永遠 <code>can_activate=false</code>。</li>
+  <li><b>Durable human gate</b>：<code>src/trustforge/upgrade_queue.py</code> 新增約 213 行，保存 proposal、review、sandbox artifact hash、操作者、理由與狀態；只有 <code>sandbox_passed</code> 才能被人工 approve，且 approve 不等於 activation。</li>
+  <li><b>Sandbox activation control</b>：<code>scripts/run_skill_sandbox.py</code> 可把真實 sandbox pass/fail 與 artifact hash 寫回 queue；終局 decision 不可被 diagnostic refresh 覆蓋。</li>
 </ul>
 
-<h3>4. 對 TrustForge 的實際意義</h3>
+<h3>4. 前端與 API：從 dashboard 到控制室</h3>
 <ul>
-  <li><b>開發歷程不再只靠記憶</b>：日誌 repo、entries 索引、feed、sitemap、SkillHub 技能與持久記憶被串成一條可重複的工作線。</li>
-  <li><b>資料來源邊界更清楚</b>：能讀到的公開 devlog 與 Gitea 線索會寫入；暫時讀不到的 GitHub 私有主 repo 不會被想像成已驗證事實。</li>
-  <li><b>後續可半自動化</b>：一旦 GitHub 主 repo 認證完成，就可用 <code>draft_from_git.py</code> 依每日 commit 自動整理草稿，再由 Isabella 潤飾成公開、可追溯的開發日誌。</li>
+  <li><b>HermesDashboard 大幅重構</b>：<code>frontend/src/pages/HermesDashboard.tsx</code> 在 <code>v0.14.15..HEAD</code> 區間有 416 行變動，接入連續分析狀態、upgrade queue、stage drilldown 與左右欄職責重排。</li>
+  <li><b>Bridge workspace 產品化</b>：新增 <code>BridgeWorkspaceShell</code>、<code>BridgeHologramContext</code>、<code>CoinSelect</code>、<code>HermesModuleDeck</code>，讓 Analyze / Compare / Costs / History / Status 等頁面共享一致的工作區骨架。</li>
+  <li><b>OpenAPI 補齊</b>：<code>docs/api/openapi.yaml</code> 增加約 222 行，記錄 Hermes continuous intelligence 與 upgrade gate 相關 API，避免前端「有按鈕但後端沒契約」。</li>
+  <li><b>Polling 競態修正</b>：<code>fix: serialize Hermes telemetry polling</code> 讓輪詢序列化，上一個 request settle 後才排下一次，unmount 時 abort，避免 UI flicker 與連線洩漏。</li>
 </ul>
 
-<h3>今日驗收</h3>
+<h3>5. 資料與本地服務耐久化</h3>
 <ul>
-  <li><code>TrustForge-devlog</code> 已 clone 到 Isabella 容器。</li>
-  <li>SkillHub-only 模式已修正並驗證。</li>
-  <li>TrustForge 相關 SkillHub 技能已成功載入。</li>
-  <li>新增本篇 Day 18 開發日誌，並重建 <code>entries.json</code>、<code>feed.xml</code>、<code>sitemap.xml</code>。</li>
+  <li><b>JSON → SQLite 遷移</b>：新增 <code>migrate_json_cache_to_sqlite.py</code> 與 <code>migrate_json_ledger_to_sqlite.py</code>，cache 與成本 ledger 從容易破碎的 JSON 檔改為 SQLite。</li>
+  <li><b>本機守護服務</b>：新增 <code>com.hurricanesoft.trustforge-analysis-flow.plist</code>、<code>local-refresh</code>、<code>local-web</code>、<code>local-frontend</code>，讓 backend、frontend、refresh、analysis flow 可以由 launchd KeepAlive 維持。</li>
+  <li><b>雲端快取同步回本機</b>：<code>sync_cloud_cache_to_local.py</code> 支援把 Cloud cache 回灌本地，讓 local Hermes UI 不只靠 fixture。</li>
 </ul>
 
-<p>今天的成果比較像替 TrustForge 裝上「紀錄用的神經系統」：還沒碰主 repo 的私有程式碼，但已把日誌、技能、認證、權限與誠實邊界整理好。下一步只差 GitHub 主 repo 認證完成，就能把每日 commit 轉成更細的工程日誌。</p>
+<h3>6. 測試與回歸鎖</h3>
+<ul>
+  <li><b>新增測試面</b>：<code>tests/test_analysis_flow.py</code>、<code>tests/test_upgrade_control.py</code>、<code>tests/test_upgrade_queue.py</code>、<code>tests/test_upgrade_review.py</code> 補上分析流、升級拓撲、queue、人類閘門與 LLM review 的回歸鎖。</li>
+  <li><b>變更規模</b>：從 <code>v0.14.15</code> 到目前 HEAD，共 69 個檔案變動，約 <b>4703 行新增、467 行刪除</b>。</li>
+  <li><b>尚未在本輪重跑完整測試</b>：本篇是 repo 分析與日誌更新，不宣稱今日已重新跑完整 backend/frontend gate；測試通過狀態以主 repo 既有 commit 與 CI 紀錄為準。</li>
+</ul>
+
+<h3>誠實邊界</h3>
+<ul>
+  <li>本篇分析來源是 Gitea mirror <code>hurricanesoft/trustforge</code>，不是尚未登入的 GitHub private repo。</li>
+  <li>不宣稱已部署、不宣稱已啟用 production，也不宣稱自動升級可以繞過人類 gate。</li>
+  <li>Trust Kernel、模型、權重、completed reports 與 production deploy 仍在人工審查與 release 流程外，不允許 Hermes 自行改動。</li>
+</ul>
+
+<p>今天的結論很明確：TrustForge 的 Hermes 線已經從「可展示的 dashboard」往「可常駐、可追蹤、可審批、可回復的持續分析控制平面」前進。真正重要的不是多了一個 UI，而是每個分析結果、每個改進提案、每次 sandbox 與每個人工決策都開始留下 durable lineage。</p>
 
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-17</footer>
 </div><script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理","datePublished":"2026-07-17","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"基礎建設"}
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate","datePublished":"2026-07-17","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Hermes"}
 </script>
 <script src="../day-common.js"></script>
 </body></html>

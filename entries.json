@@ -21,16 +21,17 @@
       "id": "2026-07-17",
       "day": 18,
       "date": "2026-07-17",
-      "title": "Day 18 · Isabella 接手開發日誌 + SkillHub-only 工作流 + 權限整理",
-      "summary": "Isabella 正式接手 TrustForge 開發日誌工作流：確認 GitHub Pages devlog repo、修正 Gitea/Wiki 與 HOME 認證路徑、驗證 sudo 權限、停用本機 skills 並改以 SkillHub MCP 作為唯一技能來源，同時誠實標註 GitHub 主 repo 尚待認證。",
-      "category": "基礎建設",
+      "title": "Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate",
+      "summary": "分析 Gitea mirror 上的 TrustForge 最新主線：Hermes 從 dashboard 走向持續分析服務，落地 immutable snapshot、五階 worker、question RAG、upgrade topology、LLM review、sandbox 與 human approval durable gate；同時誠實標註 GitHub private repo 尚待認證，本輪未宣稱重新跑完整測試。",
+      "category": "Hermes",
       "tags": [
-        "isabella",
-        "devlog",
-        "skillhub",
-        "gitea",
-        "github",
-        "workflow"
+        "hermes",
+        "continuous-analysis",
+        "upgrade-governance",
+        "sqlite",
+        "rag",
+        "sandbox",
+        "human-gate"
       ],
       "file": "2026-07-17.html"
     },
