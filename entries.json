@@ -71,6 +71,24 @@
   },
   "entries": [
     {
+      "id": "2026-07-18",
+      "day": 19,
+      "date": "2026-07-18",
+      "title": "Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂",
+      "summary": "TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。",
+      "category": "Release Engineering",
+      "tags": [
+        "trustforge",
+        "ec2",
+        "certifi",
+        "deployment",
+        "release",
+        "testing"
+      ],
+      "file": "2026-07-18.html",
+      "created_at": "2026-07-18 03:01:26"
+    },
+    {
       "id": "2026-07-17",
       "day": 18,
       "date": "2026-07-17",

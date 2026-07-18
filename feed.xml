@@ -2,11 +2,74 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-17T00:00:00+08:00</updated>
+  <updated>2026-07-18T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html"/>
+    <updated>2026-07-18T00:00:00+08:00</updated>
+    <published>2026-07-18T00:00:00+08:00</published>
+    <summary>TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</summary>
+    <category term="Release Engineering"/>
+    <content type="html"><![CDATA[<header>
+        <p class="eyebrow">2026-07-18 · continuous analysis</p>
+        <h1>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</h1>
+        <p class="summary">TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</p>
+      </header>
+
+      <section>
+        <h2>資料來源</h2>
+        <ul>
+          <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+          <li>TrustForge HEAD：<code>b7cb92b34de6b7693f275687b6ab4f651a0a3120</code>（merge PR #217：TrustForge v0.16.1 EC2 runtime dependency hotfix）</li>
+          <li>分析時間：<code>2026-07-18 03:01:26 UTC</code></li>
+          <li>Devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>主要變更</h2>
+        <ul>
+          <li><code>deploy/deploy_ec2.sh</code> 的 EC2 update-in-place SSM 部署命令改為安裝 <code>boto3 certifi</code>，避免只在開發／打包環境有 CA bundle、但 EC2 執行環境缺少可攜式 trust store。</li>
+          <li><code>pyproject.toml</code> 版本提升為 <code>0.16.1</code>，並將 <code>certifi&gt;=2024.2.2</code> 納入正式 runtime dependency。</li>
+          <li><code>CHANGELOG.md</code> 新增 v0.16.1，記錄 EC2 update-in-place 與 first-boot 路徑都需要補齊 <code>certifi</code>，以支援 fetch-scheduler probe 與 DynamoDB cache cost-ledger 驗證前的外部 HTTPS 連線。</li>
+          <li><code>tests/test_deploy_ec2_unit_no_credential_layer.py</code> 新增迴歸檢查：部署腳本必須包含 <code>pip3 install boto3 certifi</code>，且不得退回舊的 <code>pip3 install boto3</code> 寫法。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>工程意義</h2>
+        <p>這次不是功能擴張，而是部署可靠度修補。TrustForge 近期已把外部 HTTPS connector 的憑證／hostname 檢查收緊；若 EC2 runtime 沒有明確安裝 <code>certifi</code>，安全策略會在部署後因缺少 CA trust store 而變成可用性風險。v0.16.1 把相依套件從隱含環境假設改為部署腳本與 package metadata 的明確契約，讓安全檢查與 EC2 啟動路徑一致。</p>
+      </section>
+
+      <section>
+        <h2>驗證／測試狀態</h2>
+        <ul>
+          <li>已執行：部署腳本字串斷言，確認 <code>deploy_ec2.sh</code> 包含 <code>pip3 install boto3 certifi</code> 並且不含舊的 <code>pip3 install boto3 &gt;&gt;/var/log/tf-setup.log</code>，結果：通過。</li>
+          <li>已執行：<code>bash -n /opt/data/projects/TrustForge/deploy/deploy_ec2.sh</code>，結果：通過。</li>
+          <li>嘗試執行：<code>python3 -m pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：目前環境沒有 <code>pytest</code> module。</li>
+          <li>嘗試執行：<code>uv run pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：專案可 build/install，但環境沒有 <code>pytest</code> executable，完整 pytest 未執行。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>誠實邊界</h2>
+        <p>本篇只根據 GitHub checkout、git commit、檔案內容與本機命令輸出撰寫；沒有宣稱已完成 EC2 實機部署，也沒有宣稱 fetch-scheduler 已在真實 AWS 環境通過。GitHub／Git 認證過程未輸出 token 或秘密。</p>
+      </section>
+
+      <section>
+        <h2>下一步</h2>
+        <ol>
+          <li>在 CI 或具備測試相依套件的環境補跑 targeted pytest，確認新增迴歸測試進入正式測試鏈。</li>
+          <li>下一次 EC2 部署後，抽查 SSM command log 與服務啟動 log，確認 <code>certifi</code> 安裝與 HTTPS connector probe 都成功。</li>
+          <li>把部署 runtime dependency 檢查擴充為更一般的 release gate，避免未來新增 connector 時再次依賴隱含環境。</li>
+        </ol>
+      </section>]]></content>
+  </entry>
   <entry>
     <title>Day 18-2 · GitHub 開發線安全收斂 + 五年歷史來源回填矩陣</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-17.html</id>
