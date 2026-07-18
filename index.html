@@ -151,7 +151,7 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     if (!out.length) { box.innerHTML = '<div class="empty">沒有符合的開發記錄。</div>'; }
     else {
       box.innerHTML = pageItems.map(e => {
-        const dn = e.day != null ? `Day ${e.day}` : '';
+        const dn = e.day_label || (e.day != null ? `Day ${e.day}` : '');
         const allTags = e.tags || [];
         const shown = allTags.slice(0, 3);
         const tags = shown.map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('')

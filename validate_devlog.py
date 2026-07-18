@@ -27,6 +27,7 @@ REQUIRED_ENTRY_FIELDS = {
     "tags",
     "file",
 }
+TITLE_DAY_RE = re.compile(r"^Day (?P<label>\d+(?:-\d+)?)\b")
 
 
 class LinkScriptParser(HTMLParser):
@@ -105,8 +106,16 @@ def validate_entries(errors: list[str]) -> list[dict]:
             fail(errors, f"{label}: day={entry['day']!r}, expected {expected_day(entry['date'])}")
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["date"]):
             fail(errors, f"{label}: date must be YYYY-MM-DD")
-        if not str(entry["title"]).startswith(f"Day {entry['day']}"):
-            fail(errors, f"{label}: title must start with Day {entry['day']}")
+        m = TITLE_DAY_RE.match(str(entry["title"]))
+        if not m:
+            fail(errors, f"{label}: title must start with Day <number> or Day <number>-<part>")
+        else:
+            title_label = m.group("label")
+            expected_prefix = str(entry["day"])
+            if title_label.split("-", 1)[0] != expected_prefix:
+                fail(errors, f"{label}: title label Day {title_label} does not match day={entry['day']}")
+            if entry.get("day_label") and entry["day_label"] != title_label:
+                fail(errors, f"{label}: day_label={entry.get('day_label')!r}, title uses {title_label!r}")
         if not str(entry["summary"]).strip():
             fail(errors, f"{label}: summary is empty")
         if not str(entry["category"]).strip():
@@ -135,6 +144,25 @@ def validate_entries(errors: list[str]) -> list[dict]:
     meta_tags = set(meta.get("tags") or [])
     if not tags <= meta_tags:
         fail(errors, f"meta.tags missing: {sorted(tags - meta_tags)}")
+
+    by_date: dict[str, list[dict]] = {}
+    for entry in entries:
+        by_date.setdefault(entry.get("date", ""), []).append(entry)
+    for d, same_day_entries in by_date.items():
+        if d < "2026-07-18" or len(same_day_entries) <= 1:
+            continue
+        # The first same-day card may keep the plain Day N label. Additional
+        # cards must show Day N-2, Day N-3, ... in both badge and title.
+        for part, entry in enumerate(same_day_entries, start=1):
+            if part == 1:
+                if entry.get("day_label") and entry["day_label"] != str(entry["day"]):
+                    fail(errors, f"{entry['id']}: first same-day entry should use plain Day {entry['day']}")
+                continue
+            expected_label = f"{entry['day']}-{part}"
+            if entry.get("day_label") != expected_label:
+                fail(errors, f"{entry['id']}: same-day entry requires day_label={expected_label!r}")
+            if not str(entry.get("title", "")).startswith(f"Day {expected_label}"):
+                fail(errors, f"{entry['id']}: same-day title must start with Day {expected_label}")
 
     return entries
 
