@@ -35,6 +35,7 @@ DB = ROOT / "devlog.db"
 ENTRIES = ROOT / "entries.json"
 FIRST_DATE = "2026-06-30"
 CATEGORIES = ["信任演算法", "誠實性", "產品體驗", "生產穩定", "部署營運", "Hermes", "基礎建設"]
+STYLE_VERSION = "20260718-format-fix"
 
 
 def conn():
@@ -92,14 +93,24 @@ def build():
     for e in entries:
         e["tags"] = [t for t in (e["tags"] or "").split(",") if t]
     dates = [e["date"] for e in entries]
+    categories = []
+    all_tags = []
+    for e in entries:
+        if e.get("category") and e["category"] not in categories:
+            categories.append(e["category"])
+        for t in e.get("tags") or []:
+            if t not in all_tags:
+                all_tags.append(t)
     meta = {
         "site": "TrustForge 開發記錄",
         "version": "v0.14.15",
         "generated": __import__("datetime").date.today().isoformat(),
         "total": len(entries),
+        "count": len(entries),
         "first_date": min(dates) if dates else FIRST_DATE,
         "last_date": max(dates) if dates else FIRST_DATE,
-        "categories": CATEGORIES,
+        "categories": categories or CATEGORIES,
+        "tags": sorted(all_tags),
     }
     ENTRIES.write_text(json.dumps({"meta": meta, "entries": entries},
                                   ensure_ascii=False, indent=2), encoding="utf-8")
@@ -119,10 +130,13 @@ def add(args):
         (ROOT / "days").mkdir(exist_ok=True)
         (ROOT / "days" / f"{args.date}.html").write_text(
             f"<!doctype html><html lang=zh-Hant><head><meta charset=utf-8>"
-            f"<link rel=stylesheet href=../style.css></head><body><div class=wrap>"
-            f"<a class=back href=../index.html>← 回開發記錄首頁</a><article>"
-            f"<h2>{args.title}</h2><p class=sub>{args.date}</p>{body}</article>"
-            f"<footer>TrustForge by HurricaneSoft·{args.date}</footer></div></body></html>",
+            f"<meta name=viewport content='width=device-width,initial-scale=1'>"
+            f"<link rel=stylesheet href=../style.css?v={STYLE_VERSION}></head><body>"
+            f"<main class=day-entry><nav class=top-nav><a class=back href=../index.html>← TrustForge Devlog</a></nav>"
+            f"<article><header><p class=eyebrow>{args.date[:10]} · {args.category}</p>"
+            f"<h1>{args.title}</h1><p class=summary>{args.summary}</p></header>{body}</article>"
+            f"<footer>TrustForge by HurricaneSoft·{args.date[:10]}</footer></main>"
+            f"<script src=../day-common.js?v={STYLE_VERSION}></script></body></html>",
             encoding="utf-8")
     c = conn()
     init_schema(c)

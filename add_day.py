@@ -26,20 +26,24 @@ FIRST_DATE = "2026-06-30"  # Day 1
 PAGE = """<!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} — TrustForge 開發記錄</title>
-<link rel="stylesheet" href="../style.css">
-</head><body><div class="wrap">
-<a class="back" href="../index.html">← 回開發記錄首頁</a>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
 <article>
-<h2>{title}</h2>
-<p class="sub">{date}</p>
+<header>
+<p class="eyebrow">{date} · {category}</p>
+<h1>{title}</h1>
+<p class="summary">{summary}</p>
 {meta}
+</header>
 {body}
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· {date}</footer>
-</div><script type="application/ld+json">
+</main><script type="application/ld+json">
 {{"@context":"https://schema.org","@type":"BlogPosting","headline":{jtitle},"datePublished":{jdate},"author":{{"@type":"Organization","name":"HurricaneSoft"}},"articleSection":{jcat}}}
 </script>
-<script src="../day-common.js"></script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
 </body></html>
 """
 
@@ -75,8 +79,9 @@ def main():
     jcat = _json.dumps(a.category, ensure_ascii=False)
     (ROOT / "days").mkdir(exist_ok=True)
     (ROOT / "days" / f"{a.date}.html").write_text(
-        PAGE.format(title=a.title, date=a.date, meta=meta_line, body=body,
-                    jtitle=jtitle, jdate=jdate, jcat=jcat), encoding="utf-8")
+        PAGE.format(title=a.title, date=a.date, category=a.category, summary=a.summary,
+                    meta=meta_line, body=body, jtitle=jtitle, jdate=jdate, jcat=jcat),
+        encoding="utf-8")
 
     ej = ROOT / "entries.json"
     data = json.loads(ej.read_text(encoding="utf-8")) if ej.exists() else {"meta": {}, "entries": []}
@@ -91,8 +96,21 @@ def main():
     data["entries"] = entries
     meta = data.setdefault("meta", {})
     meta["total"] = len(entries)
-    meta["last_date"] = entries[0]["date"] if entries else calendar_date
+    meta["count"] = len(entries)
+    meta["first_date"] = min((e["date"] for e in entries), default=calendar_date)
+    meta["last_date"] = max((e["date"] for e in entries), default=calendar_date)
     meta["generated"] = __import__("datetime").date.today().isoformat()
+    cats = []
+    all_tags = []
+    for e in entries:
+        c = e.get("category")
+        if c and c not in cats:
+            cats.append(c)
+        for t in e.get("tags") or []:
+            if t not in all_tags:
+                all_tags.append(t)
+    meta["categories"] = cats
+    meta["tags"] = sorted(all_tags)
     data["meta"] = meta
 
     ej.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
