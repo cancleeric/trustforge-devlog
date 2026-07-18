@@ -151,7 +151,7 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     if (!out.length) { box.innerHTML = '<div class="empty">沒有符合的開發記錄。</div>'; }
     else {
       box.innerHTML = pageItems.map(e => {
-        const dn = e.day_label || (e.day != null ? `Day ${e.day}` : '');
+        const dn = e.day != null ? `Day ${e.day}` : '';
         const published = (e.created_at && e.created_at.slice(0, 10) === e.date) ? e.created_at.slice(0, 16) : e.date;
         const allTags = e.tags || [];
         const shown = allTags.slice(0, 3);

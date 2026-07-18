@@ -155,12 +155,12 @@ def validate_entries(errors: list[str]) -> list[dict]:
     for d, same_day_entries in by_date.items():
         if d < "2026-07-18" or len(same_day_entries) <= 1:
             continue
-        # The first same-day card may keep the plain Day N label. Additional
-        # cards must show Day N-2, Day N-3, ... in both badge and title.
+        # Entry-card badges must stay plain Day N. Additional same-day entries
+        # are disambiguated by title + publication time, not by the left badge.
         for part, entry in enumerate(same_day_entries, start=1):
             if part == 1:
-                if entry.get("day_label") and entry["day_label"] != str(entry["day"]):
-                    fail(errors, f"{entry['id']}: first same-day entry should use plain Day {entry['day']}")
+                if entry.get("day_label"):
+                    fail(errors, f"{entry['id']}: card badge must stay plain Day {entry['day']}; remove day_label")
                 continue
             expected_label = f"{entry['day']}-{part}"
             if entry.get("day_label") != expected_label:
@@ -215,6 +215,8 @@ def validate_static_contract(errors: list[str]) -> None:
         fail(errors, "index.html: missing stylesheet cache buster")
     if "const published = (e.created_at && e.created_at.slice(0, 10) === e.date)" not in index:
         fail(errors, "index.html: entry cards must display publication date + time from same-date created_at")
+    if "const dn = e.day != null ? `Day ${e.day}` : '';" not in index:
+        fail(errors, "index.html: left Day badge must use plain numeric day, not day_label suffixes")
     if r"^Day \d+(?:[-–—]\d+)?[ ·—-]*" not in js:
         fail(errors, "day-common.js: nav title regex must support Day 18-2 style titles")
 
