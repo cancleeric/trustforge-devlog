@@ -9,7 +9,7 @@
 
   function navBar(prev, next) {
     const a = (e, label, dir) => e
-      ? `<a class="dn-nav ${dir}" href="${e.file}"><span class="dn-dir">${dir === 'prev' ? '←' : '→'}</span><span class="dn-t">${label}<br><b>${e.title.replace(/^Day \d+[ ·—-]*/, '')}</b></span></a>`
+      ? `<a class="dn-nav ${dir}" href="${e.file}"><span class="dn-dir">${dir === 'prev' ? '←' : '→'}</span><span class="dn-t">${label}<br><b>${e.title.replace(/^Day \d+(?:[-–—]\d+)?[ ·—-]*/, '')}</b></span></a>`
       : '';
     return `<nav class="dn-navbar">${a(prev, '較新一篇', 'prev')}${a(next, '較舊一篇', 'next')}</nav>`;
   }

@@ -2,20 +2,22 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-17",
-    "total": 24,
+    "generated": "2026-07-18",
+    "total": 27,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-17",
+    "last_date": "2026-07-18",
     "categories": [
+      "Release Engineering",
+      "Continuous Analysis",
       "Hermes",
+      "生產穩定",
+      "誠實性",
+      "部署營運",
       "信任演算法",
       "基礎建設",
-      "生產穩定",
-      "產品體驗",
-      "誠實性",
-      "部署營運"
+      "產品體驗"
     ],
-    "count": 25,
+    "count": 27,
     "tags": [
       "ai-friendly",
       "algorithm",
@@ -23,6 +25,7 @@
       "audit",
       "bedrock",
       "cache",
+      "certifi",
       "completeness",
       "connectors",
       "continuous-analysis",
@@ -31,7 +34,9 @@
       "counting",
       "dashboard",
       "deploy",
+      "deployment",
       "docs",
+      "ec2",
       "framework",
       "github",
       "hermes",
@@ -45,6 +50,7 @@
       "observability",
       "overview",
       "product",
+      "queue",
       "radar",
       "rag",
       "ranking",
@@ -54,6 +60,7 @@
       "release",
       "reliability",
       "reputation",
+      "runtime-control",
       "sandbox",
       "scale",
       "sec",
@@ -65,8 +72,10 @@
       "testing",
       "trust",
       "trust-architecture",
+      "trustforge",
       "ui",
-      "upgrade-governance"
+      "upgrade-governance",
+      "worker"
     ]
   },
   "entries": [
@@ -93,7 +102,19 @@
       "date": "2026-07-18",
       "title": "Day 19 · Durable Analysis Worker 與手動分析佇列收斂",
       "summary": "TrustForge 主線自上一篇 devlog 之後新增 33 個 commit，版本推進到 v0.16.12；核心是把 production 分析流程改成可持久化 worker、手動分析高優先佇列、Hermes 低優先排程與 runtime 控制面，並補齊前端狀態、API 文件、部署腳本與競賽收斂文件。",
-      "file": "2026-07-18-durable-analysis-worker.html"
+      "file": "2026-07-18-durable-analysis-worker.html",
+      "day": 19,
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "worker",
+        "runtime-control",
+        "queue",
+        "hermes",
+        "release"
+      ],
+      "created_at": "2026-07-18 15:06:22"
     },
     {
       "id": "2026-07-17",

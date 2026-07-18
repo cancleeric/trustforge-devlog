@@ -69,7 +69,7 @@ a:hover { text-decoration: underline; }
   background: var(--card); border: 1px solid var(--bd); border-radius: var(--radius);
   padding: 1rem 1.2rem; margin: .8rem 0; transition: border-color .15s, transform .1s; }
 .entry:hover { border-color: var(--acc); text-decoration: none; transform: translateY(-1px); }
-.entry .day { grid-row: span 3; text-align: center; border-right: 1px solid var(--bd); padding-right: 1rem; }
+.entry .day { grid-row: span 4; text-align: center; border-right: 1px solid var(--bd); padding-right: 1rem; }
 .entry .day .dn { font-size: 1.5rem; font-weight: 800; color: var(--acc); line-height: 1; }
 .entry .day .dl { font-size: .62rem; color: var(--mut); letter-spacing: .08em; margin-top: .2rem; }
 .entry .title { font-size: 1.12rem; font-weight: 600; color: var(--fg); margin: 0; }
@@ -109,6 +109,14 @@ mark { background: rgba(210,153,34,.35); color: inherit; border-radius: 3px; pad
 hr { border: 0; border-top: 1px solid var(--bd); margin: 1.6rem 0; }
 
 /* day page */
+.day-entry { max-width: 920px; margin: 0 auto; padding: 2.2rem 1.2rem 4rem; }
+.day-entry > .top-nav { margin-bottom: 1rem; }
+.day-entry article { background: transparent; }
+.day-entry header { margin-bottom: 1.4rem; }
+.day-entry .eyebrow { color: var(--mut); margin: 0 0 .8rem; }
+.day-entry h1 { margin: 0 0 .8rem; line-height: 1.25; }
+.day-entry .summary { color: var(--fg); font-size: 1rem; margin: 0; }
+.day-entry section { margin: 1.6rem 0; }
 article h2 { font-size: 1.5rem; margin-top: 0; }
 
 /* references status badges + legend (references.html) */
