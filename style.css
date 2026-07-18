@@ -65,12 +65,12 @@ a:hover { text-decoration: underline; }
 
 /* entries */
 .entries { margin-top: .4rem; }
-.entry { display: grid; grid-template-columns: 64px 1fr; gap: .2rem 1rem; align-items: start;
+.entry { display: grid; grid-template-columns: 78px 1fr; gap: .2rem 1rem; align-items: start;
   background: var(--card); border: 1px solid var(--bd); border-radius: var(--radius);
   padding: 1rem 1.2rem; margin: .8rem 0; transition: border-color .15s, transform .1s; }
 .entry:hover { border-color: var(--acc); text-decoration: none; transform: translateY(-1px); }
 .entry .day { grid-row: span 4; text-align: center; border-right: 1px solid var(--bd); padding-right: 1rem; }
-.entry .day .dn { font-size: 1.5rem; font-weight: 800; color: var(--acc); line-height: 1; }
+.entry .day .dn { font-size: 1.35rem; font-weight: 800; color: var(--acc); line-height: 1; white-space: nowrap; }
 .entry .day .dl { font-size: .62rem; color: var(--mut); letter-spacing: .08em; margin-top: .2rem; }
 .entry .title { font-size: 1.12rem; font-weight: 600; color: var(--fg); margin: 0; }
 .entry .meta { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .2rem 0 .35rem; }

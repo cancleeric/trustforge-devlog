@@ -120,6 +120,10 @@ def validate_entries(errors: list[str]) -> list[dict]:
             fail(errors, f"{label}: summary is empty")
         if not str(entry["category"]).strip():
             fail(errors, f"{label}: category is empty")
+        if entry["date"] >= "2026-07-18":
+            created_at = str(entry.get("created_at", ""))
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", created_at):
+                fail(errors, f"{label}: created_at must be YYYY-MM-DD HH:MM:SS")
         if not isinstance(entry["tags"], list) or not entry["tags"]:
             fail(errors, f"{label}: tags must be a non-empty list")
         if not (ROOT / "days" / file_name).exists():
@@ -209,6 +213,8 @@ def validate_static_contract(errors: list[str]) -> None:
         fail(errors, "style.css: .day-entry max-width guard missing")
     if "style.css?v=20260718-format-fix" not in index:
         fail(errors, "index.html: missing stylesheet cache buster")
+    if "const published = (e.created_at && e.created_at.slice(0, 10) === e.date)" not in index:
+        fail(errors, "index.html: entry cards must display publication date + time from same-date created_at")
     if r"^Day \d+(?:[-–—]\d+)?[ ·—-]*" not in js:
         fail(errors, "day-common.js: nav title regex must support Day 18-2 style titles")
 

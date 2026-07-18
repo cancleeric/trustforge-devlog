@@ -152,6 +152,7 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
     else {
       box.innerHTML = pageItems.map(e => {
         const dn = e.day_label || (e.day != null ? `Day ${e.day}` : '');
+        const published = (e.created_at && e.created_at.slice(0, 10) === e.date) ? e.created_at.slice(0, 16) : e.date;
         const allTags = e.tags || [];
         const shown = allTags.slice(0, 3);
         const tags = shown.map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('')
@@ -160,7 +161,7 @@ fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
         return `<a class="entry" href="days/${e.file}" data-href="days/${e.file}">
           <div class="day"><div class="dn">${dn.replace('Day ', '')}</div><div class="dl">DAY</div></div>
           <h3 class="title">${hl(e.title)}</h3>
-          <div class="meta">${cat}<span class="date">${e.date}</span></div>
+          <div class="meta">${cat}<span class="date">${published}</span></div>
           <p class="summary">${hl(e.summary)}</p>
           <div class="tags">${tags}</div>
         </a>`;
