@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day 19 · Durable Analysis Worker 與手動分析佇列收斂｜TrustForge 開發記錄</title>
+  <meta name="description" content="TrustForge 主線自上一篇 devlog 之後新增 33 個 commit，版本推進到 v0.16.12；核心是把 production 分析流程改成可持久化 worker、手動分析高優先佇列、Hermes 低優先排程與 runtime 控制面，並補齊前端狀態、API 文件、部署腳本與競賽收斂文件。">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">TrustForge Devlog</a>
+    <nav><a href="../index.html">Entries</a><a href="../references.html">References</a></nav>
+  </header>
+  <main class="day-page">
+    <article class="day-entry">
+      <p class="eyebrow">2026-07-18 · Continuous Analysis</p>
+      <h1>Day 19 · Durable Analysis Worker 與手動分析佇列收斂</h1>
+      <p class="lede">TrustForge 主線自上一篇 devlog 之後新增 33 個 commit，版本推進到 v0.16.12；核心是把 production 分析流程改成可持久化 worker、手動分析高優先佇列、Hermes 低優先排程與 runtime 控制面，並補齊前端狀態、API 文件、部署腳本與競賽收斂文件。</p>
+
+      <section>
+        <h2>資料來源</h2>
+        <ul>
+          <li>主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+          <li>分析基準：上一篇 devlog 後的本機主線 <code>b7cb92b</code> → <code>770564fd4069c689a278da82565233bde290f2ab</code>（<code>770564f</code>）</li>
+          <li>目前版本標籤：<code>v0.16.12</code></li>
+          <li>分析時間：<time datetime="2026-07-18T15:06:22Z">2026-07-18 15:06:22 +0000 UTC</time></li>
+          <li>變更範圍：33 個 commit、74 個檔案；前端 18、文件 12、部署 10、scripts 8、src 8、tests 8，其餘為 Kiro steering、CI、README、CHANGELOG、VERSION。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>主要變更</h2>
+        <ul>
+          <li><strong>Production 分析 worker 持久化：</strong>最新 HEAD <code>fix: run durable analysis worker in production</code> 把 production 分析改成由 durable worker 消化工作，避免手動分析只停留在 ephemeral request path。</li>
+          <li><strong>手動分析高優先佇列：</strong><code>feat: prioritize durable manual analysis jobs</code> 與 v0.16.10–v0.16.11 的 changelog 顯示，手動 run 與 Hermes 自動排程已切開；手動工作可持久化、優先處理，並回報目前節點、佇列位置、錯誤與完成報告。</li>
+          <li><strong>Hermes 排程降為背景節奏：</strong>Hermes 每 30 分鐘建立低優先工作，worker 仍會優先消化手動工作；同時新增 CEO sweep 與半小時排程安裝／解除腳本，讓自動開發節奏可被部署層管理。</li>
+          <li><strong>Runtime 控制面：</strong>新增 <code>src/trustforge/runtime_control.py</code>、<code>scripts/trustforge_control.sh</code> 與對應測試，讓 production 可用更明確的方式控制 Hermes／分析服務狀態。</li>
+          <li><strong>前端狀態收斂：</strong><code>AnalyzePage</code>、<code>HermesDashboard</code>、<code>HistoryPage</code>、<code>StatusStates</code> 與 API client/type/validator 有同步更新，對應新的佇列與分析生命週期。</li>
+          <li><strong>文件與競賽收斂：</strong>新增 Kiro steering、競賽 build plan、creative strategy、設計稿與 finale two-week execution plan，將 TrustForge 的「信任層／透明分析」敘事與交付節奏具體化。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>工程意義</h2>
+        <p>這批變更把 TrustForge 從「按下手動分析後等待同步流程」推向「可持久化、可排隊、可觀測、可由 runtime 控制」的服務模型。手動分析與 Hermes 排程分流後，使用者操作不再被背景節奏綁住；而 worker、佇列位置、錯誤與完成報告的可見性，能支撐更可靠的 production demo 與後續營運。</p>
+        <p>部署與文件層也同步往競賽收斂：版本已到 <code>v0.16.12</code>，README、OpenAPI、EC2 deploy、nginx、launchd/EventBridge 腳本都被更新，代表這不是單一前端修補，而是跨 API、worker、部署與敘事的一次 release hardening。</p>
+      </section>
+
+      <section>
+        <h2>驗證／測試狀態</h2>
+        <ul>
+          <li>已在本次排程執行：<code>npm ci</code>，完成前端依賴安裝。</li>
+          <li>已在本次排程執行：<code>npm test -- --run src/pages/AnalyzePage.test.tsx src/pages/HermesDashboard.test.tsx src/pages/HistoryPage.test.tsx --reporter=dot</code>，結果為 <strong>3 個 test files、4 個 tests 全部通過</strong>。</li>
+          <li>Python 測試嘗試：<code>python3 -m pytest ...</code> 與 <code>uv run python -m pytest ...</code> 都因目前環境未安裝 <code>pytest</code> 而無法執行；這是工具鏈缺口，不代表測試失敗。</li>
+          <li>主 repo worktree 在產生 devlog 前已恢復乾淨；本次 devlog 僅修改 TrustForge-devlog repo。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>誠實邊界</h2>
+        <ul>
+          <li>我沒有部署到 production，也沒有宣稱 live endpoint 已驗證。</li>
+          <li>我沒有讀取或輸出任何 GitHub token、環境變數秘密或 production secret。</li>
+          <li>Python 後端 pytest 在此排程環境缺少 pytest；完整後端測試仍需要補齊 dev/test dependency 後再跑。</li>
+          <li>本篇依據 git、檔案與實際命令輸出整理；未把未執行的測試或部署寫成已完成。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>下一步</h2>
+        <ol>
+          <li>補齊 Python 測試工具鏈，讓 <code>tests/test_runtime_control.py</code>、<code>tests/test_analysis_flow.py</code>、<code>tests/test_admin_api.py</code> 可在排程環境用同一命令穩定執行。</li>
+          <li>針對 durable worker 補上 production health check：佇列深度、最後完成時間、最後錯誤與手動工作 SLA。</li>
+          <li>在下一輪 devlog 追蹤 v0.16.12 是否已完成 production deploy，以及手動分析與 Hermes 低優先排程在真實負載下的分流效果。</li>
+        </ol>
+      </section>
+    </article>
+  </main>
+  <script src="../day-common.js"></script>
+</body>
+</html>
