@@ -1,0 +1,90 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-19 · Hermes</p>
+<h1>Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes</h1>
+<p class="summary">TrustForge 主線自 074e6de 推進到 53e27ad（v0.16.14），完成 HERMES R2 深色艦橋設計稿入庫與全站對稿實作，新增 Snapshot Modal、Settings／Notifications／Help Center 頁面，讓 HoyaBit connector 在真實資料缺席時 fail closed，並把 CEO issue lanes 收斂成守門、可觀測但不越權的本機優先開發節奏；本輪實跑相關後端 138 passed、前端 268 passed 與 Vite build。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#trustforge #hermes #frontend #design #hoyabit #ceo-lanes #testing #release</p>
+</header>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>本輪分析時間：<code>2026-07-19 15:02:43 UTC</code>（台灣時間 <code>2026-07-19 23:02:43 CST</code>）</li>
+    <li>比較基準：上一篇 devlog 記錄的主 repo HEAD <code>074e6de</code></li>
+    <li>目前 HEAD：<code>53e27ad2d6b0</code>（tag <code>v0.16.14</code>，commit 時間 2026-07-19 22:53:50 +0800）</li>
+    <li>變更範圍：<code>62 files changed, 1565 insertions(+), 171 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>HERMES R2 深色艦橋全站對稿：</strong>新增 15 份 design canon HTML，並把首頁、Analyze、Compare、Costs、History、Status、Admin 等頁面統一往 R2 bridge shell 對齊。</li>
+    <li><strong>原始快照透明化：</strong>新增 <code>frontend/src/components/SnapshotModal.tsx</code>，以真實 <code>Evidence</code> 欄位組出不可竄改 payload、來源摘要與 lineage；註解明確拒絕照設計稿捏造 price／volume 之類不存在欄位。</li>
+    <li><strong>新增使用者工作區：</strong>加入 <code>SettingsPage</code>、<code>NotificationsPage</code>、<code>HelpCenterPage</code>，Settings 只把真正有持久化的主題切換接到既有 theme 邏輯，其餘偏好明確標示為 session 內展示，不假裝後端已存在。</li>
+    <li><strong>HoyaBit truth status fail-closed：</strong>調整 connector／cache 邏輯，真實行情或 truth 狀態無法取得時不再用 stub 或 stale 內容偽裝成可採信來源，並補上 <code>tests/test_hoyabit_stub.py</code> 與 connector cache 測試。</li>
+    <li><strong>CEO issue lanes 收斂：</strong>新增 <code>scripts/ceo_lane_guard.py</code>、hourly launchd template、CEO development loop prompt 與排程測試；背景 lanes 只做建議、分流與守門，不自動 merge、不自動 deploy。</li>
+    <li><strong>版本推進：</strong><code>VERSION</code> 更新到 <code>0.16.14</code>，<code>CHANGELOG.md</code> 記錄 v0.16.13／v0.16.14 的新手體驗、手動分析分離、AgentCore bridge、CEO sweep 與快照查詢修正。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這一輪的核心是把「看起來像艦橋」往「資料與狀態真的可信的艦橋」推進。R2 UI 對稿不是單純換皮，而是把快照、來源、設定、通知與說明頁接成完整操作面；同時透過 Snapshot Modal 與 fail-closed connector，把不確定資料留在誠實邊界內。</p>
+  <p>CEO lanes 的改動則把開發節奏從臨時排程提升成有守門、有 reviewer service 路徑、有本機優先 fallback 的連續治理流程，但仍遵守 TrustForge 的人類核准邊界：自動化可以提出建議與產生證據，不能自行合併或部署。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li>後端重點測試：<code>uv run pytest tests/test_ceo_sweep_schedule.py tests/test_connector_cache.py tests/test_hoyabit_stub.py --no-cov</code>，結果 <strong>138 passed</strong>。</li>
+    <li>前端測試：<code>npm test</code>，結果 <strong>34 files／268 tests passed</strong>。</li>
+    <li>前端 build：<code>npm run build</code> 成功，Vite 產出 <code>dist/</code> bundle。</li>
+    <li>devlog 站台驗證稍後以 repo 內 <code>validate_devlog.py</code>、JSON 檢查、HTML parser、feed 與 sitemap XML parser 執行。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪沒有宣稱 production 已部署，也沒有呼叫或檢查線上 API 健康狀態。</li>
+    <li>測試覆蓋了本輪 HoyaBit、connector cache、CEO sweep、前端 suite 與 build；沒有宣稱已跑全倉所有可能的整合／部署測試。</li>
+    <li>Settings／Notifications 目前仍有部分 UI 是前端 session 內互動展示；devlog 不把它描述成已完成後端偏好儲存服務。</li>
+    <li>AgentCore 真實 AWS runtime／strands streaming 路徑仍需在具備對應憑證與 model access 的環境另外驗證。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>替 R2 深色艦橋做桌機與手機 eye scan，特別檢查 Snapshot Modal、Settings、Notifications、Help Center 的 overflow、focus trap 與可讀性。</li>
+    <li>把 Settings 內目前只是 session 展示的偏好拆出後端 API 設計，避免前端長期維持「看似可存」的假互動。</li>
+    <li>在 production release gate 中驗證 HoyaBit fail-closed 對資料不足狀態的實際使用者訊息，不讓錯誤被包裝成低風險結論。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>a217e6f release: prepare v0.16.13 (#235)
+5e04dd5 docs(release): complete v0.16.13 notes
+8a1cde1 feat: add guarded continuous CEO issue lanes
+821e6db fix: harden unattended CEO dispatch
+994ca4d fix: keep guarded issue lanes productive
+84ed1c4 fix: provide launchd tool path
+f273c5a fix: allow issue lanes to reach review services
+4f9a3c4 docs(design): 存入 HERMES R2 深色艦橋設計稿 15 頁
+0195b99 fix(frontend): contain first-run layout on mobile
+f09a247 fix: keep local-first issue lanes productive
+7dce4b9 fix: make HoyaBit truth status fail closed (#246)
+2ab6009 feat(frontend): HERMES R2 深色艦橋全站對稿實作
+53e27ad chore(release): bump version to 0.16.14 [auto pre-push]</code></pre>
+</section>
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-19</footer>
+</main><script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes", "datePublished": "2026-07-19", "author": {"@type": "Organization", "name": "HurricaneSoft"}, "articleSection": "Hermes"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

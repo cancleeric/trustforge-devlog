@@ -3,7 +3,7 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-19",
-    "total": 28,
+    "total": 29,
     "first_date": "2026-06-30",
     "last_date": "2026-07-19",
     "categories": [
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 28,
+    "count": 29,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -26,6 +26,7 @@
       "audit",
       "bedrock",
       "cache",
+      "ceo-lanes",
       "certifi",
       "completeness",
       "connectors",
@@ -36,6 +37,7 @@
       "dashboard",
       "deploy",
       "deployment",
+      "design",
       "docs",
       "ec2",
       "framework",
@@ -44,6 +46,7 @@
       "hermes",
       "historical-backfill",
       "honesty",
+      "hoyabit",
       "human-gate",
       "logo",
       "manipulation",
@@ -100,6 +103,27 @@
       ],
       "file": "2026-07-19.html",
       "created_at": "2026-07-19 03:08:35"
+    },
+    {
+      "id": "2026-07-19-r2-darkbridge-ceo-lanes",
+      "date": "2026-07-19",
+      "title": "Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes",
+      "summary": "TrustForge 主線自 074e6de 推進到 53e27ad（v0.16.14），完成 HERMES R2 深色艦橋設計稿入庫與全站對稿實作，新增 Snapshot Modal、Settings／Notifications／Help Center 頁面，讓 HoyaBit connector 在真實資料缺席時 fail closed，並把 CEO issue lanes 收斂成守門、可觀測但不越權的本機優先開發節奏；本輪實跑相關後端 138 passed、前端 268 passed 與 Vite build。",
+      "file": "2026-07-19-r2-darkbridge-ceo-lanes.html",
+      "day": 20,
+      "category": "Hermes",
+      "tags": [
+        "trustforge",
+        "hermes",
+        "frontend",
+        "design",
+        "hoyabit",
+        "ceo-lanes",
+        "testing",
+        "release"
+      ],
+      "created_at": "2026-07-19 23:04:30",
+      "day_label": "20-2"
     },
     {
       "id": "2026-07-18",
