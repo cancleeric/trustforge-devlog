@@ -61,6 +61,13 @@ def expected_day(date_str: str) -> int:
     return (date.fromisoformat(date_str[:10]) - FIRST_DATE).days + 1
 
 
+def sort_key(entry: dict) -> str:
+    created_at = entry.get("created_at") or ""
+    if isinstance(created_at, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", created_at):
+        return created_at
+    return f"{entry.get('date', '')} 00:00:00"
+
+
 def validate_entries(errors: list[str]) -> list[dict]:
     path = ROOT / "entries.json"
     try:
@@ -74,6 +81,10 @@ def validate_entries(errors: list[str]) -> list[dict]:
     if not isinstance(entries, list):
         fail(errors, "entries.json: entries must be a list")
         return []
+
+    expected_order = sorted(entries, key=sort_key, reverse=True)
+    if [e.get("id") for e in entries] != [e.get("id") for e in expected_order]:
+        fail(errors, "entries.json: entries must be sorted by created_at/date descending")
 
     ids: set[str] = set()
     files: set[str] = set()
@@ -104,6 +115,10 @@ def validate_entries(errors: list[str]) -> list[dict]:
             not isinstance(entry["day"], int) or entry["day"] != expected_day(entry["date"])
         ):
             fail(errors, f"{label}: day={entry['day']!r}, expected {expected_day(entry['date'])}")
+        if entry["date"] >= "2026-07-18" and not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", str(entry.get("created_at", ""))
+        ):
+            fail(errors, f"{label}: created_at is required for date/time sorting")
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["date"]):
             fail(errors, f"{label}: date must be YYYY-MM-DD")
         m = TITLE_DAY_RE.match(str(entry["title"]))
@@ -155,18 +170,12 @@ def validate_entries(errors: list[str]) -> list[dict]:
     for d, same_day_entries in by_date.items():
         if d < "2026-07-18" or len(same_day_entries) <= 1:
             continue
-        # Entry-card badges must stay plain Day N. Additional same-day entries
-        # are disambiguated by title + publication time, not by the left badge.
-        for part, entry in enumerate(same_day_entries, start=1):
-            if part == 1:
-                if entry.get("day_label"):
-                    fail(errors, f"{entry['id']}: card badge must stay plain Day {entry['day']}; remove day_label")
-                continue
-            expected_label = f"{entry['day']}-{part}"
-            if entry.get("day_label") != expected_label:
-                fail(errors, f"{entry['id']}: same-day entry requires day_label={expected_label!r}")
-            if not str(entry.get("title", "")).startswith(f"Day {expected_label}"):
-                fail(errors, f"{entry['id']}: same-day title must start with Day {expected_label}")
+        # Card badges must stay plain Day N. Same-day ordering is by
+        # publication time; the title may keep an editorial suffix such as
+        # Day 20-2, but validation must not force suffixes to follow sort order.
+        for entry in same_day_entries:
+            if entry.get("day_label"):
+                fail(errors, f"{entry['id']}: card badge must stay plain Day {entry['day']}; remove day_label")
 
     return entries
 

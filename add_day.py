@@ -17,8 +17,10 @@
 不會再被「同一天多篇」灌水。可用 build_db.py 從 SQLite 重建此檔。
 """
 import argparse
+import datetime
 import json
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parent
 FIRST_DATE = "2026-06-30"  # Day 1
@@ -53,6 +55,13 @@ def day_of(date_str):
     a = date.fromisoformat(FIRST_DATE)
     b = date.fromisoformat(date_str[:10])
     return (b - a).days + 1
+
+
+def sort_key(entry):
+    created_at = entry.get("created_at") or ""
+    if isinstance(created_at, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", created_at):
+        return created_at
+    return f"{entry.get('date', '')} 00:00:00"
 
 
 def main():
@@ -90,8 +99,9 @@ def main():
     entries.insert(0, {
         "id": a.date, "day": day, "date": calendar_date, "title": a.title,
         "summary": a.summary, "category": a.category, "tags": tags, "file": f"{a.date}.html",
+        "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     })
-    entries.sort(key=lambda e: e["date"], reverse=True)
+    entries.sort(key=sort_key, reverse=True)
 
     data["entries"] = entries
     meta = data.setdefault("meta", {})

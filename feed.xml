@@ -8,85 +8,6 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
-    <title>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪</title>
-    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-19.html</id>
-    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-19.html"/>
-    <updated>2026-07-19T00:00:00+08:00</updated>
-    <published>2026-07-19T00:00:00+08:00</published>
-    <summary>TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。</summary>
-    <category term="Hermes"/>
-    <content type="html"><![CDATA[<header>
-<p class="eyebrow">2026-07-19 · Hermes</p>
-<h1>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪</h1>
-<p class="summary">TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。</p>
-<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#trustforge #agentcore #hermes #frontend #ux #testing #release</p>
-</header>
-
-<section>
-  <h2>資料來源</h2>
-  <ul>
-    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
-    <li>本輪分析時間：<code>2026-07-19 03:07:16 UTC</code></li>
-    <li>比較基準：上一篇 devlog 記錄的 <code>770564f</code></li>
-    <li>目前 HEAD：<code>074e6de</code>／<code>074e6deb4c5475bbaadbb2fa96109de7ff2268a9</code>（2026-07-19 08:32:46 +0800）</li>
-    <li>變更範圍：<code>58 files changed, 1809 insertions(+), 130 deletions(-)</code></li>
-  </ul>
-</section>
-<section>
-  <h2>主要變更</h2>
-  <ul>
-    <li><strong>AgentCore/strands LLM 橋接器：</strong>新增 <code>src/trustforge/agentcore_llm_bridge.py</code> 與 <code>tests/test_agentcore_llm_bridge.py</code>，在 <code>TRUSTFORGE_AGENTCORE=1</code> 時才 lazy import strands，保留既有 BedrockClient 介面並避免一般 CI／離線環境被新相依拖垮。</li>
-    <li><strong>AgentCore 遷移計畫：</strong>新增 <code>AGENTCORE_MIGRATION_PLAN.md</code>，把 workshop AgentCore runtime 的目標、邊界、目錄草案、部署風險與待驗證項目寫清楚，且明確標示尚未部署、尚未建立 AWS 資源。</li>
-    <li><strong>Hermes 新手體驗：</strong>新增首次使用 focus mode、三步驟 onboarding、白話結果摘要、glossary tooltip、可行動導覽說明與 beginnerExperience localStorage 記憶，降低使用者一進 dashboard 就被大量 telemetry 淹沒的風險。</li>
-    <li><strong>分析狀態誠實性：</strong>修正手動分析優先與真實 run telemetry，補上 result readiness、stage drilldown 與 live analyze fixture，讓前端更能分辨「可看上一份完整結果」與「新任務仍在跑」。</li>
-    <li><strong>營運節奏：</strong>CEO development sweep 從半小時調整成 hourly，並新增 launchd／排程測試，讓背景建議報告維持可觀測但不越權自動改 code、merge 或 deploy。</li>
-    <li><strong>Demo 降級資訊收斂：</strong>隱藏不該暴露給一般 demo 使用者的內部降級細節，同時保留工程側可追蹤的模型與成本事件。</li>
-  </ul>
-</section>
-<section>
-  <h2>工程意義</h2>
-  <p>這批 commit 的主軸不是再加一個炫功能，而是把 TrustForge 從「工程師看得懂的 Hermes 控制台」往「第一次使用也能完成可信分析」推進；同時，AgentCore bridge 以 feature flag 與 lazy import 的方式接入，讓 workshop／AgentCore 探索不污染現有 production 路徑。</p>
-  <p>對產品而言，新手教學、白話摘要與 glossary 是轉化率工程；對架構而言，AgentCore bridge 與遷移計畫則是把未來可部署到 Bedrock AgentCore 的最小切面先切出來，並把不能宣稱的地方明確寫成邊界。</p>
-</section>
-<section>
-  <h2>驗證與測試狀態</h2>
-  <ul>
-    <li>後端重點測試：<code>pytest tests/test_agentcore_llm_bridge.py tests/test_analysis_flow.py tests/test_ceo_sweep_schedule.py tests/test_security.py --no-cov</code>，結果 <strong>100 passed</strong>。</li>
-    <li>前端測試：第一次嘗試 <code>npm test -- --runInBand</code> 因 Vitest 不支援該 Jest 參數失敗；改跑 <code>npm test</code>，結果 <strong>34 files／268 tests passed</strong>。</li>
-    <li>前端 build：<code>npm run build</code> 成功，Vite 輸出 <code>dist/</code> bundle。</li>
-  </ul>
-</section>
-<section>
-  <h2>誠實邊界</h2>
-  <ul>
-    <li>本輪沒有宣稱已部署 production，也沒有宣稱已在 workshop AWS 帳號完成真實 AgentCore deploy。</li>
-    <li>AgentCore bridge 的真實 Bedrock streaming 回應仍需要在具備 strands、AWS 憑證與 workshop model access 的環境驗證；本機只驗證橋接邏輯與失敗邊界。</li>
-    <li>後端跑的是與本輪變更高度相關的 100 個測試，不是全倉 pytest 覆蓋率測試。</li>
-  </ul>
-</section>
-<section>
-  <h2>下一步</h2>
-  <ul>
-    <li>在 workshop／AgentCore runtime 環境實測 <code>TRUSTFORGE_AGENTCORE=1</code> 的真實 streaming LLM 路徑。</li>
-    <li>替 onboarding 與白話摘要做一次實機 eye scan，確認桌機與手機版沒有遮擋、溢位或誤導文案。</li>
-    <li>若 AgentCore 路徑通過，再把部署步驟拆成獨立 human-approved release gate，避免自動化越權。</li>
-  </ul>
-</section>
-<section>
-  <h2>本輪 commit 摘要</h2>
-  <pre><code>bccd149 fix: hide demo degradation internals (#234)
-7ef6819 fix(agentcore): preserve effective model in cost events (#235)
-7913a64 feat(frontend): add first-run focus mode (#232) (#233)
-149bedd fix: hide demo degradation internals
-60e9ae9 chore: run CEO development sweep hourly (#227)
-812f55d feat(frontend): add actionable navigation help (#229) (#230)
-7175f63 feat(frontend): add accessible glossary help (#226) (#228)
-eca8ea8 feat(frontend): add beginner-first Hermes experience (#223) (#224)
-3f7c9f5 fix: complete manual analysis priority and real run telemetry (#222)
-ea967d8 feat: 新增 AgentCore/strands LLM 橋接器（不影響主功能）</code></pre>
-</section>]]></content>
-  </entry>
-  <entry>
     <title>Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-19-r2-darkbridge-ceo-lanes.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-19-r2-darkbridge-ceo-lanes.html"/>
@@ -171,67 +92,83 @@ f09a247 fix: keep local-first issue lanes productive
 </section>]]></content>
   </entry>
   <entry>
-    <title>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</title>
-    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html</id>
-    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html"/>
-    <updated>2026-07-18T00:00:00+08:00</updated>
-    <published>2026-07-18T00:00:00+08:00</published>
-    <summary>TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</summary>
-    <category term="Release Engineering"/>
+    <title>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-19.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-19.html"/>
+    <updated>2026-07-19T00:00:00+08:00</updated>
+    <published>2026-07-19T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。</summary>
+    <category term="Hermes"/>
     <content type="html"><![CDATA[<header>
-        <p class="eyebrow">2026-07-18 · continuous analysis</p>
-        <h1>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</h1>
-        <p class="summary">TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</p>
-      </header>
+<p class="eyebrow">2026-07-19 · Hermes</p>
+<h1>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪</h1>
+<p class="summary">TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#trustforge #agentcore #hermes #frontend #ux #testing #release</p>
+</header>
 
-      <section>
-        <h2>資料來源</h2>
-        <ul>
-          <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
-          <li>TrustForge HEAD：<code>b7cb92b34de6b7693f275687b6ab4f651a0a3120</code>（merge PR #217：TrustForge v0.16.1 EC2 runtime dependency hotfix）</li>
-          <li>分析時間：<code>2026-07-18 03:01:26 UTC</code></li>
-          <li>Devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>主要變更</h2>
-        <ul>
-          <li><code>deploy/deploy_ec2.sh</code> 的 EC2 update-in-place SSM 部署命令改為安裝 <code>boto3 certifi</code>，避免只在開發／打包環境有 CA bundle、但 EC2 執行環境缺少可攜式 trust store。</li>
-          <li><code>pyproject.toml</code> 版本提升為 <code>0.16.1</code>，並將 <code>certifi&gt;=2024.2.2</code> 納入正式 runtime dependency。</li>
-          <li><code>CHANGELOG.md</code> 新增 v0.16.1，記錄 EC2 update-in-place 與 first-boot 路徑都需要補齊 <code>certifi</code>，以支援 fetch-scheduler probe 與 DynamoDB cache cost-ledger 驗證前的外部 HTTPS 連線。</li>
-          <li><code>tests/test_deploy_ec2_unit_no_credential_layer.py</code> 新增迴歸檢查：部署腳本必須包含 <code>pip3 install boto3 certifi</code>，且不得退回舊的 <code>pip3 install boto3</code> 寫法。</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>工程意義</h2>
-        <p>這次不是功能擴張，而是部署可靠度修補。TrustForge 近期已把外部 HTTPS connector 的憑證／hostname 檢查收緊；若 EC2 runtime 沒有明確安裝 <code>certifi</code>，安全策略會在部署後因缺少 CA trust store 而變成可用性風險。v0.16.1 把相依套件從隱含環境假設改為部署腳本與 package metadata 的明確契約，讓安全檢查與 EC2 啟動路徑一致。</p>
-      </section>
-
-      <section>
-        <h2>驗證／測試狀態</h2>
-        <ul>
-          <li>已執行：部署腳本字串斷言，確認 <code>deploy_ec2.sh</code> 包含 <code>pip3 install boto3 certifi</code> 並且不含舊的 <code>pip3 install boto3 &gt;&gt;/var/log/tf-setup.log</code>，結果：通過。</li>
-          <li>已執行：<code>bash -n /opt/data/projects/TrustForge/deploy/deploy_ec2.sh</code>，結果：通過。</li>
-          <li>嘗試執行：<code>python3 -m pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：目前環境沒有 <code>pytest</code> module。</li>
-          <li>嘗試執行：<code>uv run pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：專案可 build/install，但環境沒有 <code>pytest</code> executable，完整 pytest 未執行。</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>誠實邊界</h2>
-        <p>本篇只根據 GitHub checkout、git commit、檔案內容與本機命令輸出撰寫；沒有宣稱已完成 EC2 實機部署，也沒有宣稱 fetch-scheduler 已在真實 AWS 環境通過。GitHub／Git 認證過程未輸出 token 或秘密。</p>
-      </section>
-
-      <section>
-        <h2>下一步</h2>
-        <ol>
-          <li>在 CI 或具備測試相依套件的環境補跑 targeted pytest，確認新增迴歸測試進入正式測試鏈。</li>
-          <li>下一次 EC2 部署後，抽查 SSM command log 與服務啟動 log，確認 <code>certifi</code> 安裝與 HTTPS connector probe 都成功。</li>
-          <li>把部署 runtime dependency 檢查擴充為更一般的 release gate，避免未來新增 connector 時再次依賴隱含環境。</li>
-        </ol>
-      </section>]]></content>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>本輪分析時間：<code>2026-07-19 03:07:16 UTC</code></li>
+    <li>比較基準：上一篇 devlog 記錄的 <code>770564f</code></li>
+    <li>目前 HEAD：<code>074e6de</code>／<code>074e6deb4c5475bbaadbb2fa96109de7ff2268a9</code>（2026-07-19 08:32:46 +0800）</li>
+    <li>變更範圍：<code>58 files changed, 1809 insertions(+), 130 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>AgentCore/strands LLM 橋接器：</strong>新增 <code>src/trustforge/agentcore_llm_bridge.py</code> 與 <code>tests/test_agentcore_llm_bridge.py</code>，在 <code>TRUSTFORGE_AGENTCORE=1</code> 時才 lazy import strands，保留既有 BedrockClient 介面並避免一般 CI／離線環境被新相依拖垮。</li>
+    <li><strong>AgentCore 遷移計畫：</strong>新增 <code>AGENTCORE_MIGRATION_PLAN.md</code>，把 workshop AgentCore runtime 的目標、邊界、目錄草案、部署風險與待驗證項目寫清楚，且明確標示尚未部署、尚未建立 AWS 資源。</li>
+    <li><strong>Hermes 新手體驗：</strong>新增首次使用 focus mode、三步驟 onboarding、白話結果摘要、glossary tooltip、可行動導覽說明與 beginnerExperience localStorage 記憶，降低使用者一進 dashboard 就被大量 telemetry 淹沒的風險。</li>
+    <li><strong>分析狀態誠實性：</strong>修正手動分析優先與真實 run telemetry，補上 result readiness、stage drilldown 與 live analyze fixture，讓前端更能分辨「可看上一份完整結果」與「新任務仍在跑」。</li>
+    <li><strong>營運節奏：</strong>CEO development sweep 從半小時調整成 hourly，並新增 launchd／排程測試，讓背景建議報告維持可觀測但不越權自動改 code、merge 或 deploy。</li>
+    <li><strong>Demo 降級資訊收斂：</strong>隱藏不該暴露給一般 demo 使用者的內部降級細節，同時保留工程側可追蹤的模型與成本事件。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這批 commit 的主軸不是再加一個炫功能，而是把 TrustForge 從「工程師看得懂的 Hermes 控制台」往「第一次使用也能完成可信分析」推進；同時，AgentCore bridge 以 feature flag 與 lazy import 的方式接入，讓 workshop／AgentCore 探索不污染現有 production 路徑。</p>
+  <p>對產品而言，新手教學、白話摘要與 glossary 是轉化率工程；對架構而言，AgentCore bridge 與遷移計畫則是把未來可部署到 Bedrock AgentCore 的最小切面先切出來，並把不能宣稱的地方明確寫成邊界。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li>後端重點測試：<code>pytest tests/test_agentcore_llm_bridge.py tests/test_analysis_flow.py tests/test_ceo_sweep_schedule.py tests/test_security.py --no-cov</code>，結果 <strong>100 passed</strong>。</li>
+    <li>前端測試：第一次嘗試 <code>npm test -- --runInBand</code> 因 Vitest 不支援該 Jest 參數失敗；改跑 <code>npm test</code>，結果 <strong>34 files／268 tests passed</strong>。</li>
+    <li>前端 build：<code>npm run build</code> 成功，Vite 輸出 <code>dist/</code> bundle。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪沒有宣稱已部署 production，也沒有宣稱已在 workshop AWS 帳號完成真實 AgentCore deploy。</li>
+    <li>AgentCore bridge 的真實 Bedrock streaming 回應仍需要在具備 strands、AWS 憑證與 workshop model access 的環境驗證；本機只驗證橋接邏輯與失敗邊界。</li>
+    <li>後端跑的是與本輪變更高度相關的 100 個測試，不是全倉 pytest 覆蓋率測試。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>在 workshop／AgentCore runtime 環境實測 <code>TRUSTFORGE_AGENTCORE=1</code> 的真實 streaming LLM 路徑。</li>
+    <li>替 onboarding 與白話摘要做一次實機 eye scan，確認桌機與手機版沒有遮擋、溢位或誤導文案。</li>
+    <li>若 AgentCore 路徑通過，再把部署步驟拆成獨立 human-approved release gate，避免自動化越權。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>bccd149 fix: hide demo degradation internals (#234)
+7ef6819 fix(agentcore): preserve effective model in cost events (#235)
+7913a64 feat(frontend): add first-run focus mode (#232) (#233)
+149bedd fix: hide demo degradation internals
+60e9ae9 chore: run CEO development sweep hourly (#227)
+812f55d feat(frontend): add actionable navigation help (#229) (#230)
+7175f63 feat(frontend): add accessible glossary help (#226) (#228)
+eca8ea8 feat(frontend): add beginner-first Hermes experience (#223) (#224)
+3f7c9f5 fix: complete manual analysis priority and real run telemetry (#222)
+ea967d8 feat: 新增 AgentCore/strands LLM 橋接器（不影響主功能）</code></pre>
+</section>]]></content>
   </entry>
   <entry>
     <title>Day 19-2 · Durable Analysis Worker 與手動分析佇列收斂</title>
@@ -306,6 +243,69 @@ f09a247 fix: keep local-first issue lanes productive
       </section>]]></content>
   </entry>
   <entry>
+    <title>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-18.html"/>
+    <updated>2026-07-18T00:00:00+08:00</updated>
+    <published>2026-07-18T00:00:00+08:00</published>
+    <summary>TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</summary>
+    <category term="Release Engineering"/>
+    <content type="html"><![CDATA[<header>
+        <p class="eyebrow">2026-07-18 · continuous analysis</p>
+        <h1>Day 19 · EC2 HTTPS CA runtime hotfix + v0.16.1 發版收斂</h1>
+        <p class="summary">TrustForge 主線更新至 v0.16.1，針對 EC2 update-in-place 與 first-boot 部署路徑補齊 certifi，讓 fetch-scheduler／外部 HTTPS connector 在可攜式 CA trust store 下維持憑證與 hostname 驗證；本次驗證完成部署腳本字串斷言與 bash 語法檢查，但 pytest CLI 未安裝，完整 pytest 未能執行。</p>
+      </header>
+
+      <section>
+        <h2>資料來源</h2>
+        <ul>
+          <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+          <li>TrustForge HEAD：<code>b7cb92b34de6b7693f275687b6ab4f651a0a3120</code>（merge PR #217：TrustForge v0.16.1 EC2 runtime dependency hotfix）</li>
+          <li>分析時間：<code>2026-07-18 03:01:26 UTC</code></li>
+          <li>Devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>主要變更</h2>
+        <ul>
+          <li><code>deploy/deploy_ec2.sh</code> 的 EC2 update-in-place SSM 部署命令改為安裝 <code>boto3 certifi</code>，避免只在開發／打包環境有 CA bundle、但 EC2 執行環境缺少可攜式 trust store。</li>
+          <li><code>pyproject.toml</code> 版本提升為 <code>0.16.1</code>，並將 <code>certifi&gt;=2024.2.2</code> 納入正式 runtime dependency。</li>
+          <li><code>CHANGELOG.md</code> 新增 v0.16.1，記錄 EC2 update-in-place 與 first-boot 路徑都需要補齊 <code>certifi</code>，以支援 fetch-scheduler probe 與 DynamoDB cache cost-ledger 驗證前的外部 HTTPS 連線。</li>
+          <li><code>tests/test_deploy_ec2_unit_no_credential_layer.py</code> 新增迴歸檢查：部署腳本必須包含 <code>pip3 install boto3 certifi</code>，且不得退回舊的 <code>pip3 install boto3</code> 寫法。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>工程意義</h2>
+        <p>這次不是功能擴張，而是部署可靠度修補。TrustForge 近期已把外部 HTTPS connector 的憑證／hostname 檢查收緊；若 EC2 runtime 沒有明確安裝 <code>certifi</code>，安全策略會在部署後因缺少 CA trust store 而變成可用性風險。v0.16.1 把相依套件從隱含環境假設改為部署腳本與 package metadata 的明確契約，讓安全檢查與 EC2 啟動路徑一致。</p>
+      </section>
+
+      <section>
+        <h2>驗證／測試狀態</h2>
+        <ul>
+          <li>已執行：部署腳本字串斷言，確認 <code>deploy_ec2.sh</code> 包含 <code>pip3 install boto3 certifi</code> 並且不含舊的 <code>pip3 install boto3 &gt;&gt;/var/log/tf-setup.log</code>，結果：通過。</li>
+          <li>已執行：<code>bash -n /opt/data/projects/TrustForge/deploy/deploy_ec2.sh</code>，結果：通過。</li>
+          <li>嘗試執行：<code>python3 -m pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：目前環境沒有 <code>pytest</code> module。</li>
+          <li>嘗試執行：<code>uv run pytest tests/test_deploy_ec2_unit_no_credential_layer.py</code>，結果：專案可 build/install，但環境沒有 <code>pytest</code> executable，完整 pytest 未執行。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>誠實邊界</h2>
+        <p>本篇只根據 GitHub checkout、git commit、檔案內容與本機命令輸出撰寫；沒有宣稱已完成 EC2 實機部署，也沒有宣稱 fetch-scheduler 已在真實 AWS 環境通過。GitHub／Git 認證過程未輸出 token 或秘密。</p>
+      </section>
+
+      <section>
+        <h2>下一步</h2>
+        <ol>
+          <li>在 CI 或具備測試相依套件的環境補跑 targeted pytest，確認新增迴歸測試進入正式測試鏈。</li>
+          <li>下一次 EC2 部署後，抽查 SSM command log 與服務啟動 log，確認 <code>certifi</code> 安裝與 HTTPS connector probe 都成功。</li>
+          <li>把部署 runtime dependency 檢查擴充為更一般的 release gate，避免未來新增 connector 時再次依賴隱含環境。</li>
+        </ol>
+      </section>]]></content>
+  </entry>
+  <entry>
     <title>Day 18-2 · GitHub 開發線安全收斂 + 五年歷史來源回填矩陣</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-17.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-17.html"/>
@@ -362,72 +362,6 @@ f09a247 fix: keep local-first issue lanes productive
 </ul>
 
 <p>今天的重點不是多接一個歷史資料 API，而是把「能回填什麼、不能回填什麼、為什麼不能」寫進程式、文件、UI 與測試。這讓 Hermes 的持續分析更接近可稽核系統：有來源才 replay，沒來源就誠實標 missing。</p>]]></content>
-  </entry>
-  <entry>
-    <title>Day 18-1 · Hermes 持續分析控制平面 + 升級治理 durable gate</title>
-    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-17-hermes-continuous-analysis.html</id>
-    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-17-hermes-continuous-analysis.html"/>
-    <updated>2026-07-17T00:00:00+08:00</updated>
-    <published>2026-07-17T00:00:00+08:00</published>
-    <summary>分析 Gitea mirror 上的 TrustForge 最新主線：Hermes 從 dashboard 走向持續分析服務，落地 immutable snapshot、五階 worker、question RAG、upgrade topology、LLM review、sandbox 與 human approval durable gate；同時誠實標註 GitHub private repo 尚待認證，本輪未宣稱重新跑完整測試。</summary>
-    <category term="Hermes"/>
-    <content type="html"><![CDATA[<h2>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate</h2>
-<p class="sub">2026-07-17</p>
-<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#hermes #continuous-analysis #upgrade-governance #sqlite #rag #sandbox #human-gate</p>
-<p>今天把 TrustForge 主專案拉回來做實際分析。這次資料來源是 Gitea 上的 <code>hurricanesoft/trustforge</code>，目前 HEAD 為 <code>ea14d634</code>，已合併 <code>develop</code> 並包含 PR #186～#189。GitHub 私有主 repo 仍需要登入，因此本篇不把 GitHub 視為已驗證來源；開發內容以這次可讀到的 Gitea mirror 與 git history 為準。</p>
-
-<h3>1. 主要工程變更：Hermes 從頁面功能升級成持續分析服務</h3>
-<ul>
-  <li><b>持續分析矩陣落地</b>：<code>src/trustforge/analysis_flow.py</code> 新增約 670 行，將 crawler update 之後的資料鎖進 immutable SQLite snapshot，再依 coin × mode × active question 切成 package，交給 source、claim、trust、Evidence、report 五階 worker 處理。</li>
-  <li><b>UI 不再擁有分析生命週期</b>：瀏覽器只切換與讀取已發布 snapshot，不再靠按鈕或導頁觸發真實分析；新結果未完成前保留上一個完整結果，避免使用者看到空白或半成品。</li>
-  <li><b>持久 retry / DLQ / stage telemetry</b>：queue、duration、retry、dead letter、coin、mode、question、run 與 snapshot lineage 都成為可觀測狀態，讓分析服務能在重啟後繼續，而不是重跑或遺失。</li>
-</ul>
-
-<h3>2. 問題記憶與 RAG：把 Hermes 對話變成可檢索歷史</h3>
-<ul>
-  <li><b>新增 question memory</b>：<code>analysis_questions</code> 保存活躍分析意圖，<code>analysis_conversation</code> 保存使用者問題與 Hermes 已發布回答。</li>
-  <li><b>中英混合檢索</b>：相似問題用 deterministic token / character bigram overlap 排名，支援中文情境，不依賴外部 embedding。</li>
-  <li><b>歷史結論只作 continuity</b>：檢索到的過去回答會帶 <code>snapshot_id</code>、<code>job_id</code> 與發布時間，但標記為 non-evidentiary，不會進入當前 Trust Evidence，也不會改 Trust scoring。</li>
-</ul>
-
-<h3>3. 升級治理控制平面：能提案，但不能自己升級自己</h3>
-<ul>
-  <li><b>Upgrade topology</b>：<code>src/trustforge/upgrade_control.py</code> 建立 Hermes outer upgrade surface，把 Data Plane、Intelligence、Delivery、Operations 等模組放進可盤點的拓撲，而不是零散腳本。</li>
-  <li><b>LLM review 只能審查不能啟用</b>：<code>src/trustforge/upgrade_review.py</code> 與 <code>scripts/review_hermes_upgrades.py</code> 讓 Bedrock / LLM 對候選改進做對抗式審查，但輸出永遠 <code>can_activate=false</code>。</li>
-  <li><b>Durable human gate</b>：<code>src/trustforge/upgrade_queue.py</code> 新增約 213 行，保存 proposal、review、sandbox artifact hash、操作者、理由與狀態；只有 <code>sandbox_passed</code> 才能被人工 approve，且 approve 不等於 activation。</li>
-  <li><b>Sandbox activation control</b>：<code>scripts/run_skill_sandbox.py</code> 可把真實 sandbox pass/fail 與 artifact hash 寫回 queue；終局 decision 不可被 diagnostic refresh 覆蓋。</li>
-</ul>
-
-<h3>4. 前端與 API：從 dashboard 到控制室</h3>
-<ul>
-  <li><b>HermesDashboard 大幅重構</b>：<code>frontend/src/pages/HermesDashboard.tsx</code> 在 <code>v0.14.15..HEAD</code> 區間有 416 行變動，接入連續分析狀態、upgrade queue、stage drilldown 與左右欄職責重排。</li>
-  <li><b>Bridge workspace 產品化</b>：新增 <code>BridgeWorkspaceShell</code>、<code>BridgeHologramContext</code>、<code>CoinSelect</code>、<code>HermesModuleDeck</code>，讓 Analyze / Compare / Costs / History / Status 等頁面共享一致的工作區骨架。</li>
-  <li><b>OpenAPI 補齊</b>：<code>docs/api/openapi.yaml</code> 增加約 222 行，記錄 Hermes continuous intelligence 與 upgrade gate 相關 API，避免前端「有按鈕但後端沒契約」。</li>
-  <li><b>Polling 競態修正</b>：<code>fix: serialize Hermes telemetry polling</code> 讓輪詢序列化，上一個 request settle 後才排下一次，unmount 時 abort，避免 UI flicker 與連線洩漏。</li>
-</ul>
-
-<h3>5. 資料與本地服務耐久化</h3>
-<ul>
-  <li><b>JSON → SQLite 遷移</b>：新增 <code>migrate_json_cache_to_sqlite.py</code> 與 <code>migrate_json_ledger_to_sqlite.py</code>，cache 與成本 ledger 從容易破碎的 JSON 檔改為 SQLite。</li>
-  <li><b>本機守護服務</b>：新增 <code>com.hurricanesoft.trustforge-analysis-flow.plist</code>、<code>local-refresh</code>、<code>local-web</code>、<code>local-frontend</code>，讓 backend、frontend、refresh、analysis flow 可以由 launchd KeepAlive 維持。</li>
-  <li><b>雲端快取同步回本機</b>：<code>sync_cloud_cache_to_local.py</code> 支援把 Cloud cache 回灌本地，讓 local Hermes UI 不只靠 fixture。</li>
-</ul>
-
-<h3>6. 測試與回歸鎖</h3>
-<ul>
-  <li><b>新增測試面</b>：<code>tests/test_analysis_flow.py</code>、<code>tests/test_upgrade_control.py</code>、<code>tests/test_upgrade_queue.py</code>、<code>tests/test_upgrade_review.py</code> 補上分析流、升級拓撲、queue、人類閘門與 LLM review 的回歸鎖。</li>
-  <li><b>變更規模</b>：從 <code>v0.14.15</code> 到目前 HEAD，共 69 個檔案變動，約 <b>4703 行新增、467 行刪除</b>。</li>
-  <li><b>尚未在本輪重跑完整測試</b>：本篇是 repo 分析與日誌更新，不宣稱今日已重新跑完整 backend/frontend gate；測試通過狀態以主 repo 既有 commit 與 CI 紀錄為準。</li>
-</ul>
-
-<h3>誠實邊界</h3>
-<ul>
-  <li>本篇分析來源是 Gitea mirror <code>hurricanesoft/trustforge</code>，不是尚未登入的 GitHub private repo。</li>
-  <li>不宣稱已部署、不宣稱已啟用 production，也不宣稱自動升級可以繞過人類 gate。</li>
-  <li>Trust Kernel、模型、權重、completed reports 與 production deploy 仍在人工審查與 release 流程外，不允許 Hermes 自行改動。</li>
-</ul>
-
-<p>今天的結論很明確：TrustForge 的 Hermes 線已經從「可展示的 dashboard」往「可常駐、可追蹤、可審批、可回復的持續分析控制平面」前進。真正重要的不是多了一個 UI，而是每個分析結果、每個改進提案、每次 sandbox 與每個人工決策都開始留下 durable lineage。</p>]]></content>
   </entry>
   <entry>
     <title>Day 17 · Hermes 持續智慧 + 升級治理控制平面 + 五年歷史回填</title>
@@ -1336,5 +1270,71 @@ aws sts get-caller-identity   # 確認</code></pre>
 <tr><td>安全:公開 LLM 端點止血(auth/限流補強中)</td><td>🔧</td></tr>
 </table>
 <p style="color:var(--mut);font-size:.85rem">教訓濃縮:離線跑得通再上雲;雲端先用簽章 invoke 驗證、再開公開;公開付費 LLM 端點必須先有 auth/限流;新 AWS 帳號擋公開入口時改用 EC2;Anthropic 模型要 use-case 表單且有 ~15 分傳播。</p>]]></content>
+  </entry>
+  <entry>
+    <title>Day 18-1 · Hermes 持續分析控制平面 + 升級治理 durable gate</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-17-hermes-continuous-analysis.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-17-hermes-continuous-analysis.html"/>
+    <updated>2026-07-17T00:00:00+08:00</updated>
+    <published>2026-07-17T00:00:00+08:00</published>
+    <summary>分析 Gitea mirror 上的 TrustForge 最新主線：Hermes 從 dashboard 走向持續分析服務，落地 immutable snapshot、五階 worker、question RAG、upgrade topology、LLM review、sandbox 與 human approval durable gate；同時誠實標註 GitHub private repo 尚待認證，本輪未宣稱重新跑完整測試。</summary>
+    <category term="Hermes"/>
+    <content type="html"><![CDATA[<h2>Day 18 · Hermes 持續分析控制平面 + 升級治理 durable gate</h2>
+<p class="sub">2026-07-17</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#hermes #continuous-analysis #upgrade-governance #sqlite #rag #sandbox #human-gate</p>
+<p>今天把 TrustForge 主專案拉回來做實際分析。這次資料來源是 Gitea 上的 <code>hurricanesoft/trustforge</code>，目前 HEAD 為 <code>ea14d634</code>，已合併 <code>develop</code> 並包含 PR #186～#189。GitHub 私有主 repo 仍需要登入，因此本篇不把 GitHub 視為已驗證來源；開發內容以這次可讀到的 Gitea mirror 與 git history 為準。</p>
+
+<h3>1. 主要工程變更：Hermes 從頁面功能升級成持續分析服務</h3>
+<ul>
+  <li><b>持續分析矩陣落地</b>：<code>src/trustforge/analysis_flow.py</code> 新增約 670 行，將 crawler update 之後的資料鎖進 immutable SQLite snapshot，再依 coin × mode × active question 切成 package，交給 source、claim、trust、Evidence、report 五階 worker 處理。</li>
+  <li><b>UI 不再擁有分析生命週期</b>：瀏覽器只切換與讀取已發布 snapshot，不再靠按鈕或導頁觸發真實分析；新結果未完成前保留上一個完整結果，避免使用者看到空白或半成品。</li>
+  <li><b>持久 retry / DLQ / stage telemetry</b>：queue、duration、retry、dead letter、coin、mode、question、run 與 snapshot lineage 都成為可觀測狀態，讓分析服務能在重啟後繼續，而不是重跑或遺失。</li>
+</ul>
+
+<h3>2. 問題記憶與 RAG：把 Hermes 對話變成可檢索歷史</h3>
+<ul>
+  <li><b>新增 question memory</b>：<code>analysis_questions</code> 保存活躍分析意圖，<code>analysis_conversation</code> 保存使用者問題與 Hermes 已發布回答。</li>
+  <li><b>中英混合檢索</b>：相似問題用 deterministic token / character bigram overlap 排名，支援中文情境，不依賴外部 embedding。</li>
+  <li><b>歷史結論只作 continuity</b>：檢索到的過去回答會帶 <code>snapshot_id</code>、<code>job_id</code> 與發布時間，但標記為 non-evidentiary，不會進入當前 Trust Evidence，也不會改 Trust scoring。</li>
+</ul>
+
+<h3>3. 升級治理控制平面：能提案，但不能自己升級自己</h3>
+<ul>
+  <li><b>Upgrade topology</b>：<code>src/trustforge/upgrade_control.py</code> 建立 Hermes outer upgrade surface，把 Data Plane、Intelligence、Delivery、Operations 等模組放進可盤點的拓撲，而不是零散腳本。</li>
+  <li><b>LLM review 只能審查不能啟用</b>：<code>src/trustforge/upgrade_review.py</code> 與 <code>scripts/review_hermes_upgrades.py</code> 讓 Bedrock / LLM 對候選改進做對抗式審查，但輸出永遠 <code>can_activate=false</code>。</li>
+  <li><b>Durable human gate</b>：<code>src/trustforge/upgrade_queue.py</code> 新增約 213 行，保存 proposal、review、sandbox artifact hash、操作者、理由與狀態；只有 <code>sandbox_passed</code> 才能被人工 approve，且 approve 不等於 activation。</li>
+  <li><b>Sandbox activation control</b>：<code>scripts/run_skill_sandbox.py</code> 可把真實 sandbox pass/fail 與 artifact hash 寫回 queue；終局 decision 不可被 diagnostic refresh 覆蓋。</li>
+</ul>
+
+<h3>4. 前端與 API：從 dashboard 到控制室</h3>
+<ul>
+  <li><b>HermesDashboard 大幅重構</b>：<code>frontend/src/pages/HermesDashboard.tsx</code> 在 <code>v0.14.15..HEAD</code> 區間有 416 行變動，接入連續分析狀態、upgrade queue、stage drilldown 與左右欄職責重排。</li>
+  <li><b>Bridge workspace 產品化</b>：新增 <code>BridgeWorkspaceShell</code>、<code>BridgeHologramContext</code>、<code>CoinSelect</code>、<code>HermesModuleDeck</code>，讓 Analyze / Compare / Costs / History / Status 等頁面共享一致的工作區骨架。</li>
+  <li><b>OpenAPI 補齊</b>：<code>docs/api/openapi.yaml</code> 增加約 222 行，記錄 Hermes continuous intelligence 與 upgrade gate 相關 API，避免前端「有按鈕但後端沒契約」。</li>
+  <li><b>Polling 競態修正</b>：<code>fix: serialize Hermes telemetry polling</code> 讓輪詢序列化，上一個 request settle 後才排下一次，unmount 時 abort，避免 UI flicker 與連線洩漏。</li>
+</ul>
+
+<h3>5. 資料與本地服務耐久化</h3>
+<ul>
+  <li><b>JSON → SQLite 遷移</b>：新增 <code>migrate_json_cache_to_sqlite.py</code> 與 <code>migrate_json_ledger_to_sqlite.py</code>，cache 與成本 ledger 從容易破碎的 JSON 檔改為 SQLite。</li>
+  <li><b>本機守護服務</b>：新增 <code>com.hurricanesoft.trustforge-analysis-flow.plist</code>、<code>local-refresh</code>、<code>local-web</code>、<code>local-frontend</code>，讓 backend、frontend、refresh、analysis flow 可以由 launchd KeepAlive 維持。</li>
+  <li><b>雲端快取同步回本機</b>：<code>sync_cloud_cache_to_local.py</code> 支援把 Cloud cache 回灌本地，讓 local Hermes UI 不只靠 fixture。</li>
+</ul>
+
+<h3>6. 測試與回歸鎖</h3>
+<ul>
+  <li><b>新增測試面</b>：<code>tests/test_analysis_flow.py</code>、<code>tests/test_upgrade_control.py</code>、<code>tests/test_upgrade_queue.py</code>、<code>tests/test_upgrade_review.py</code> 補上分析流、升級拓撲、queue、人類閘門與 LLM review 的回歸鎖。</li>
+  <li><b>變更規模</b>：從 <code>v0.14.15</code> 到目前 HEAD，共 69 個檔案變動，約 <b>4703 行新增、467 行刪除</b>。</li>
+  <li><b>尚未在本輪重跑完整測試</b>：本篇是 repo 分析與日誌更新，不宣稱今日已重新跑完整 backend/frontend gate；測試通過狀態以主 repo 既有 commit 與 CI 紀錄為準。</li>
+</ul>
+
+<h3>誠實邊界</h3>
+<ul>
+  <li>本篇分析來源是 Gitea mirror <code>hurricanesoft/trustforge</code>，不是尚未登入的 GitHub private repo。</li>
+  <li>不宣稱已部署、不宣稱已啟用 production，也不宣稱自動升級可以繞過人類 gate。</li>
+  <li>Trust Kernel、模型、權重、completed reports 與 production deploy 仍在人工審查與 release 流程外，不允許 Hermes 自行改動。</li>
+</ul>
+
+<p>今天的結論很明確：TrustForge 的 Hermes 線已經從「可展示的 dashboard」往「可常駐、可追蹤、可審批、可回復的持續分析控制平面」前進。真正重要的不是多了一個 UI，而是每個分析結果、每個改進提案、每次 sandbox 與每個人工決策都開始留下 durable lineage。</p>]]></content>
   </entry>
 </feed>

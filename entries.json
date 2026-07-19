@@ -86,6 +86,26 @@
   },
   "entries": [
     {
+      "id": "2026-07-19-r2-darkbridge-ceo-lanes",
+      "date": "2026-07-19",
+      "title": "Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes",
+      "summary": "TrustForge 主線自 074e6de 推進到 53e27ad（v0.16.14），完成 HERMES R2 深色艦橋設計稿入庫與全站對稿實作，新增 Snapshot Modal、Settings／Notifications／Help Center 頁面，讓 HoyaBit connector 在真實資料缺席時 fail closed，並把 CEO issue lanes 收斂成守門、可觀測但不越權的本機優先開發節奏；本輪實跑相關後端 138 passed、前端 268 passed 與 Vite build。",
+      "file": "2026-07-19-r2-darkbridge-ceo-lanes.html",
+      "day": 20,
+      "category": "Hermes",
+      "tags": [
+        "trustforge",
+        "hermes",
+        "frontend",
+        "design",
+        "hoyabit",
+        "ceo-lanes",
+        "testing",
+        "release"
+      ],
+      "created_at": "2026-07-19 23:04:30"
+    },
+    {
       "id": "2026-07-19",
       "day": 20,
       "date": "2026-07-19",
@@ -105,25 +125,23 @@
       "created_at": "2026-07-19 03:08:35"
     },
     {
-      "id": "2026-07-19-r2-darkbridge-ceo-lanes",
-      "date": "2026-07-19",
-      "title": "Day 20-2 · R2 深色艦橋全站對稿、HoyaBit fail-closed 與 CEO issue lanes",
-      "summary": "TrustForge 主線自 074e6de 推進到 53e27ad（v0.16.14），完成 HERMES R2 深色艦橋設計稿入庫與全站對稿實作，新增 Snapshot Modal、Settings／Notifications／Help Center 頁面，讓 HoyaBit connector 在真實資料缺席時 fail closed，並把 CEO issue lanes 收斂成守門、可觀測但不越權的本機優先開發節奏；本輪實跑相關後端 138 passed、前端 268 passed 與 Vite build。",
-      "file": "2026-07-19-r2-darkbridge-ceo-lanes.html",
-      "day": 20,
-      "category": "Hermes",
+      "id": "2026-07-18-durable-analysis-worker",
+      "date": "2026-07-18",
+      "title": "Day 19-2 · Durable Analysis Worker 與手動分析佇列收斂",
+      "summary": "TrustForge 主線自上一篇 devlog 之後新增 33 個 commit，版本推進到 v0.16.12；核心是把 production 分析流程改成可持久化 worker、手動分析高優先佇列、Hermes 低優先排程與 runtime 控制面，並補齊前端狀態、API 文件、部署腳本與競賽收斂文件。",
+      "file": "2026-07-18-durable-analysis-worker.html",
+      "day": 19,
+      "category": "Continuous Analysis",
       "tags": [
         "trustforge",
+        "continuous-analysis",
+        "worker",
+        "runtime-control",
+        "queue",
         "hermes",
-        "frontend",
-        "design",
-        "hoyabit",
-        "ceo-lanes",
-        "testing",
         "release"
       ],
-      "created_at": "2026-07-19 23:04:30",
-      "day_label": "20-2"
+      "created_at": "2026-07-18 15:06:22"
     },
     {
       "id": "2026-07-18",
@@ -144,26 +162,6 @@
       "created_at": "2026-07-18 03:01:26"
     },
     {
-      "id": "2026-07-18-durable-analysis-worker",
-      "date": "2026-07-18",
-      "title": "Day 19-2 · Durable Analysis Worker 與手動分析佇列收斂",
-      "summary": "TrustForge 主線自上一篇 devlog 之後新增 33 個 commit，版本推進到 v0.16.12；核心是把 production 分析流程改成可持久化 worker、手動分析高優先佇列、Hermes 低優先排程與 runtime 控制面，並補齊前端狀態、API 文件、部署腳本與競賽收斂文件。",
-      "file": "2026-07-18-durable-analysis-worker.html",
-      "day": 19,
-      "category": "Continuous Analysis",
-      "tags": [
-        "trustforge",
-        "continuous-analysis",
-        "worker",
-        "runtime-control",
-        "queue",
-        "hermes",
-        "release"
-      ],
-      "created_at": "2026-07-18 15:06:22",
-      "day_label": "19-2"
-    },
-    {
       "id": "2026-07-17",
       "day": 18,
       "date": "2026-07-17",
@@ -181,24 +179,6 @@
       ],
       "file": "2026-07-17.html",
       "created_at": "2026-07-17 11:06:28"
-    },
-    {
-      "id": "2026-07-17-hermes-continuous-analysis",
-      "day": 18,
-      "date": "2026-07-17",
-      "title": "Day 18-1 · Hermes 持續分析控制平面 + 升級治理 durable gate",
-      "summary": "分析 Gitea mirror 上的 TrustForge 最新主線：Hermes 從 dashboard 走向持續分析服務，落地 immutable snapshot、五階 worker、question RAG、upgrade topology、LLM review、sandbox 與 human approval durable gate；同時誠實標註 GitHub private repo 尚待認證，本輪未宣稱重新跑完整測試。",
-      "category": "Hermes",
-      "tags": [
-        "hermes",
-        "continuous-analysis",
-        "upgrade-governance",
-        "sqlite",
-        "rag",
-        "sandbox",
-        "human-gate"
-      ],
-      "file": "2026-07-17-hermes-continuous-analysis.html"
     },
     {
       "id": "2026-07-16",
@@ -551,6 +531,24 @@
       ],
       "file": "2026-06-30.html",
       "created_at": "2026-07-17 11:06:28"
+    },
+    {
+      "id": "2026-07-17-hermes-continuous-analysis",
+      "day": 18,
+      "date": "2026-07-17",
+      "title": "Day 18-1 · Hermes 持續分析控制平面 + 升級治理 durable gate",
+      "summary": "分析 Gitea mirror 上的 TrustForge 最新主線：Hermes 從 dashboard 走向持續分析服務，落地 immutable snapshot、五階 worker、question RAG、upgrade topology、LLM review、sandbox 與 human approval durable gate；同時誠實標註 GitHub private repo 尚待認證，本輪未宣稱重新跑完整測試。",
+      "category": "Hermes",
+      "tags": [
+        "hermes",
+        "continuous-analysis",
+        "upgrade-governance",
+        "sqlite",
+        "rag",
+        "sandbox",
+        "human-gate"
+      ],
+      "file": "2026-07-17-hermes-continuous-analysis.html"
     }
   ]
 }

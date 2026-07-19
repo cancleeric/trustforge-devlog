@@ -23,9 +23,11 @@ GitHub Pages 只能託管靜態檔,無法在瀏覽器直接查詢伺服器資料
   python3 build_db.py shell   # 開 sqlite3 互動(若有 sqlite3 命令)
 """
 import argparse
+import datetime
 import json
 import os
 import pathlib
+import re
 import sqlite3
 import subprocess
 import sys
@@ -66,6 +68,13 @@ def day_of(date_str):
     return (date.fromisoformat(date_str[:10]) - date.fromisoformat(FIRST_DATE)).days + 1
 
 
+def sort_key(entry):
+    created_at = entry.get("created_at") or ""
+    if isinstance(created_at, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", created_at):
+        return created_at
+    return f"{entry.get('date', '')} 00:00:00"
+
+
 def init():
     c = conn()
     init_schema(c)
@@ -88,10 +97,11 @@ def init():
 def build():
     c = conn()
     init_schema(c)
-    rows = c.execute("SELECT * FROM devlog ORDER BY date DESC").fetchall()
+    rows = c.execute("SELECT * FROM devlog").fetchall()
     entries = [dict(r) for r in rows]
     for e in entries:
         e["tags"] = [t for t in (e["tags"] or "").split(",") if t]
+    entries.sort(key=sort_key, reverse=True)
     dates = [e["date"] for e in entries]
     categories = []
     all_tags = []
@@ -141,10 +151,11 @@ def add(args):
     c = conn()
     init_schema(c)
     c.execute(
-        "INSERT OR REPLACE INTO devlog (id,day,date,title,summary,category,tags,file) "
-        "VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT OR REPLACE INTO devlog (id,day,date,title,summary,category,tags,file,created_at) "
+        "VALUES (?,?,?,?,?,?,?,?,?)",
         (args.date, day_of(args.date), args.date[:10], args.title, args.summary,
-         args.category, args.tags, f"{args.date}.html"))
+         args.category, args.tags, f"{args.date}.html",
+         datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     c.commit()
     print(f"已寫入資料庫 {args.date}（Day {day_of(args.date)}）")
     build()
