@@ -1,0 +1,86 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-19 · Hermes</p>
+<h1>Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪</h1>
+<p class="summary">TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#trustforge #agentcore #hermes #frontend #ux #testing #release</p>
+</header>
+
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>本輪分析時間：<code>2026-07-19 03:07:16 UTC</code></li>
+    <li>比較基準：上一篇 devlog 記錄的 <code>770564f</code></li>
+    <li>目前 HEAD：<code>074e6de</code>／<code>074e6deb4c5475bbaadbb2fa96109de7ff2268a9</code>（2026-07-19 08:32:46 +0800）</li>
+    <li>變更範圍：<code>58 files changed, 1809 insertions(+), 130 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>AgentCore/strands LLM 橋接器：</strong>新增 <code>src/trustforge/agentcore_llm_bridge.py</code> 與 <code>tests/test_agentcore_llm_bridge.py</code>，在 <code>TRUSTFORGE_AGENTCORE=1</code> 時才 lazy import strands，保留既有 BedrockClient 介面並避免一般 CI／離線環境被新相依拖垮。</li>
+    <li><strong>AgentCore 遷移計畫：</strong>新增 <code>AGENTCORE_MIGRATION_PLAN.md</code>，把 workshop AgentCore runtime 的目標、邊界、目錄草案、部署風險與待驗證項目寫清楚，且明確標示尚未部署、尚未建立 AWS 資源。</li>
+    <li><strong>Hermes 新手體驗：</strong>新增首次使用 focus mode、三步驟 onboarding、白話結果摘要、glossary tooltip、可行動導覽說明與 beginnerExperience localStorage 記憶，降低使用者一進 dashboard 就被大量 telemetry 淹沒的風險。</li>
+    <li><strong>分析狀態誠實性：</strong>修正手動分析優先與真實 run telemetry，補上 result readiness、stage drilldown 與 live analyze fixture，讓前端更能分辨「可看上一份完整結果」與「新任務仍在跑」。</li>
+    <li><strong>營運節奏：</strong>CEO development sweep 從半小時調整成 hourly，並新增 launchd／排程測試，讓背景建議報告維持可觀測但不越權自動改 code、merge 或 deploy。</li>
+    <li><strong>Demo 降級資訊收斂：</strong>隱藏不該暴露給一般 demo 使用者的內部降級細節，同時保留工程側可追蹤的模型與成本事件。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這批 commit 的主軸不是再加一個炫功能，而是把 TrustForge 從「工程師看得懂的 Hermes 控制台」往「第一次使用也能完成可信分析」推進；同時，AgentCore bridge 以 feature flag 與 lazy import 的方式接入，讓 workshop／AgentCore 探索不污染現有 production 路徑。</p>
+  <p>對產品而言，新手教學、白話摘要與 glossary 是轉化率工程；對架構而言，AgentCore bridge 與遷移計畫則是把未來可部署到 Bedrock AgentCore 的最小切面先切出來，並把不能宣稱的地方明確寫成邊界。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li>後端重點測試：<code>pytest tests/test_agentcore_llm_bridge.py tests/test_analysis_flow.py tests/test_ceo_sweep_schedule.py tests/test_security.py --no-cov</code>，結果 <strong>100 passed</strong>。</li>
+    <li>前端測試：第一次嘗試 <code>npm test -- --runInBand</code> 因 Vitest 不支援該 Jest 參數失敗；改跑 <code>npm test</code>，結果 <strong>34 files／268 tests passed</strong>。</li>
+    <li>前端 build：<code>npm run build</code> 成功，Vite 輸出 <code>dist/</code> bundle。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪沒有宣稱已部署 production，也沒有宣稱已在 workshop AWS 帳號完成真實 AgentCore deploy。</li>
+    <li>AgentCore bridge 的真實 Bedrock streaming 回應仍需要在具備 strands、AWS 憑證與 workshop model access 的環境驗證；本機只驗證橋接邏輯與失敗邊界。</li>
+    <li>後端跑的是與本輪變更高度相關的 100 個測試，不是全倉 pytest 覆蓋率測試。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>在 workshop／AgentCore runtime 環境實測 <code>TRUSTFORGE_AGENTCORE=1</code> 的真實 streaming LLM 路徑。</li>
+    <li>替 onboarding 與白話摘要做一次實機 eye scan，確認桌機與手機版沒有遮擋、溢位或誤導文案。</li>
+    <li>若 AgentCore 路徑通過，再把部署步驟拆成獨立 human-approved release gate，避免自動化越權。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>bccd149 fix: hide demo degradation internals (#234)
+7ef6819 fix(agentcore): preserve effective model in cost events (#235)
+7913a64 feat(frontend): add first-run focus mode (#232) (#233)
+149bedd fix: hide demo degradation internals
+60e9ae9 chore: run CEO development sweep hourly (#227)
+812f55d feat(frontend): add actionable navigation help (#229) (#230)
+7175f63 feat(frontend): add accessible glossary help (#226) (#228)
+eca8ea8 feat(frontend): add beginner-first Hermes experience (#223) (#224)
+3f7c9f5 fix: complete manual analysis priority and real run telemetry (#222)
+ea967d8 feat: 新增 AgentCore/strands LLM 橋接器（不影響主功能）</code></pre>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-19</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪","datePublished":"2026-07-19","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Hermes"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

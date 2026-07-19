@@ -2,14 +2,14 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-18",
-    "total": 27,
+    "generated": "2026-07-19",
+    "total": 28,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-18",
+    "last_date": "2026-07-19",
     "categories": [
+      "Hermes",
       "Release Engineering",
       "Continuous Analysis",
-      "Hermes",
       "生產穩定",
       "誠實性",
       "部署營運",
@@ -17,8 +17,9 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 27,
+    "count": 28,
     "tags": [
+      "agentcore",
       "ai-friendly",
       "algorithm",
       "api",
@@ -38,6 +39,7 @@
       "docs",
       "ec2",
       "framework",
+      "frontend",
       "github",
       "hermes",
       "historical-backfill",
@@ -75,10 +77,30 @@
       "trustforge",
       "ui",
       "upgrade-governance",
+      "ux",
       "worker"
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-19",
+      "day": 20,
+      "date": "2026-07-19",
+      "title": "Day 20 · AgentCore 橋接收斂與 Hermes 新手體驗降噪",
+      "summary": "TrustForge 主線自 durable analysis worker devlog 後由 770564f 推進到 074e6de（v0.16.12），新增 AgentCore/strands LLM 橋接器與 workshop 遷移計畫，同時把 Hermes 首次使用、白話摘要、glossary、導覽說明與 stage drilldown 收斂成更容易上手的分析體驗；本輪實跑 100 個後端重點測試、268 個前端測試與 Vite build。",
+      "category": "Hermes",
+      "tags": [
+        "trustforge",
+        "agentcore",
+        "hermes",
+        "frontend",
+        "ux",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-19.html",
+      "created_at": "2026-07-19 03:08:35"
+    },
     {
       "id": "2026-07-18",
       "day": 19,
