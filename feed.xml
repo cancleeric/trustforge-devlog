@@ -8,6 +8,106 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 21-2 · Backfill Worker、觀測 API 與投稿前安全 Gate</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-20-backfill-observability-security.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-20-backfill-observability-security.html"/>
+    <updated>2026-07-20T00:00:00+08:00</updated>
+    <published>2026-07-20T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 d5a9367 推進到 fde5a64（v0.16.18），本輪重點是歷史回填 worker、AI-friendly/營運觀測 API、投稿前 security gate、QA matrix、零停機重啟腳本與 CEO loop 自我監控；本輪實跑後端重點測試 80 passed，git diff --check 通過，但前端 Vitest 仍有 7 failed／277 passed，npm run build 因 embedded prop 型別錯誤失敗。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-20 · Continuous Analysis</p>
+<h1>Day 21-2 · Backfill Worker、觀測 API 與投稿前安全 Gate</h1>
+<p class="summary">TrustForge 主線自 d5a9367 推進到 fde5a64（v0.16.18），本輪重點是歷史回填 worker、AI-friendly/營運觀測 API、投稿前 security gate、QA matrix、零停機重啟腳本與 CEO loop 自我監控；本輪實跑後端重點測試 80 passed，git diff --check 通過，但前端 Vitest 仍有 7 failed／277 passed，npm run build 因 embedded prop 型別錯誤失敗。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #backfill #observability #security #qa #deployment #testing #release</p>
+</header>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>本輪分析時間：<code>2026-07-20 15:00:44 UTC</code>（台灣時間 <code>2026-07-20 23:00:44 CST</code>）</li>
+    <li>比較基準：上一篇 devlog 記錄的主 repo HEAD <code>d5a9367</code></li>
+    <li>目前 HEAD：<code>fde5a643ca8c</code>（tag <code>v0.16.18</code>，commit 時間 <code>2026-07-20 17:09:38 +0800</code>）</li>
+    <li>版本檔：<code>VERSION=0.16.18</code></li>
+    <li>變更範圍：<code>66 files changed, 7554 insertions(+), 210 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>歷史回填 worker 入主線：</strong>新增 <code>src/trustforge/backfill.py</code>、<code>.kiro/specs/backfill-worker.md</code> 與 <code>docs/architecture/BACKFILL-SYSTEM.md</code>。文件定義 5 年官方 OHLCV 逐日 point-in-time snapshot → replay 流程，預設 fail-closed 關閉，啟用時把回填與 forward-captured snapshot 隔離，並用 <code>out/trustforge-backfill.sqlite3</code> 持久化進度。</li>
+    <li><strong>觀測 API 擴張：</strong><code>docs/api/openapi.yaml</code> 與 <code>src/trustforge/web.py</code> 新增／整理 <code>/api/budget-governance</code>、<code>/api/improvement-diagnostics</code>、<code>/api/alerts-operations</code>、<code>/api/data-plane-status</code>、<code>/api/intelligence-status</code>、<code>/api/prompt-versions</code>、<code>/api/evidence-quality</code>、<code>/api/operations-status</code>、<code>/api/delivery-status</code>、<code>/api/memory-strategy</code> 等唯讀端點，讓 AI-friendly API 與營運狀態能被外部讀取而不需要 admin token。</li>
+    <li><strong>投稿前 security gate：</strong>新增 <code>scripts/security_gate.py</code>、<code>src/trustforge/security_gate.py</code>、CLI 入口與 <code>tests/test_security_gate.py</code>，把 secret pattern、內網 reference 與公開資料風險整理成可輸出的 JSON 報告，目標是決賽交付前先擋住 P0 leak。</li>
+    <li><strong>QA mini matrix 與 reduced-motion：</strong>新增 <code>scripts/qa_matrix.py</code>、<code>src/trustforge/qa_matrix.py</code>、<code>docs/qa/QA-MATRIX.md</code> 與 <code>frontend/src/lib/useReducedMotion.ts</code>，把關鍵路徑驗證與動態效果降噪納入工程紀錄。</li>
+    <li><strong>部署與 CEO loop 韌性：</strong>新增 <code>deploy/zero_downtime_restart.sh</code>、<code>deploy/test_zero_downtime_restart.sh</code>，並強化 <code>scripts/run_ceo_cycle.sh</code>、<code>scripts/ceo_runtime_guard.py</code>、<code>scripts/ceo_health_watchdog.py</code> 等 unattended CEO loop 守門工具；本輪也把 README index 補上 backfill 與 observability 文件入口。</li>
+    <li><strong>發布收斂：</strong>主線標記 <code>v0.16.16</code>、<code>v0.16.17</code>、<code>v0.16.18</code>；<code>CHANGELOG.md</code> 最新記錄 <code>v0.16.18 — 發布分析快照查詢修正</code>。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這一輪把 TrustForge 從「即時分析產品」往「可校準、可觀測、可交付審查」推進。Backfill worker 讓歷史 replay 能累積足夠樣本給改善診斷與信心校準使用；觀測 API 則把預算、資料面、智慧層、交付與營運狀態變成可查詢的產品介面，而不是散落在 log 或內部腳本中。</p>
+  <p>Security gate、QA matrix 與 zero-downtime restart 代表競賽／交付前的工程收斂：不只新增功能，也開始把秘密外洩、內網 reference、前端可用性、部署中斷與 unattended loop 失控風險變成可測、可報告、可 fail closed 的流程。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li><code>git diff --check</code>：通過，未發現 whitespace diff 問題。</li>
+    <li>後端重點測試：<code>uv run pytest tests/test_backfill.py tests/test_security_gate.py tests/test_evidence_quality.py tests/test_smoke.py tests/test_ai_friendly_api.py --no-cov</code>，結果 <strong>80 passed in 1.60s</strong>。</li>
+    <li>前端測試：<code>npm test -- --run</code> 實跑但未通過，結果 <strong>2 files failed／32 passed；7 failed／277 passed／284 total</strong>。失敗集中在 Analyze embedded composer 去重、URL job polling／mismatch 與 HermesDashboard composer 數量斷言。</li>
+    <li>前端 build：<code>npm run build</code> 未通過，TypeScript 回報 <code>HermesModuleDeck.tsx</code> 與 <code>AnalyzePage.test.tsx</code> 傳入 <code>embedded</code> prop，但 <code>AnalyzePage</code> 型別尚未接受該 prop。</li>
+    <li>Devlog 寫入後另以 <code>validate_devlog.py</code>、HTML parser、JSON 唯一性檢查、Atom feed 與 sitemap XML parser 驗證。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪只分析 GitHub main 的本機 checkout 與 git/file/test 輸出；沒有宣稱 production deploy 或線上健康檢查已完成。</li>
+    <li>後端重點測試通過不等於全倉測試通過；前端測試與 build 目前明確失敗，這是主 repo 目前需要修正的阻塞。</li>
+    <li>Security gate 是掃描與報告工具；本輪沒有輸出任何 token，也沒有把 secret 掃描結果誤宣稱為外部安全稽核。</li>
+    <li>Backfill worker 文件描述以官方 OHLCV 與隔離 snapshot 為目標；本輪沒有啟動長時間 daemon 或完成 5 年全量 replay。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>先修正 <code>AnalyzePage</code> 的 <code>embedded</code> prop 型別／行為，讓 embedded 桌機只保留單一 composer，並重跑前端 Vitest 與 build。</li>
+    <li>替 backfill control 的 Web API 補端到端 smoke，確認 admin token、fail-closed 預設與 state file 三層控制都符合文件。</li>
+    <li>把 security gate 報告納入 PR／release gate，並定義哪些內網 reference 屬於允許的本機開發文件、哪些屬於交付前必須移除。</li>
+    <li>在 devlog 後續追蹤 <code>v0.16.18</code> 發布分析快照查詢修正是否有對應 regression test 與線上驗證紀錄。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>6eb53c5 fix: make CEO development loop self-monitoring
+3ee8bb8 fix: harden unattended CEO loop runtime
+e571998 fix: enforce a single analyze composer (#282)
+7e61834 docs: add Kiro spec for backfill worker (#291)
+e57d9af feat: implement backfill worker system (#291)
+7599362 feat: expose budget governance state via /api/budget-governance (#279)
+6c351d4 feat: add /api/improvement-diagnostics + /api/alerts-operations (#278, #274)
+26a7305 docs: add wiki for backfill system + observability APIs
+8860513 feat: 版本鎖定 header + 速率限制監控 (#272, #273)
+fddecaf feat: intelligence 觀測層 /api/intelligence-status (#259, #262, #265)
+2ac3235 feat: 新增 GET /api/prompt-versions 端點（issue #251）
+bdbac38 feat: add GET /api/data-plane-status (#256, #257, #264)
+d11177e feat: add GET /api/operations-status endpoint (#276, #277, #270)
+08f4afd feat: GET /api/evidence-quality — Evidence 組裝品質追蹤 (#253)
+90f5f52 feat: add GET /api/delivery-status endpoint (#268, #269)
+658f8a5 feat: add GET /api/memory-strategy endpoint (#275)
+9d9f0ef fix: zero-downtime deploy restart to prevent 16s health interruption (#280)
+a6f3b0b fix(frontend): increase analysis registration timeout from 10s to 30s (#245)
+e78fba2 feat: #199 HOYA BIT 誠實化 + #202 Bedrock smoke 子命令
+fec674f feat: QA mini matrix (#203) + reduced-motion mode (#231)
+a7f2054 fix: backfill replay 結果寫入 trust_snapshot_history_key
+54f59df docs: add Kiro +10% usage evidence (Issue #311) (#314)
+76e537b feat: 投稿前安全 gate 掃描（#205）
+bd20d39 chore(release): bump version to 0.16.17
+da7a44d docs: update README index with backfill + observability docs
+fde5a64 chore(release): bump version to 0.16.18 [auto pre-push]</code></pre>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 21 · 鯨魚交易信號、Hermes 小螢幕修復與 AgentCore proxy</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-20.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-20.html"/>

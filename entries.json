@@ -3,12 +3,12 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-20",
-    "total": 30,
+    "total": 31,
     "first_date": "2026-06-30",
     "last_date": "2026-07-20",
     "categories": [
-      "Hermes",
       "Continuous Analysis",
+      "Hermes",
       "Release Engineering",
       "生產穩定",
       "誠實性",
@@ -17,13 +17,14 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 30,
+    "count": 31,
     "tags": [
       "agentcore",
       "ai-friendly",
       "algorithm",
       "api",
       "audit",
+      "backfill",
       "bedrock",
       "cache",
       "ceo-lanes",
@@ -56,6 +57,7 @@
       "observability",
       "overview",
       "product",
+      "qa",
       "queue",
       "radar",
       "rag",
@@ -87,6 +89,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-20-backfill-observability-security",
+      "day": 21,
+      "date": "2026-07-20",
+      "title": "Day 21-2 · Backfill Worker、觀測 API 與投稿前安全 Gate",
+      "summary": "TrustForge 主線自 d5a9367 推進到 fde5a64（v0.16.18），本輪重點是歷史回填 worker、AI-friendly/營運觀測 API、投稿前 security gate、QA matrix、零停機重啟腳本與 CEO loop 自我監控；本輪實跑後端重點測試 80 passed，git diff --check 通過，但前端 Vitest 仍有 7 failed／277 passed，npm run build 因 embedded prop 型別錯誤失敗。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "backfill",
+        "observability",
+        "security",
+        "qa",
+        "deployment",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-20-backfill-observability-security.html",
+      "created_at": "2026-07-20 23:02:29"
+    },
     {
       "id": "2026-07-20",
       "day": 21,
