@@ -2,14 +2,14 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-19",
-    "total": 29,
+    "generated": "2026-07-20",
+    "total": 30,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-19",
+    "last_date": "2026-07-20",
     "categories": [
       "Hermes",
-      "Release Engineering",
       "Continuous Analysis",
+      "Release Engineering",
       "生產穩定",
       "誠實性",
       "部署營運",
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 29,
+    "count": 30,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -40,6 +40,7 @@
       "design",
       "docs",
       "ec2",
+      "fail-closed",
       "framework",
       "frontend",
       "github",
@@ -81,10 +82,31 @@
       "ui",
       "upgrade-governance",
       "ux",
+      "whale-trades",
       "worker"
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-20",
+      "day": 21,
+      "date": "2026-07-20",
+      "title": "Day 21 · 鯨魚交易信號、Hermes 小螢幕修復與 AgentCore proxy",
+      "summary": "TrustForge 主線自 53e27ad 推進到 d5a9367（VERSION 0.16.15），本輪新增名人／鯨魚交易信號與離線樣本，讓 HOYA BIT／排程器維持 fail-closed，修正 Hermes 小螢幕 rail 與 embedded Analyze composer 重複問題，並補上 AgentCore 本機雙路由 proxy；本輪實跑後端重點測試 192 passed／6 skipped、前端 268 passed 與 Vite build。",
+      "category": "Hermes",
+      "tags": [
+        "trustforge",
+        "hermes",
+        "whale-trades",
+        "frontend",
+        "agentcore",
+        "fail-closed",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-20.html",
+      "created_at": "2026-07-20 03:05:02"
+    },
     {
       "id": "2026-07-19-r2-darkbridge-ceo-lanes",
       "date": "2026-07-19",

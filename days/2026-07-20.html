@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 21 · 鯨魚交易信號、Hermes 小螢幕修復與 AgentCore proxy — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-20 · Hermes</p>
+<h1>Day 21 · 鯨魚交易信號、Hermes 小螢幕修復與 AgentCore proxy</h1>
+<p class="summary">TrustForge 主線自 53e27ad 推進到 d5a9367（VERSION 0.16.15），本輪新增名人／鯨魚交易信號與離線樣本，讓 HOYA BIT／排程器維持 fail-closed，修正 Hermes 小螢幕 rail 與 embedded Analyze composer 重複問題，並補上 AgentCore 本機雙路由 proxy；本輪實跑後端重點測試 192 passed／6 skipped、前端 268 passed 與 Vite build。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Hermes ｜ 標籤：#trustforge #hermes #whale-trades #frontend #agentcore #fail-closed #testing #release</p>
+</header>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>本輪分析時間：<code>2026-07-20 03:01:51 UTC</code>（台灣時間 <code>2026-07-20 11:01:51 CST</code>）</li>
+    <li>比較基準：上一篇 devlog 記錄的主 repo HEAD <code>53e27ad</code></li>
+    <li>目前 HEAD：<code>d5a9367619d6</code>（<code>v0.16.15-11-gd5a9367</code>，commit 時間 <code>2026-07-20 10:31:50 +0800</code>）</li>
+    <li>版本檔：<code>VERSION=0.16.15</code></li>
+    <li>變更範圍：<code>20 files changed, 4685 insertions(+), 388 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>HOYA BIT 與排程器 fail-closed 收斂：</strong><code>CHANGELOG.md</code> 記錄 v0.16.15，HOYA BIT 即時真值來源在 endpoint 未設定、不安全或被停用時不產生佔位證據；排程器也不再把停用來源記成成功刷新，避免 cache/archive 被假成功污染。</li>
+    <li><strong>名人／鯨魚交易信號接入：</strong>新增 <code>src/trustforge/ingestion/whale_trades.py</code>、<code>demo/sample_data/whale_trades.json</code> 與 <code>.kiro/specs/celebrity-whale-trades.md</code>。Whale Alert／Arkham 來源採固定白名單 URL、5 秒 timeout、512 KB 上限，API key 只讀環境變數且不寫入 URL/meta/log。</li>
+    <li><strong>信任評分新增市場參考層：</strong><code>scoring.py</code> 新增 <code>whale_onchain=0.88</code> 與 <code>celebrity_trade=0.50</code>，並給鯨魚／名人信號 2 小時半衰期；未驗證 celebrity_trade 在動態信譽路徑也會降到 social 等級，避免把未驗證喊單抬成高權威 Evidence。</li>
+    <li><strong>小螢幕 Hermes 佈局修正：</strong><code>HermesLeftRail</code>、<code>HermesRightRail</code> 與 <code>hermes.css</code> 調整 rail 捲動與 1024px breakpoint，後續 codex-review 修正把 1024px 改成縮窄 rail 而不是直接隱藏，保留三欄操作脈絡。</li>
+    <li><strong>分析 composer 去重：</strong><code>AnalyzePage</code> 在 embedded workspace 桌機模式隱藏中央 QueryConsole，保留左欄唯一 composer；手機因左欄隱藏，中央 QueryConsole 仍保留作唯一入口。後續 P2 修正把 CSS selector 限定在 <code>.hermes-frame</code> 內，避免 standalone <code>/analyze?workspace=xxx</code> 被誤傷。</li>
+    <li><strong>AgentCore 本機開發代理路由：</strong><code>frontend/vite.config.ts</code> 新增 <code>/agentcore</code> 與 <code>/invocations</code> 雙路由 proxy 到本機 <code>127.0.0.1:8080</code>，讓本機 UI 可測 AgentCore runtime 呼叫，但不把 AWS 或遠端環境設成預設依賴。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這一輪把 TrustForge 的「資料可信」往兩個方向推進：一邊讓缺資料、停用來源與不安全 endpoint 明確 fail closed；另一邊新增鯨魚鏈上與名人交易作為低延遲市場參考，但用來源白名單、短半衰期、未驗證降級與測試保護，避免把高噪音訊號誤包裝成確定結論。</p>
+  <p>前端部分則是把 Hermes 艦橋從視覺完成度拉回實際可操作性：桌機不再有兩個 composer 搶焦點，小螢幕 rail 可捲動，1024px 邊界保留三欄，而 AgentCore proxy 讓本機整合測試有明確入口，不需要讓開發 UI 暗中依賴 production。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li>後端重點測試：<code>uv run pytest tests/test_connector_cache.py tests/test_fetch_scheduler_source_calls.py tests/test_trust_scoring.py --no-cov</code>，結果 <strong>192 passed, 6 skipped</strong>。</li>
+    <li>前端測試：<code>npm test -- --run</code>，結果 <strong>34 files passed／268 tests passed</strong>。</li>
+    <li>前端 build：<code>npm run build</code> 成功，Vite 轉換 <strong>655 modules</strong>，產出 <code>dist/</code> bundle。</li>
+    <li>devlog 站台驗證在本篇寫入後以 repo 內 <code>validate_devlog.py</code>、JSON 唯一性檢查、HTML parser、feed/sitemap XML parser 執行。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪只驗證本機 checkout 的重點後端測試、前端測試與 build；沒有宣稱已完成 production deploy 或線上健康檢查。</li>
+    <li>Whale Alert／Arkham 真實 API 需要對應環境變數與外部服務可用性；本輪沒有輸出、讀取或驗證任何 API key，也不記錄秘密。</li>
+    <li>名人／鯨魚交易信號是信心參考與 Evidence 候選來源，不等同交易建議；未驗證 celebrity_trade 仍需被降級與佐證。</li>
+    <li>Vite proxy 使用本機開發預設；不代表 AgentCore production runtime 已啟用或已完成 AWS 端驗證。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>在具備合法憑證的環境對 Whale Alert／Arkham 來源做端到端 smoke test，確認 URL 清洗、錯誤遮罩與資料量上限都符合預期。</li>
+    <li>替 1024px、560px 以下與 standalone／embedded Analyze 路徑補實際 eye scan 紀錄，確認 composer 唯一性與 rail 捲動沒有回歸。</li>
+    <li>把 celebrity_trade 的「未驗證降級」在 API 回傳與 UI 說明中標得更清楚，避免使用者把參考訊號當成高權威定論。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>de0d114 chore(release): prepare v0.16.14
+04fe1d3 fix: load source controls in scheduler process
+0c0af06 fix: keep scheduler introspection network free
+cbe7984 feat: add celebrity/whale trade signals as confidence reference
+22f125a fix(frontend): 小螢幕佈局修復 — LeftRail/RightRail 可捲動 + 1024px breakpoint
+3977334 fix(test): 修正 test_manipulation_entries_land_in_contrarian 斷言 pre-existing failure
+b34921d fix: 修正 codex-review P1 findings
+6c2296e fix(frontend): 統一分析 composer — embedded 時隱藏中央 QueryConsole
+併入測試紀錄：268 frontend tests passed + build OK
+ae7406e fix: codex-review P2 — 限定 hidden-when-left-rail-visible 在 .hermes-frame 內
+7f141c5 feat(#249): 補 vite proxy 雙路由（/agentcore + /invocations）
+d5a9367 feat(#249): vite proxy 雙路由 Closes #249</code></pre>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-20</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 21 · 鯨魚交易信號、Hermes 小螢幕修復與 AgentCore proxy","datePublished":"2026-07-20","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Hermes"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>
