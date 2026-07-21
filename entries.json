@@ -3,7 +3,7 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-21",
-    "total": 32,
+    "total": 33,
     "first_date": "2026-06-30",
     "last_date": "2026-07-21",
     "categories": [
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 32,
+    "count": 33,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -27,6 +27,7 @@
       "backfill",
       "bedrock",
       "cache",
+      "calibration",
       "ceo-lanes",
       "certifi",
       "completeness",
@@ -56,6 +57,7 @@
       "nlp",
       "observability",
       "overview",
+      "policy",
       "product",
       "qa",
       "queue",
@@ -73,6 +75,7 @@
       "scale",
       "sec",
       "security",
+      "semantic-direction",
       "setup",
       "sources",
       "sqlite",
@@ -90,6 +93,28 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-21-outer-skill-policy",
+      "day": 22,
+      "date": "2026-07-21",
+      "title": "Day 22-2 · v0.17.0、語意方向校準與受限 Outer Skill Policy",
+      "summary": "TrustForge 主線自 5310eed 推進到 ccc132f（VERSION 0.17.0），本輪 87 個 commit 聚焦在方向判定從硬編碼走向 OHLCV／stance／LLM 語意統一管線、PIT outcome label、動態信譽與統計校準、runtime telemetry、References truth audit，以及受人工核准約束的 outer skill policy executor；本輪實跑 177 個後端重點測試通過，但 git diff --check 對既有主線新增檔回報 whitespace 問題，未宣稱全倉或部署已通過。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "calibration",
+        "semantic-direction",
+        "policy",
+        "observability",
+        "training-data",
+        "audit",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-21-outer-skill-policy.html",
+      "created_at": "2026-07-21 23:01:47"
+    },
     {
       "id": "2026-07-21",
       "day": 22,

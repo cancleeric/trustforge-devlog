@@ -8,6 +8,97 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 22-2 · v0.17.0、語意方向校準與受限 Outer Skill Policy</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-21-outer-skill-policy.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-21-outer-skill-policy.html"/>
+    <updated>2026-07-21T00:00:00+08:00</updated>
+    <published>2026-07-21T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 5310eed 推進到 ccc132f（VERSION 0.17.0），本輪 87 個 commit 聚焦在方向判定從硬編碼走向 OHLCV／stance／LLM 語意統一管線、PIT outcome label、動態信譽與統計校準、runtime telemetry、References truth audit，以及受人工核准約束的 outer skill policy executor；本輪實跑 177 個後端重點測試通過，但 git diff --check 對既有主線新增檔回報 whitespace 問題，未宣稱全倉或部署已通過。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-21 · Continuous Analysis</p>
+<h1>Day 22-2 · v0.17.0、語意方向校準與受限 Outer Skill Policy</h1>
+<p class="summary">TrustForge 主線自 5310eed 推進到 ccc132f（VERSION 0.17.0），本輪 87 個 commit 聚焦在方向判定從硬編碼走向 OHLCV／stance／LLM 語意統一管線、PIT outcome label、動態信譽與統計校準、runtime telemetry、References truth audit，以及受人工核准約束的 outer skill policy executor；本輪實跑 177 個後端重點測試通過，但 git diff --check 對既有主線新增檔回報 whitespace 問題，未宣稱全倉或部署已通過。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #calibration #semantic-direction #policy #observability #training-data #audit #testing #release</p>
+</header>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>本輪分析時間：<code>2026-07-21 15:01:47 UTC</code>（台灣時間 <code>2026-07-21 23:01:47 CST</code>）</li>
+    <li>比較基準：同日上一篇 devlog 記錄的主 repo HEAD <code>5310eed</code></li>
+    <li>目前 HEAD：<code>ccc132f571e4</code>（commit 時間 <code>2026-07-21 22:48:14 +0800</code>，合併 PR <code>#389</code>）</li>
+    <li>版本檔：<code>VERSION=0.17.0</code>；<code>pyproject.toml</code> 仍標示 package version <code>0.16.36</code></li>
+    <li>變更範圍：<code>87 commits</code>；<code>135 files changed, 10276 insertions(+), 11165 deletions(-)</code></li>
+    <li>本機狀態補充：TrustForge checkout 有未追蹤 <code>uv.lock</code>，未納入本輪分析 commit，也未修改主 repo。</li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>方向判定重寫與校準：</strong>從 Issue <code>#338</code>、<code>#347</code>、<code>#365</code> 到 <code>#367</code>，方向邏輯改以 OHLCV 報酬率與價格事實為優先，修掉 <code>ret_pct</code> 被 trust threshold 截斷、壞模型 abstain 後方向消失等問題；新增 <code>tests/test_direction_logic.py</code> 與 <code>tests/test_direction_distribution.py</code> 作為回歸保護。</li>
+    <li><strong>動態信譽與統計校準：</strong>Issue <code>#341</code> 啟用 Dawid-Skene 動態信譽預設，Issue <code>#342</code> 加入多源 stance 加權方向 Layer 2，Issue <code>#343</code> 以 <code>src/trustforge/calibration_model.py</code> 取代硬編碼校準表，讓 trust 分數往可訓練、可回放校準收斂。</li>
+    <li><strong>LLM 語意方向統一管線：</strong>Issue <code>#368</code> 新增 <code>src/trustforge/semantic_direction.py</code>，再由 Issue <code>#372</code> 統一 <code>_direction()</code> 為 LLM 語意分析 → OHLCV fallback，搭配 <code>tests/test_semantic_direction.py</code> 驗證方向解析、fallback 與錯誤邊界。</li>
+    <li><strong>PIT outcome label 與訓練資料版本化：</strong>Issue <code>#351</code> 將 <code>data/training/BTC.jsonl</code> 等五幣訓練資料納入版本控制，Issue <code>#353</code> 統一路徑，Issue <code>#378</code> 新增 <code>src/trustforge/outcome_labeler.py</code> 與 <code>label-outcomes</code> CLI，讓 point-in-time outcome 可重建而不把未來資訊混入當日判斷。</li>
+    <li><strong>Runtime telemetry 與 references truth audit：</strong>Issue <code>#382</code> 新增 <code>src/trustforge/module_telemetry.py</code>，以 SQLite 持久化模組執行事件、duration、成功率與 p95；Issue <code>#384</code> 產出 <code>docs/audit/REFERENCES-TRUTH-AUDIT.md</code>，把 references 頁上的學術方法、資料源、infra 狀態分成 verified、research、planned、blocked 等等級，降低對外敘述過度承諾。</li>
+    <li><strong>受限 outer skill policy executor：</strong>Issue <code>#383</code> 新增 <code>src/trustforge/policy/</code> package，包含 schema、compiler、loader、guards、executor；policy 只允許 source／analysis／report／evaluation／improvement family，拒絕 deploy／core／security／cost、trust weights、time boundary、evidence binding 與 injection 字串，並在 run 開始寫入 <code>policy_snapshot</code> execution log。</li>
+    <li><strong>AgentCore 與部署邊界清理：</strong>移除實驗性 AgentCore runtime 與 CDK scaffold，保留 <code>app/CustomerSupport</code> runtime 範例；GitHub Actions workflow 檔名改為 <code>.disabled</code>，主線轉向本機 pre-push hook，而 deploy family skill artifact 歸檔到 <code>archive/skills-deploy/</code>，避免自主 policy 執行觸碰部署。</li>
+    <li><strong>前端狀態修復：</strong>Issue <code>#356/#358/#359/#360</code> 修補對話記憶重複渲染、空 snapshot 顯示、設定頁 copy 等 UI P1 問題，並新增 TrainingStatusCard 呈現訓練資料狀態。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這一輪其實是 TrustForge 從「規則式信任提煉」轉向「可回放、可校準、可治理的信任引擎」的分水嶺。方向判定不再只靠單一硬編碼邏輯，而是把 OHLCV 價格事實、stance consensus、LLM 語意與校準模型串成有 fallback 的統一管線；PIT label 與訓練資料版本化也讓後續評估能避免 time leakage。</p>
+  <p>另一個重點是外框治理：runtime telemetry 讓每個模組的成功率與耗時成為可審計資料；references truth audit 把行銷／文件敘述降到可驗證狀態；outer skill policy executor 則把可自動改善的範圍鎖在 read-only、approved、fail-closed 的外框 policy，明確排除核心信任權重、Evidence binding、成本、安全與部署。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li><code>gh auth status</code>：已使用 <code>/opt/data/bin/gh</code> 驗證 GitHub 登入；token 內容已遮罩，未輸出秘密。</li>
+    <li>Git 更新：TrustForge 與 TrustForge-devlog 均完成 <code>git fetch</code> 與 <code>git pull --ff-only</code>；devlog 在寫入前是乾淨 worktree。</li>
+    <li><code>git diff --check 5310eed..HEAD</code>：未通過，回報多個主線新增檔 whitespace 問題，包含 <code>.kiro/specs/direction-logic-338.md</code>、<code>.kiro/specs/pit-labels-378.md</code>、<code>app/CustomerSupport/main.py</code> 等。本輪只寫 devlog，未修主 repo。</li>
+    <li>後端重點測試：<code>uv run pytest tests/test_policy_contract.py tests/test_policy_integration.py tests/test_policy_security.py tests/test_module_telemetry.py tests/test_calibration_model.py tests/test_semantic_direction.py tests/test_direction_logic.py tests/test_direction_distribution.py --no-cov</code>，結果 <strong>177 passed in 3.65s</strong>。</li>
+    <li>Devlog 寫入後以 <code>validate_devlog.py</code>、JSON 唯一性檢查、HTML parser、Atom feed XML parser 與 sitemap XML parser 驗證。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪只分析 GitHub main 的本機 checkout、git diff、檔案內容與實際命令輸出；沒有宣稱 production deploy、GitHub Actions、前端 Vitest 或 Vite build 已完成。</li>
+    <li><code>VERSION=0.17.0</code> 已存在，但 <code>pyproject.toml</code> 仍顯示 <code>0.16.36</code>，此版本不一致只被記錄，未自行修正。</li>
+    <li><code>git diff --check</code> 對主 repo 目前 range 回報 whitespace 問題，所以本輪不能說主線所有品質 gate 都綠。</li>
+    <li>Outer skill policy executor 的測試通過代表 fail-closed 與 approved policy path 有回歸保護；不代表系統已允許自動修改核心模型、trust weights、Evidence、production code 或部署。</li>
+    <li>TrustForge checkout 的未追蹤 <code>uv.lock</code> 未納入 commit；devlog repo 的 commit 只包含靜態日誌相關檔案。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>修掉主 repo range 中的 whitespace 問題，讓 <code>git diff --check</code> 恢復通過。</li>
+    <li>釐清 <code>VERSION</code> 與 <code>pyproject.toml</code> 的版本同步策略，避免 release 與 package metadata 不一致。</li>
+    <li>在不觸碰 production 的前提下，補跑全倉 pytest、前端 Vitest、typecheck/build，並把結果接到本機 pre-push hook 證據鏈。</li>
+    <li>對 outer skill policy executor 做一次 adversarial review，特別檢查 staged revision 不可見、run freeze、rollback、path traversal 與 concurrent approve/run 的邊界。</li>
+    <li>把 references truth audit 的 implemented-not-verified／blocked-external 項目轉成明確 issue，避免首頁或 references 對外資訊超前實作狀態。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>ccc132f Merge pull request #389 from cancleeric/feat/issue-383-outer-skill-policy
+6327c47 feat(agent): outer skill policy executor 與 deploy 邊界清理 (#383)
+8ae2bda spec: outer skill policy executor (#383) — R/D/T
+fdf29b1 Merge pull request #388 from cancleeric/feat/issue-382-runtime-telemetry
+5a77b20 Merge pull request #387 from cancleeric/feat/issue-384-references-truth-audit
+127b71a feat(observability): add module runtime telemetry with SQLite persistence (#382)
+46ac90b docs(qa): references 實作狀態 truth audit (#384)
+e9185b7 chore(release): v0.17.0 — 統一管線 + PIT 標籤 + AgentCore
+69631c1 Merge pull request #379 from cancleeric/feat/issue-378-pit-outcome-labels
+82c9dd1 feat: 重建 PIT 標籤 — outcome_labeler + label-outcomes CLI (#378)
+e3a176d Merge pull request #376 from cancleeric/feat/issue-372-unified-pipeline
+c636848 feat: 統一 _direction() 為 LLM 語意分析 → OHLCV fallback (#372)</code></pre>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 22 · Live Backfill Training、AgentCore CDK 與前端驗證回穩</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-21.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-21.html"/>
