@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-20",
-    "total": 31,
+    "generated": "2026-07-21",
+    "total": 32,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-20",
+    "last_date": "2026-07-21",
     "categories": [
       "Continuous Analysis",
       "Hermes",
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 31,
+    "count": 32,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -78,6 +78,7 @@
       "sqlite",
       "ssrf",
       "testing",
+      "training-data",
       "trust",
       "trust-architecture",
       "trustforge",
@@ -89,6 +90,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-21",
+      "day": 22,
+      "date": "2026-07-21",
+      "title": "Day 22 · Live Backfill Training、AgentCore CDK 與前端驗證回穩",
+      "summary": "TrustForge 主線自 fde5a64 推進到 5310eed（VERSION 0.16.21），本輪重點是 Issue #328 live backfill training、訓練資料 JSONL、daemon snapshot 寫入、AgentCore/CDK scaffold、Admin backend provider control、模組觀測 gate 與前端 embedded 分析流程回穩；本輪實跑後端重點測試 44 passed、前端 290 passed 與 Vite build。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "backfill",
+        "training-data",
+        "agentcore",
+        "observability",
+        "frontend",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-21.html",
+      "created_at": "2026-07-21 03:05:24"
+    },
     {
       "id": "2026-07-20-backfill-observability-security",
       "day": 21,

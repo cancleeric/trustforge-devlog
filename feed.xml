@@ -2,11 +2,97 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-20T00:00:00+08:00</updated>
+  <updated>2026-07-21T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 22 · Live Backfill Training、AgentCore CDK 與前端驗證回穩</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-21.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-21.html"/>
+    <updated>2026-07-21T00:00:00+08:00</updated>
+    <published>2026-07-21T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 fde5a64 推進到 5310eed（VERSION 0.16.21），本輪重點是 Issue #328 live backfill training、訓練資料 JSONL、daemon snapshot 寫入、AgentCore/CDK scaffold、Admin backend provider control、模組觀測 gate 與前端 embedded 分析流程回穩；本輪實跑後端重點測試 44 passed、前端 290 passed 與 Vite build。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-21 · Continuous Analysis</p>
+<h1>Day 22 · Live Backfill Training、AgentCore CDK 與前端驗證回穩</h1>
+<p class="summary">TrustForge 主線自 fde5a64 推進到 5310eed（VERSION 0.16.21），本輪重點是 Issue #328 live backfill training、訓練資料 JSONL、daemon snapshot 寫入、AgentCore/CDK scaffold、Admin backend provider control、模組觀測 gate 與前端 embedded 分析流程回穩；本輪實跑後端重點測試 44 passed、前端 290 passed 與 Vite build。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #backfill #training-data #agentcore #observability #frontend #testing #release</p>
+</header>
+<section>
+  <h2>資料來源</h2>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>本輪分析時間：<code>2026-07-21 03:00:20 UTC</code>（台灣時間 <code>2026-07-21 11:00:20 CST</code>）</li>
+    <li>比較基準：上一篇 devlog 記錄的主 repo HEAD <code>fde5a64</code></li>
+    <li>目前 HEAD：<code>5310eed6c0e9</code>（commit 時間 <code>2026-07-21 10:43:33 +0800</code>，合併 PR <code>#330</code>）</li>
+    <li>版本檔：<code>VERSION=0.16.21</code>；<code>CHANGELOG.md</code> 最新段落為 <code>v0.16.21 — 2026-07-21</code></li>
+    <li>變更範圍：<code>98 files changed, 13111 insertions(+), 104 deletions(-)</code></li>
+  </ul>
+</section>
+<section>
+  <h2>主要變更</h2>
+  <ul>
+    <li><strong>Issue #328 live backfill training 合併：</strong><code>.kiro/specs/live-backfill-training-328.md</code> 把五年歷史真實分析回填拆成 <code>mode=live</code>、每幣 200 天抽樣、訓練資料 JSONL、daemon snapshot 與 model artifacts 匯出／匯入；主線合併 commit 為 <code>5310eed</code>。</li>
+    <li><strong>BackfillWorker 從 offline replay 擴到真 Bedrock 路徑：</strong><code>src/trustforge/backfill.py</code> 新增 <code>mode="live"</code> 與 <code>sample</code> 參數，<code>_run_live_pipeline()</code> 以 <code>BedrockClient(offline=False)</code> 跑 <code>run_agent_pipeline()</code>，並把結果同步寫入 <code>trust_snapshot_history_key</code> 與 <code>out/training-data/{coin}.jsonl</code>。</li>
+    <li><strong>Daemon snapshot 寫入模組化：</strong>新增 <code>src/trustforge/snapshot_writer.py</code>，把原本 fetch scheduler 的 snapshot 寫入邏輯抽成可 import 工具，讓 <code>scripts/run_analysis_flow.py</code> 能在每輪 refresh 後寫入 history/latest snapshot，不再依賴手動 <code>fetch_scheduler.py --snapshot</code>。</li>
+    <li><strong>AgentCore 與 CDK scaffold 入庫：</strong>新增 <code>agentcore/agentcore.json</code>、<code>agentcore/aws-targets.json</code>、<code>agentcore/.llm-context/*</code> 與 <code>agentcore/cdk/*</code>，開始把 AgentCore runtime、AWS target 與基礎設施描述固定成可版本化的資產。</li>
+    <li><strong>Admin runtime provider control：</strong>新增 <code>src/trustforge/backend_registry.py</code> 與前端 AdminPage 控制面，可在 <code>builtin</code>／<code>agentcore</code> 之間切換 memory、policy、eval、llm、gateway、observability、upgrade 等 backend provider；預設仍 fail-safe 回 <code>builtin</code>。</li>
+    <li><strong>模組觀測與校準 gate 狀態：</strong><code>src/trustforge/module_status.py</code>、<code>src/trustforge/replay_regression.py</code>、<code>src/trustforge/calibrator_gate.py</code> 與前端 Hermes/Admin 頁面補上資料源升級、routing fallback、scheduler backpressure、RAG memory、reranker、contrarian search、model route gate、replay regression 等狀態卡。</li>
+    <li><strong>前端 beginner/embedded 分析流程回穩：</strong><code>frontend/src/pages/AnalyzePage.tsx</code>、<code>HermesDashboard.tsx</code>、<code>beginnerExperience.ts</code> 與相關測試更新，修正上一輪 devlog 記錄的 embedded composer 與前端 build 阻塞；本輪實測 Vitest 與 Vite build 已通過。</li>
+    <li><strong>決賽投稿封裝與部署健檢：</strong>新增 <code>scripts/package_finale_submission.py</code>、<code>scripts/package_submission.py</code>、<code>docs/competition/SUBMISSION-CHECKLIST.md</code> 更新，以及 <code>deploy/deploy_ec2.sh</code> 的 nginx port 80 健全性檢查，降低交付前 packaging 與部署煙霧測試遺漏。</li>
+  </ul>
+</section>
+<section>
+  <h2>工程意義</h2>
+  <p>這一輪的核心是把「能分析」推進到「能累積可校準的歷史訓練資料」。BackfillWorker 的 live mode、訓練 JSONL 與 daemon snapshot 寫入，讓 TrustForge 可以從抽樣歷史日期建立有方向預測的 point-in-time 樣本，後續才有材料做校準、回放與外框模組升級診斷。</p>
+  <p>AgentCore CDK scaffold、backend provider registry 與模組狀態卡則把升級路徑明確關進可觀測、可切換、但不自動越權的外框：系統能顯示哪些 provider 可用、哪些 gate 被鎖住、哪些需要人工核准，而不是讓自動化直接改 trust weights 或 production code。</p>
+</section>
+<section>
+  <h2>驗證與測試狀態</h2>
+  <ul>
+    <li><code>git diff --check</code>：通過，未回報 whitespace diff 問題。</li>
+    <li>後端重點測試：<code>uv run pytest tests/test_backfill.py tests/test_backend_registry.py tests/test_module_status.py tests/test_replay_regression.py tests/test_package_submission.py tests/test_package_finale_submission.py tests/test_model_route_gate.py --no-cov</code>，結果 <strong>44 passed in 1.86s</strong>。</li>
+    <li>前端測試：<code>npm test -- --run</code>，結果 <strong>34 files passed；290 tests passed</strong>。</li>
+    <li>前端 build：<code>npm run build</code>，結果 <strong>tsc -b 與 Vite build 通過</strong>，輸出 <code>dist/index.html</code> 與 production assets。</li>
+    <li>Devlog 寫入後另以 <code>validate_devlog.py</code>、JSON 唯一性檢查、HTML parser、Atom feed XML parser 與 sitemap XML parser 驗證。</li>
+  </ul>
+</section>
+<section>
+  <h2>誠實邊界</h2>
+  <ul>
+    <li>本輪只分析 GitHub main 的本機 checkout、git diff、檔案內容與實際命令輸出；沒有宣稱 production deploy 或線上健康檢查已完成。</li>
+    <li>測試是本輪選定的後端重點測試、前端 Vitest 與前端 build；未宣稱全倉所有 pytest 或所有 deployment workflow 都已跑完。</li>
+    <li><code>mode=live</code> 支援已入主線，但本輪排程沒有啟動長時間 Bedrock 歷史回填，也沒有產生 1000 筆訓練資料或完成模型校準。</li>
+    <li>AgentCore provider registry 目前是可切換與可觀測的控制面；不能解讀為所有 AgentCore backend 都已在 production 自動接管。</li>
+  </ul>
+</section>
+<section>
+  <h2>下一步</h2>
+  <ul>
+    <li>用有效 AWS credential 小批量執行 <code>backfill start --mode live --sample</code>，先驗證 JSONL 訓練資料、history key 與成本紀錄，再放大抽樣。</li>
+    <li>補齊 model artifacts 匯出／匯入與 release gate，把校準結果限制在 sandbox/replay 通過且人工核准後才能啟用。</li>
+    <li>確認 daemon snapshot 寫入在 production 角色、DynamoDB cache 與 fail-closed backfill 預設下的行為，避免高成本工作被誤啟動。</li>
+    <li>持續追蹤 nginx port 80 deploy healthcheck 與 finale submission packager，讓決賽交付前的安全 gate、QA matrix、封裝清單與部署煙霧測試形成同一條證據鏈。</li>
+  </ul>
+</section>
+<section>
+  <h2>本輪 commit 摘要</h2>
+  <pre><code>5310eed Merge pull request #330 from cancleeric/feat/issue-328-live-backfill-training
+7df9ca2 feat: BackfillWorker mode=live + training-data JSONL + daemon snapshot (#328)
+76b1867 fix: 佈署後 nginx port 80 健全性檢查 + docs/skills (#329)
+812066e chore(release): bump version to 0.16.21 [auto pre-push]
+d19f42a docs: add CURRENT-PRIORITIES + spec for live backfill training (#328)
+04f1c4b fix: bedrock.py use converse API + add us. prefix to PRICING (#312)
+7f67a92 chore(submission): add finale artifact packager
+fc048d7 feat: AgentCore integration and admin backend provider controls
+663a195 feat(frontend): beginner focus analysis flow
+e5c04b2 fix: let scheduler run without DynamoDB when TRUSTFORGE_DISABLE_ADMIN_CONFIG=1</code></pre>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 21-2 · Backfill Worker、觀測 API 與投稿前安全 Gate</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-20-backfill-observability-security.html</id>
