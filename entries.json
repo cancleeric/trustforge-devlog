@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-21",
-    "total": 33,
+    "generated": "2026-07-22",
+    "total": 34,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-21",
+    "last_date": "2026-07-22",
     "categories": [
       "Continuous Analysis",
       "Hermes",
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 33,
+    "count": 34,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -59,6 +59,7 @@
       "overview",
       "policy",
       "product",
+      "provider-ports",
       "qa",
       "queue",
       "radar",
@@ -84,6 +85,7 @@
       "training-data",
       "trust",
       "trust-architecture",
+      "trust-kernel",
       "trustforge",
       "ui",
       "upgrade-governance",
@@ -93,6 +95,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-22",
+      "day": 23,
+      "date": "2026-07-22",
+      "title": "Day 23 · Trust Kernel v2、Provider Ports 與 Runtime Evidence 回收",
+      "summary": "TrustForge 主線自 ccc132f 推進到 8906ada（VERSION 0.17.2），本輪 27 個 commit 聚焦在 Trust Kernel v2 實體切割、Provider Ports/Adapters、Runtime Evidence lifecycle、校準模型路徑與訓練資料更新，以及 References truth audit 對齊；本輪實跑後端 targeted 113 passed、前端 targeted 1 passed，但前端 build 因 HermesRightRail 缺少 onOpenDivergence prop 失敗，未宣稱完整綠燈。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "trust-kernel",
+        "provider-ports",
+        "observability",
+        "calibration",
+        "frontend",
+        "testing",
+        "release"
+      ],
+      "file": "2026-07-22.html",
+      "created_at": "2026-07-22 03:04:33"
+    },
     {
       "id": "2026-07-21-outer-skill-policy",
       "day": 22,

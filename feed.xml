@@ -2,11 +2,81 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-21T00:00:00+08:00</updated>
+  <updated>2026-07-22T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 23 · Trust Kernel v2、Provider Ports 與 Runtime Evidence 回收</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-22.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-22.html"/>
+    <updated>2026-07-22T00:00:00+08:00</updated>
+    <published>2026-07-22T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 ccc132f 推進到 8906ada（VERSION 0.17.2），本輪 27 個 commit 聚焦在 Trust Kernel v2 實體切割、Provider Ports/Adapters、Runtime Evidence lifecycle、校準模型路徑與訓練資料更新，以及 References truth audit 對齊；本輪實跑後端 targeted 113 passed、前端 targeted 1 passed，但前端 build 因 HermesRightRail 缺少 onOpenDivergence prop 失敗，未宣稱完整綠燈。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-22 · Continuous Analysis</p>
+<h1>Day 23 · Trust Kernel v2、Provider Ports 與 Runtime Evidence 回收</h1>
+<p class="summary">TrustForge 主線自 ccc132f 推進到 8906ada（VERSION 0.17.2），本輪 27 個 commit 聚焦在 Trust Kernel v2 實體切割、Provider Ports/Adapters、Runtime Evidence lifecycle、校準模型路徑與訓練資料更新，以及 References truth audit 對齊；本輪實跑後端 targeted 113 passed、前端 targeted 1 passed，但前端 build 因 HermesRightRail 缺少 onOpenDivergence prop 失敗，未宣稱完整綠燈。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #trust-kernel #provider-ports #observability #calibration #frontend #testing #release</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>分析範圍：上一篇 devlog 記錄的 <code>ccc132f</code> 到本次 HEAD <code>8906ada70930</code>。</li>
+    <li>版本與時間：<code>VERSION 0.17.2</code>；本次排程執行時間 <code>2026-07-22 03:03:09 UTC</code>。</li>
+    <li>依據命令輸出：<code>git log ccc132f..HEAD</code>、<code>git diff --stat ccc132f..HEAD</code>、<code>uv run pytest</code>、<code>npm test</code>、<code>npm run build</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>Trust Kernel 實體切割到 v2：</strong>新增 <code>src/trustforge/trust/kernel.py</code> 與 <code>tests/test_trust_kernel.py</code>、<code>tests/test_trust_kernel_v2.py</code>，把 trust scoring facade 從一般流程中抽出，並用文件 <code>docs/architecture/TRUST-KERNEL-BOUNDARY.md</code> 明確界定 kernel 邊界。</li>
+    <li><strong>Provider Ports / Adapters：</strong>新增 <code>src/trustforge/ports.py</code> 與 <code>tests/test_provider_ports.py</code>，用 Protocol、內建 adapters、環境解析與 spy tests 收斂資料來源接入邊界，對應 issue #386 與架構盤點 #380。</li>
+    <li><strong>Runtime Evidence 與 module telemetry：</strong><code>src/trustforge/module_telemetry.py</code> 新增 ModuleState/state lifecycle，測試也擴充到 <code>tests/test_module_telemetry.py</code>，讓模組狀態不只停留在描述，而是可以被持久觀測與驗證。</li>
+    <li><strong>Calibration 與 training data：</strong>新增 <code>src/trustforge/calibration_runner.py</code>、更新 <code>data/model-artifacts/calibration-model.json</code> 與 BTC/ETH training rows，並修正 #394：校準模型路徑改為先找 <code>data/</code> 再 fallback 到 <code>out/</code>。</li>
+    <li><strong>文件與 truth audit 對齊：</strong><code>docs/audit/REFERENCES-TRUTH-AUDIT.md</code>、<code>docs/architecture/ARCHITECTURE-INVENTORY-2026-07-21.md</code>、<code>docs/CURRENT-PRIORITIES.md</code> 與多個 <code>.kiro/specs</code> 被更新，特別把 reopened issues #381/#382/#383/#384/#386 的真實 acceptance criteria 補回來。</li>
+    <li><strong>前端小修：</strong><code>frontend/src/hermes/HermesLeftRail.test.ts</code>、<code>frontend/src/hermes/hermesI18n.tsx</code>、<code>frontend/src/lib/conversationMessages.ts</code> 與 <code>frontend/src/pages/HermesDashboard.tsx</code> 有小幅更新；但本輪 build 揭露一個型別缺口，見驗證狀態。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>這一輪不是單純堆功能，而是把 TrustForge 的「可信任核心」往可隔離、可替換、可審計的方向再切一層：Trust Kernel 負責純 scoring 邊界，Provider Ports 負責外部資料進入邊界，Runtime Evidence/Telemetry 負責模組生命週期觀測，Calibration Runner 則讓訓練與模型輸出更容易被回放驗證。</p>
+  <p>對 continuous analysis 來說，這代表之後要追一個分數、資料來源或模組狀態時，可以從 kernel、port、telemetry、artifact 四個層次分開查，而不是把所有結論混在一次分析執行裡。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li>後端 targeted tests（不啟用 coverage gate）：<code>113 passed in 6.89s</code>，範圍包含 trust kernel、provider ports、module telemetry、calibration runner。</li>
+    <li>同一批後端 targeted tests 若使用 repo 預設 coverage gate：測試本身 <code>113 passed</code>，但整體 coverage 因只跑局部測試而回報 <code>Coverage failure: total of 16 is less than fail-under=75</code>；因此不能宣稱全倉 coverage gate 通過。</li>
+    <li>前端 targeted Vitest：<code>HermesLeftRail.test.ts</code> 為 <code>1 passed</code>。</li>
+    <li>前端 build：<code>npm run build</code> 失敗，TypeScript 回報 <code>HermesDashboard.tsx(555,12)</code> 缺少 <code>onOpenDivergence</code> prop，而 <code>HermesRightRailProps</code> 需要此屬性。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>本篇只根據本機 checkout、GitHub origin、git diff/log 與實際測試命令輸出撰寫；沒有宣稱部署成功，也沒有讀取或輸出任何 token。</li>
+    <li>TrustForge 主 repo worktree 仍有排程前已存在的未追蹤檔 <code>uv.lock</code>；本次 devlog 任務未修改主 repo。</li>
+    <li>前端 build 目前是明確阻塞點，不能把本輪記錄為完整綠燈。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>修正 <code>HermesDashboard.tsx</code> 傳給 <code>HermesRightRail</code> 的 <code>onOpenDivergence</code> prop，重新跑 <code>npm run build</code>。</li>
+    <li>若要滿足 coverage gate，改跑全倉測試或調整 targeted 測試命令避免用局部結果觸發全域 coverage fail-under。</li>
+    <li>把 Provider Ports、Trust Kernel、Runtime Evidence 三個邊界納入後續 continuous analysis 的固定檢查清單。</li>
+  </ol>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 22-2 · v0.17.0、語意方向校準與受限 Outer Skill Policy</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-21-outer-skill-policy.html</id>
