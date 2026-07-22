@@ -3,7 +3,7 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-22",
-    "total": 34,
+    "total": 35,
     "first_date": "2026-06-30",
     "last_date": "2026-07-22",
     "categories": [
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 34,
+    "count": 35,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -37,6 +37,7 @@
       "cost",
       "counting",
       "dashboard",
+      "data-integrity",
       "deploy",
       "deployment",
       "design",
@@ -46,6 +47,7 @@
       "framework",
       "frontend",
       "github",
+      "handoff",
       "hermes",
       "historical-backfill",
       "honesty",
@@ -53,6 +55,7 @@
       "human-gate",
       "logo",
       "manipulation",
+      "modelhub",
       "multidim",
       "nlp",
       "observability",
@@ -72,6 +75,7 @@
       "reliability",
       "reputation",
       "runtime-control",
+      "safe-fs",
       "sandbox",
       "scale",
       "sec",
@@ -95,6 +99,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-22-modelhub-data-integrity",
+      "day": 23,
+      "date": "2026-07-22",
+      "title": "Day 23-2 · ModelHub 校準編排、OHLCV 完整性與交接收斂",
+      "summary": "TrustForge 主線自 8906ada 推進到 0ab5387（pyproject version 0.16.36），本輪 6 個 commit 聚焦 ModelHub defensive client、五幣 calibrator proposal 編排、read-only OHLCV integrity audit、safe_fs 路徑防護、TEAM.html 分工頁與 #351 交接文件；本輪實跑 OHLCV audit OK、targeted pytest 244 passed、compileall 與 git diff --check 通過，但未執行 live retrain、模型 activation、部署或外部服務異動。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "modelhub",
+        "calibration",
+        "data-integrity",
+        "safe-fs",
+        "qa",
+        "testing",
+        "handoff"
+      ],
+      "file": "2026-07-22-modelhub-data-integrity.html",
+      "created_at": "2026-07-22 15:06:36"
+    },
     {
       "id": "2026-07-22",
       "day": 23,

@@ -8,6 +8,80 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 23-2 · ModelHub 校準編排、OHLCV 完整性與交接收斂</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-22-modelhub-data-integrity.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-22-modelhub-data-integrity.html"/>
+    <updated>2026-07-22T00:00:00+08:00</updated>
+    <published>2026-07-22T00:00:00+08:00</published>
+    <summary>TrustForge 主線自 8906ada 推進到 0ab5387（pyproject version 0.16.36），本輪 6 個 commit 聚焦 ModelHub defensive client、五幣 calibrator proposal 編排、read-only OHLCV integrity audit、safe_fs 路徑防護、TEAM.html 分工頁與 #351 交接文件；本輪實跑 OHLCV audit OK、targeted pytest 244 passed、compileall 與 git diff --check 通過，但未執行 live retrain、模型 activation、部署或外部服務異動。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-22 · Continuous Analysis</p>
+<h1>Day 23-2 · ModelHub 校準編排、OHLCV 完整性與交接收斂</h1>
+<p class="summary">TrustForge 主線自 8906ada 推進到 0ab5387（pyproject version 0.16.36），本輪 6 個 commit 聚焦 ModelHub defensive client、五幣 calibrator proposal 編排、read-only OHLCV integrity audit、safe_fs 路徑防護、TEAM.html 分工頁與 #351 交接文件；本輪實跑 OHLCV audit OK、targeted pytest 244 passed、compileall 與 git diff --check 通過，但未執行 live retrain、模型 activation、部署或外部服務異動。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #modelhub #calibration #data-integrity #safe-fs #qa #testing #handoff</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>分析範圍：上一篇 devlog 記錄的 <code>8906ada</code> 到本次 HEAD <code>0ab53877a62e</code>。</li>
+    <li>排程執行時間：<code>2026-07-22 15:02:42 UTC</code>；主 repo 分支 <code>main</code>。</li>
+    <li>依據命令輸出：<code>git log 8906ada..HEAD</code>、<code>git diff --stat 8906ada..HEAD</code>、新增 QA／handoff 文件、<code>python3 scripts/audit_data_integrity.py</code>、<code>uv run python -m pytest ... --no-cov</code>、<code>uv run python -m compileall</code>、<code>git diff --check HEAD~6..HEAD</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>ModelHub defensive client：</strong>新增 <code>src/trustforge/modelhub_client.py</code> 與 <code>tests/test_modelhub_client.py</code>，把 ModelHub HTTP 互動收斂成 loopback-only、no proxy/redirect、GET bounded retry、POST no retry、API key redaction 的安全邊界。</li>
+    <li><strong>五幣 calibrator proposal 編排：</strong><code>src/trustforge/modelhub_submit.py</code>、<code>src/trustforge/modelhub_training.py</code>、<code>src/trustforge/calibration_metrics.py</code> 與 <code>src/trustforge/calibrator_gate.py</code> 擴充為 BTC／ETH／SOL／BNB／XRP proposal 管線；產物維持 human-review-only，沒有自動啟用模型。</li>
+    <li><strong>Read-only OHLCV integrity audit：</strong>新增 <code>src/trustforge/data_integrity.py</code>、<code>scripts/audit_data_integrity.py</code>、<code>data/ohlcv_checksums.json</code> 與 <code>tests/test_data_integrity.py</code>，檢查五幣各 1,826 筆 OHLCV、日期連續性、checksum manifest、metadata、CSV 欄位與價格／量能 invariant。</li>
+    <li><strong>safe_fs 路徑防護：</strong>新增 <code>src/trustforge/safe_fs.py</code> 與 <code>tests/test_safe_fs.py</code>，把 symlink、非 regular file、過大檔案、TOCTOU／dirfd 類風險前移到共用讀檔邊界。</li>
+    <li><strong>文件與交接收斂：</strong>新增 <code>docs/handoff/2026-07-22-modelhub-integration-handoff.md</code>、<code>docs/qa/modelhub-integration-351.md</code>、<code>docs/qa/M1-DATA-INTEGRITY-2026-07-22.md</code>，明確記錄已驗證項目、未驗證邊界、live retrain 授權條件與接手 checklist。</li>
+    <li><strong>團隊與架構文件：</strong>新增 <code>docs/competition/TEAM.html</code>，把核心、外框模組、前端 WebUI、創意交付四組責任與決賽 checklist 靜態化；<code>README.md</code>、<code>docs/README.md</code>、<code>docs/architecture/ARCHITECTURE.md</code> 也同步標示 ModelHub 與資料完整性入口。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>這一輪把「校準模型可以被產生」與「模型可以被啟用」清楚分離：ModelHub client 與 training orchestration 只負責取得候選、寫入不可變 audit log、產生 current proposal，並保留人工審查與 activation gate；這符合 TrustForge continuous analysis 的安全契約，不讓排程或自動化代理私自改變信任權重或正式模型。</p>
+  <p>另一個重點是資料完整性從人工敘述變成可重跑工具。OHLCV audit 以 checksum manifest 綁住同一份 bytes snapshot，再檢查五幣日期、欄位、metadata 與 invariant；未來若訓練資料或市場資料被回填，可以先用 read-only audit 證明資料沒有被靜默污染。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li>OHLCV audit：<code>python3 scripts/audit_data_integrity.py</code> 回傳 <code>status: ok</code>；BTC、ETH、SOL、BNB、XRP 各 <code>1826</code> rows，日期皆為 <code>2021-06-01</code> 到 <code>2026-05-31</code>。</li>
+    <li>後端 targeted tests：<code>uv run python -m pytest tests/test_modelhub_client.py tests/test_calibrator_gate.py tests/test_modelhub_cli.py tests/test_modelhub_submit.py tests/test_modelhub_training.py tests/test_safe_fs.py tests/test_data_integrity.py -q --no-cov</code>，結果 <code>244 passed in 14.82s</code>。</li>
+    <li>語法檢查：<code>uv run python -m compileall -q src/trustforge scripts/audit_data_integrity.py</code> 通過。</li>
+    <li>diff whitespace：<code>git diff --check HEAD~6..HEAD</code> 通過，沒有輸出錯誤。</li>
+    <li>本輪沒有前端程式變更，因此未重跑前端 Vitest 或 build；不把前端狀態宣稱為本輪已驗證。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>沒有執行 live ModelHub retrain、沒有下載或啟用候選模型、沒有變更 registry current、沒有部署、沒有 DB/migration、沒有 Docker 或 AWS 異動。</li>
+    <li>文件中的五幣 live <code>req_no</code> 仍需由 ModelHub 真實核對並取得 Eric 或具名 ModelHub owner 明確授權後才能操作；API key、req_no 或審查通過都不等於操作授權。</li>
+    <li>本機 TrustForge 主 repo 在排程前已存在未追蹤 <code>uv.lock</code>；本次任務未把它加入 devlog commit，也未修改主 repo。</li>
+    <li>GitHub CLI 認證只做狀態驗證與 git setup；回報不包含 token 或任何秘密。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>接手者先核對五個真實且互異的 ModelHub <code>req_no</code>，再重跑五幣 dry-run 並重算 execution log SHA256。</li>
+    <li>在明確授權前，維持所有候選為 human-review-only，不做 live retrain、activation 或權重套用。</li>
+    <li>把 OHLCV read-only audit 納入後續資料回填與校準流程的固定 gate，避免訓練資料或市場資料被無聲污染。</li>
+    <li>若要宣稱全倉綠燈，需另跑完整後端／前端測試與 build；本篇只宣稱已實跑的 targeted 範圍。</li>
+  </ol>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 23 · Trust Kernel v2、Provider Ports 與 Runtime Evidence 回收</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-22.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-22.html"/>
