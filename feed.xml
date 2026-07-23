@@ -2,11 +2,85 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-22T00:00:00+08:00</updated>
+  <updated>2026-07-23T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 24 · Core Kernel 平台契約、方向解析與 Evidence/PIT Guard</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-23.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-23.html"/>
+    <updated>2026-07-23T00:00:00+08:00</updated>
+    <published>2026-07-23T00:00:00+08:00</published>
+    <summary>TrustForge 最新開發主要落在 develop（main 仍停在 0ab5387）：本輪相對 main 共 86 個 commit，develop HEAD 677b5a9，聚焦 trustforge_core 純核心切割、公開 run kernel API、Provider/Agent/Quota/Artifact/Telemetry 契約、pre-score market direction、aggregate/run-kernel reconciliation、CEO review gate 與 T+N outcome semantics；本輪實跑 diff check、compileall 與 targeted pytest，結果 261 passed、1 xfailed，未執行完整前端、部署或模型啟用。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-23 · Continuous Analysis</p>
+<h1>Day 24 · Core Kernel 平台契約、方向解析與 Evidence/PIT Guard</h1>
+<p class="summary">TrustForge 最新開發主要落在 develop（main 仍停在 0ab5387）：本輪相對 main 共 86 個 commit，develop HEAD 677b5a9，聚焦 trustforge_core 純核心切割、公開 run kernel API、Provider/Agent/Quota/Artifact/Telemetry 契約、pre-score market direction、aggregate/run-kernel reconciliation、CEO review gate 與 T+N outcome semantics；本輪實跑 diff check、compileall 與 targeted pytest，結果 261 passed、1 xfailed，未執行完整前端、部署或模型啟用。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #trust-kernel #provider-ports #platform-contracts #direction-resolution #evidence #pit #testing #release-governance</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>分析基準：<code>origin/main</code> HEAD <code>0ab53877a62ed2011adc5e09bfe18d2bcf9ff936</code>；最新開發線 <code>origin/develop</code> HEAD <code>677b5a9f0009f0acd4ea56f8fd85db49b7f8ad65</code>。</li>
+    <li>排程執行時間：<code>2026-07-23 03:02:59 UTC</code>。</li>
+    <li>依據命令輸出：<code>git fetch origin</code>、<code>git log --all --since</code>、<code>git log origin/main..origin/develop</code>、<code>git diff --stat origin/main..origin/develop</code>、detached worktree <code>/opt/data/projects/TrustForge-analysis-develop</code>、<code>git diff --check origin/main..HEAD</code>、<code>uv run python -m compileall ...</code>、<code>uv run --extra dev python -m pytest ... --no-cov</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>純核心與公開契約：</strong>新增 <code>src/trustforge_core/</code>，把 contracts、Dawid-Skene、corroboration、scoring 與 source identity 從舊 runtime 中切出；同時新增 <code>tests/test_core_public_consumer_api.py</code>，把第二消費者平台可依賴的 public API 鎖成測試契約。</li>
+    <li><strong>Run Kernel / Aggregate reconciliation：</strong><code>src/trustforge/agent/kernel_mapper.py</code>、<code>src/trustforge/trust/scoring.py</code> 與相關測試補上 formal run、resolved kernel inputs、aggregate raw confidence、reputation trace graph 與 legacy adapter parity，讓舊管線與純核心結果逐步對齊。</li>
+    <li><strong>Provider 與平台邊界：</strong><code>src/trustforge/ports.py</code> 大幅擴充，並新增 <code>artifact_registry.py</code>、<code>quota.py</code>、<code>telemetry_store.py</code>、<code>execution_event_log.py</code>、<code>idempotency_lease.py</code> 等外框契約，讓模型、Agent runtime、租約、價格配額與 artifact 指標都能被替換與觀測。</li>
+    <li><strong>Pre-score direction resolution：</strong>新增 <code>src/trustforge/direction_resolution.py</code> 與 <code>tests/test_pre_score_direction_resolution.py</code>，在 scoring 前先解析市場方向，並以 hostile direction document 測試鎖住不可信文本不得直接污染方向判定。</li>
+    <li><strong>Evidence / PIT guard：</strong>最新 develop HEAD <code>677b5a9</code> 補上 kernel evidence 與 point-in-time outcome contracts；<code>docs/decisions/OUTCOME-SEMANTICS-2026-07-23.md</code> 也定義 pending T+N outcome 語意，避免把尚未到期的 outcome 當成已驗證事實。</li>
+    <li><strong>治理與營運：</strong><code>scripts/ceo_sweep.py</code>、<code>run_ceo_cycle.sh</code>、<code>upgrade_state_machine.py</code>、CEO prompt 與 review gate 相關測試，收斂成「推薦／提案可以自動化，但 human actor 與 PR review gate 不可被跳過」的外框治理。</li>
+    <li><strong>文件更新：</strong>新增架構圖與文件，包括 <code>ARCHITECTURE-OVERVIEW</code>、<code>AGENT-PLATFORM-BOUNDARY</code>、<code>RUNTIME-BOUNDARY</code>、<code>UPGRADE-CONTROL-OVERVIEW</code>、agent platform extraction feasibility/plan、benchmark inventory 與 second consumer report。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>這輪 develop 的主軸不是單一功能，而是把 TrustForge 從「一套內聚 pipeline」整理成可被外部平台安全消費的 trust kernel 與明確 provider ports。純核心可被測試、重放與比較；外框只負責模型、配額、租約、artifact、telemetry 與治理，不應私自改變已完成報告或 trust scoring 的安全邊界。</p>
+  <p>pre-score direction 與 Evidence/PIT guard 也讓資料誠實性往前推：方向先在進入 scoring 前解析，pending outcome 不再被誤當成完成驗證，歷史 Evidence 與 runtime lineage 的責任比較清楚，符合 SkillHub 中 continuous analysis 的 snapshot／lineage／非證據型歷史回憶契約。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li><code>git diff --check origin/main..HEAD</code>：通過，沒有輸出 whitespace 錯誤。</li>
+    <li><code>uv run python -m compileall -q src/trustforge src/trustforge_core scripts/check_references_truth_audit.py scripts/pytest_benchmark_inventory.py</code>：通過。</li>
+    <li>第一次直接執行 <code>uv run python -m pytest ... --no-cov</code> 失敗，原因是基礎安裝沒有 <code>pytest</code>；這不是測試失敗，而是少了 dev extra。</li>
+    <li>改用 <code>uv run --extra dev python -m pytest tests/test_core_public_consumer_api.py tests/test_kernel_evidence_pit_contracts.py tests/test_kernel_adapter_parity.py tests/test_pre_score_direction_resolution.py tests/test_aggregate_decision_reconciliation.py tests/test_run_kernel_resolved_v1_oracle.py tests/test_provider_ports.py tests/test_references_truth_audit.py tests/test_outcome_semantics_decision_doc.py tests/test_agent_runtime_stub_integration.py -q --no-cov</code>：<code>261 passed, 1 xfailed in 2.53s</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>GitHub <code>main</code> 目前仍是 <code>0ab5387</code>；本篇主要分析的是已推到 GitHub 的 <code>origin/develop</code> 最新開發狀態，尚未宣稱 main 已包含這 86 個 commit。</li>
+    <li>沒有執行完整後端測試、前端 Vitest、前端 build、live API、Docker、AWS、部署、模型 retrain 或模型 activation；只宣稱本輪實跑的 diff check、compileall 與 targeted pytest。</li>
+    <li>主 repo 既有工作目錄 <code>/opt/data/projects/TrustForge</code> 在排程前有未追蹤 <code>uv.lock</code>；分析使用 detached worktree，沒有把它加入任何 commit，也沒有修改 TrustForge 主 repo。</li>
+    <li>GitHub CLI 認證只做狀態驗證與 git setup；本文與回報不包含 token 或任何秘密。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>若要把 develop 推進到 main，先完成 PR review、CI、adversarial review 與必要的 reviewer attestation，不能因單人 repo 而跳過 gate。</li>
+    <li>補跑完整後端測試與前端測試／build，確認 platform contract 與 UI/報表沒有回歸。</li>
+    <li>把 Evidence/PIT、direction resolution 與 public core API 的測試結果整理到 release note，讓下一次 main 合併可以清楚說明外部消費者契約。</li>
+    <li>持續維持 human approval gate：自動化可以產生診斷、提案與觀測，不自動修改 Trust weights、模型、完成報告或部署狀態。</li>
+  </ol>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 23-2 · ModelHub 校準編排、OHLCV 完整性與交接收斂</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-22-modelhub-data-integrity.html</id>

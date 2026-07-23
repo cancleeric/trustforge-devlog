@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-22",
-    "total": 35,
+    "generated": "2026-07-23",
+    "total": 36,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-22",
+    "last_date": "2026-07-23",
     "categories": [
       "Continuous Analysis",
       "Hermes",
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 35,
+    "count": 36,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -41,8 +41,10 @@
       "deploy",
       "deployment",
       "design",
+      "direction-resolution",
       "docs",
       "ec2",
+      "evidence",
       "fail-closed",
       "framework",
       "frontend",
@@ -60,6 +62,8 @@
       "nlp",
       "observability",
       "overview",
+      "pit",
+      "platform-contracts",
       "policy",
       "product",
       "provider-ports",
@@ -72,6 +76,7 @@
       "reddit",
       "redesign",
       "release",
+      "release-governance",
       "reliability",
       "reputation",
       "runtime-control",
@@ -99,6 +104,28 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-23",
+      "day": 24,
+      "date": "2026-07-23",
+      "title": "Day 24 · Core Kernel 平台契約、方向解析與 Evidence/PIT Guard",
+      "summary": "TrustForge 最新開發主要落在 develop（main 仍停在 0ab5387）：本輪相對 main 共 86 個 commit，develop HEAD 677b5a9，聚焦 trustforge_core 純核心切割、公開 run kernel API、Provider/Agent/Quota/Artifact/Telemetry 契約、pre-score market direction、aggregate/run-kernel reconciliation、CEO review gate 與 T+N outcome semantics；本輪實跑 diff check、compileall 與 targeted pytest，結果 261 passed、1 xfailed，未執行完整前端、部署或模型啟用。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "trust-kernel",
+        "provider-ports",
+        "platform-contracts",
+        "direction-resolution",
+        "evidence",
+        "pit",
+        "testing",
+        "release-governance"
+      ],
+      "file": "2026-07-23.html",
+      "created_at": "2026-07-23 03:02:59"
+    },
     {
       "id": "2026-07-22-modelhub-data-integrity",
       "day": 23,
