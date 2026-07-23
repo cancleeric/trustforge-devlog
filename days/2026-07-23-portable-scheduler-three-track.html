@@ -1,0 +1,82 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 24-2 · Portable Scheduler、三軌學習治理與 develop 後續契約 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-23 · Continuous Analysis</p>
+<h1>Day 24-2 · Portable Scheduler、三軌學習治理與 develop 後續契約</h1>
+<p class="summary">TrustForge 本輪主線從 0ab5387 推進到 877b81a，新增 4 個 main commit，重點是修復本機排程硬編碼路徑、改成可攜的 macOS launchd／Linux systemd user 安裝流程、補上排程安裝測試，並把三軌統一學習架構與 Luna 對抗式 PR 審查指南納入文件；同時 develop 自 677b5a9 之後又累積 78 個 commit 到 2b8458c，涵蓋 canonical learning event、asset context、glossary、TVL／throughput／gas connector、Outcome semantics、stub scanner 與前端資料 lineage。本輪實跑 main 差異的 diff check 與排程相關 targeted pytest，結果 diff check 通過、73 passed／1 failed，失敗原因是測試期待 .github/workflows/ci.yml 但本機 checkout 沒有該檔。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #portable-scheduler #deployment #systemd #launchd #learning-governance #review-gate #testing #develop</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>排程執行時間：<code>2026-07-23 15:00:19 UTC</code>。</li>
+    <li>主線分析基準：前篇記錄的 <code>origin/main</code> HEAD <code>0ab53877a62ed2011adc5e09bfe18d2bcf9ff936</code>；本輪更新後 <code>main</code> HEAD <code>877b81aabbdd6242a45e7ac7de98c035e06bfd2e</code>（<code>docs: sync three-track review progress (#558)</code>）。</li>
+    <li>開發線補充觀測：<code>origin/develop</code> 從前篇 <code>677b5a9</code> 推進到 <code>2b8458c4edff4610fc2b37ac7af1259d2ce9c84a</code>。</li>
+    <li>依據命令輸出：<code>gh auth status</code>、<code>gh auth setup-git</code>、<code>git fetch --prune</code>、<code>git pull --ff-only</code>、<code>git log 0ab5387..HEAD</code>、<code>git diff --stat 0ab5387..HEAD</code>、<code>git log --first-parent 677b5a9..origin/develop</code>、<code>git diff --stat 677b5a9..origin/develop</code>、<code>git diff --check 0ab5387..HEAD</code> 與 targeted pytest。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>本機排程可攜化已進 main：</strong><code>ade1e08</code> 移除五份 tracked host-specific launchd plist，新增 <code>deploy/install_local_scheduler.sh</code>、<code>deploy/uninstall_local_scheduler.sh</code> 與 <code>deploy/launchd/README.md</code>，讓 macOS plist 與 Linux <code>systemd --user</code> unit 由安裝器結構化產生，而不是把 repository、Python、Node、SQLite 或 log 絕對路徑寫死。</li>
+    <li><strong>排程安裝安全邊界：</strong><code>scripts/install_launch_agent.py</code> 與相關 shell script 改為由自身位置解析 canonical repository root，保留 <code>TRUSTFORGE_HOME</code> 明確覆寫；symlink／非 canonical 路徑 fail closed，並支援 render-only、no-enable、ownership marker、unmanaged collision 拒絕、rollback 與 service-manager 三態查詢。</li>
+    <li><strong>事故文件與剩餘風險：</strong><code>docs/reports/REPORT-2026-07-23-hardcoded-paths-portability.md</code> 明確記錄 #518 根因、PR #536 修復範圍、已驗證項目與尚未授權的真機啟用驗收；文件也把 freshness degraded 告警列為 #537 的後續工作。</li>
+    <li><strong>三軌統一學習治理：</strong><code>docs/architecture/TRUSTFORGE-THREE-TRACK-LEARNING-SYSTEM-ANALYSIS-2026-07-23.md</code> 將 Question RAG 品質、分析品質、外框受控升級分成三條資料與權限隔離的學習軌；<code>docs/plans/PLAN-TRUSTFORGE-THREE-TRACK-LEARNING-SYSTEM-2026-07-23.md</code> 則保留「開發中但 CEO 審查未通過、禁止主線或生產整合」的誠實狀態。</li>
+    <li><strong>Luna 對抗式審查指南：</strong><code>docs/skills/LUNA-ADVERSARIAL-PR-REVIEW-GUIDE.md</code> 把 reviewer 工作鎖定為固定 head SHA、讀 acceptance criteria、讀 diff、設計負向案例、檢查 CI 與安全邊界，並要求結論只能是 <code>PASS</code> 或 <code>CHANGES REQUIRED</code>。</li>
+    <li><strong>develop 持續擴張：</strong>前篇之後 <code>origin/develop</code> 又新增 78 個 commit，first-parent 顯示已合併 asset context risk notices、canonical learning event contract、finite replay timestamp guard、outcome semantics、wrapper activation gates、TVL／throughput／gas connectors、glossary annotation、ModelHub readonly probe gate、front-end reproducible build gate 與 stub scanner protocol rebinding 修正等工作。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>這輪 main 的價值在於把「TrustForge 在誰的機器上跑」從隱含假設改成可安裝、可渲染、可 rollback、可拒絕不受管理 collision 的明確營運契約。排程不再依賴 Eric 個人機器上的固定路徑，對未來在不同使用者、不同路徑、Linux user service 或 macOS launchd 間遷移都比較安全。</p>
+  <p>三軌學習文件則把 continuous analysis 的治理邊界補得更硬：歷史 RAG 回答只能是非證據型記憶，OHLCV 只能做 market baseline／outcome，不可冒充當時分析樣本；wrapper 候選只能進入 proposal、sandbox、review 與 human activation，不得自行修改 Trust Kernel、Evidence binding 或 production 狀態。</p>
+  <p>develop 的後續 78 個 commit 顯示產品線正在同時補資料契約、前端資料可讀性、指標 connector 與安全 scanner；但這些目前仍以 <code>origin/develop</code> 觀測為主，本篇不把它們宣稱為 GitHub <code>main</code> 已正式釋出。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li><code>gh auth status</code>：GitHub CLI 以 <code>/opt/data/home/.config/gh/hosts.yml</code> 讀到 cancleeric 帳號，token scopes 顯示含 <code>repo</code>；回報中不包含 token 原文。</li>
+    <li><code>git pull --ff-only origin main</code>：TrustForge 主 repo fast-forward 到 <code>877b81a</code>；TrustForge-devlog 已是最新，排程前沒有未 push commit。</li>
+    <li><code>git diff --check 0ab5387..HEAD</code>：通過，沒有 whitespace 錯誤輸出。</li>
+    <li><code>uv run --extra dev python -m pytest tests/test_local_scheduler_install.py tests/test_analysis_flow.py tests/test_ceo_sweep_schedule.py -q --no-cov</code>：<code>73 passed, 1 failed in 7.21s</code>。</li>
+    <li>唯一失敗：<code>tests/test_ceo_sweep_schedule.py::test_ci_is_manual_and_pre_push_is_full_local_gate</code> 讀取 <code>/opt/data/projects/TrustForge/.github/workflows/ci.yml</code> 時 <code>FileNotFoundError</code>；因此本輪不能宣稱 targeted pytest 全綠。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>沒有執行完整後端測試、前端 Vitest、前端 build、Docker、live API、部署、本機常駐排程啟用、外部模型訓練或 ModelHub 寫入。</li>
+    <li>TrustForge 主 repo 工作目錄在排程前後仍有未追蹤 <code>uv.lock</code>；本輪未把它加入 commit，也未修改 TrustForge 主 repo。</li>
+    <li>本篇對 develop 的描述來自 GitHub remote branch 的 commit log 與 diff stat；沒有 checkout develop 後重跑全部測試。</li>
+    <li>GitHub CLI 認證只做狀態驗證與 git setup；devlog 內容沒有輸出任何 token 或秘密。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>釐清 <code>.github/workflows/ci.yml</code> 在目前 checkout 中缺失是否符合 repo 策略；若測試仍期待該檔，需補文件或調整測試 fixture，避免 release gate 測試在乾淨 checkout 失敗。</li>
+    <li>在取得 Eric 明確授權後，才可做真機 scheduler enable／bootstrap 驗收；未授權前只能做 render-only 或唯讀檢查。</li>
+    <li>把 develop 上 canonical learning event、asset context、connectors 與 front-end lineage 的大批變更分批驗證，先跑對應 targeted tests，再補完整後端與前端 build。</li>
+    <li>三軌學習計劃仍需 CEO 審查與里程碑 gate；不得因文件已存在就宣稱 ModelHub 接線、候選啟用或 production learning 已完成。</li>
+  </ol>
+</section>
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-23</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 24-2 · Portable Scheduler、三軌學習治理與 develop 後續契約","datePublished":"2026-07-23","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>
