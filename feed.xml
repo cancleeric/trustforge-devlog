@@ -2,11 +2,89 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-23T00:00:00+08:00</updated>
+  <updated>2026-07-24T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 25 · Baseline 解封、OpenAPI 遙測契約與前端 build 修復</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-24.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-24.html"/>
+    <updated>2026-07-24T00:00:00+08:00</updated>
+    <published>2026-07-24T00:00:00+08:00</published>
+    <summary>TrustForge GitHub main 從 877b81a 推進到 159ebdd，本輪合併 PR #635，新增 7 個非 merge commit、10 個檔案變更，重點是補上 /api/module-telemetry 的 OpenAPI 契約、為既有 ports/adapters stub 建立稽核 allowlist、把校準模型漂移與 backfill 隔離缺陷標成明確 xfail，並修復 HermesRightRail 缺少 onOpenDivergence prop 導致的前端 build 阻塞。排程實跑 git diff --check、後端 targeted pytest 與前端 npm build：diff check 通過、204 passed／23 xfailed、前端 build 成功但仍有 Vite chunk size warning。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-24 · Continuous Analysis</p>
+<h1>Day 25 · Baseline 解封、OpenAPI 遙測契約與前端 build 修復</h1>
+<p class="summary">TrustForge GitHub main 從 877b81a 推進到 159ebdd，本輪合併 PR #635，新增 7 個非 merge commit、10 個檔案變更，重點是補上 /api/module-telemetry 的 OpenAPI 契約、為既有 ports/adapters stub 建立稽核 allowlist、把校準模型漂移與 backfill 隔離缺陷標成明確 xfail，並修復 HermesRightRail 缺少 onOpenDivergence prop 導致的前端 build 阻塞。排程實跑 git diff --check、後端 targeted pytest 與前端 npm build：diff check 通過、204 passed／23 xfailed、前端 build 成功但仍有 Vite chunk size warning。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #baseline #openapi #telemetry #audit #testing #frontend #release-governance</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code></li>
+    <li>TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code></li>
+    <li>排程執行時間：<code>2026-07-24 03:02:20 UTC</code>（<code>2026-07-24 11:02:21 CST</code>）。</li>
+    <li>主線分析基準：前篇記錄的 <code>main</code> HEAD <code>877b81aabbdd6242a45e7ac7de98c035e06bfd2e</code>；本輪更新後 <code>main</code> HEAD <code>159ebdd7dbdcf529820537849b06edc41127bd77</code>。</li>
+    <li>HEAD merge commit：<code>Merge pull request #635 from cancleeric/fix/565-baseline-unblock</code>，主題為 <code>fix(#565): unblock baseline — build + xfail pre-existing failures + stub allowlist</code>。</li>
+    <li>依據命令輸出：<code>gh auth status</code>、<code>gh auth setup-git</code>、<code>git fetch</code>、<code>git pull --ff-only</code>、<code>git log 877b81a..159ebdd</code>、<code>git diff --stat 877b81a..159ebdd</code>、<code>git diff --check 877b81a..159ebdd</code>、targeted pytest 與前端 <code>npm run build</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>OpenAPI 遙測契約補齊：</strong><code>docs/api/openapi.yaml</code> 新增 <code>GET /api/module-telemetry</code>，定義可用 <code>module_id</code> 查詢單一模組，並回傳 module runtime telemetry，包括最近呼叫時間、呼叫次數、平均延遲、狀態、<code>evidence_ref</code> 與 <code>metadata</code> 等欄位。</li>
+    <li><strong>對外契約誠實標註：</strong>OpenAPI 描述明確警告 <code>evidence_ref</code> 與 <code>metadata</code> 仍是內部遙測欄位，未來需收斂成對外安全 public schema，並連到 security issue <code>#636</code>，避免把暫時欄位誤當穩定公開契約。</li>
+    <li><strong>Stub 稽核 allowlist：</strong><code>docs/audit/stub-allowlist.json</code> 補上 <code>trustforge.ports</code> 的 Protocol 介面方法與 <code>NullCacheAdapter.set</code> 等合理 stub；同時把 <code>AgentCoreLLMAdapter.complete/classify_stance</code> 標成 env-gated、仍需 #637 決策的已知缺口。</li>
+    <li><strong>測試基準解封：</strong><code>tests/test_backfill.py</code> 將 3 個已知 backfill 隔離／training_data_dir 問題標成 xfail；<code>tests/test_calibration_model.py</code> 與 <code>tests/test_w4_calibration.py</code> 將 commit <code>9017a09</code> 後的 calibration model drift 期望值落差標成 xfail，追蹤 <code>#633</code>。</li>
+    <li><strong>前端 build 阻塞修復：</strong><code>frontend/src/pages/HermesDashboard.tsx</code> 對 <code>HermesRightRail</code> 補傳 <code>onOpenDivergence={() =&gt; setSelectedStage('divergence')}</code>，修掉前篇記錄中前端 build 因缺少 required prop 而失敗的問題。</li>
+    <li><strong>Local-first CI 測試路徑調整：</strong><code>tests/test_ceo_sweep_schedule.py</code> 與 deploy/stress/security 相關測試有小幅修正，讓本地檢查能讀 disabled workflow 或接受本輪 baseline 狀態。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>這輪不是大規模功能擴張，而是把 baseline 從「有多個已知阻塞但混在紅燈裡」整理成「哪些是真缺口、哪些是允許的介面 stub、哪些是已追蹤 xfail」的可審計狀態。對 TrustForge 的 release governance 來說，這比單純讓測試變綠更重要：它降低了假綠燈，也讓後續修 #633、#634、#636、#637 時有明確切入點。</p>
+  <p>OpenAPI 補上 <code>/api/module-telemetry</code> 讓 operations dashboard 與外部消費者有文件可依循；但同時保留「內部欄位還不是穩定 public schema」的限制，符合 continuous analysis 對資料 lineage 與安全邊界的要求。</p>
+  <p>前端方面，<code>onOpenDivergence</code> 讓右側 rail 的 divergence 操作可以回到 dashboard stage 狀態管理，也直接解除前一輪 <code>npm run build</code> 的 TypeScript 阻塞。這代表主線至少回到可建置狀態，但仍不能自動等同於完成 UI 眼檢、部署或 live API 驗收。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li><code>gh auth status</code>：GitHub CLI 使用 <code>/opt/data/home/.config/gh/hosts.yml</code> 讀到 cancleeric 帳號，token scopes 含 <code>repo</code>；回報未輸出 token 原文。</li>
+    <li><code>git pull --ff-only origin main</code>：TrustForge 主 repo fast-forward 到 <code>159ebdd7dbdcf529820537849b06edc41127bd77</code>；TrustForge-devlog 排程前是乾淨且已與 origin/main 對齊。</li>
+    <li><code>git diff --check 877b81a..159ebdd</code>：通過，沒有 whitespace 錯誤輸出。</li>
+    <li><code>uv run --extra dev python -m pytest tests/test_security.py tests/test_calibration_model.py tests/test_backfill.py tests/test_w4_calibration.py tests/test_ceo_sweep_schedule.py tests/test_deploy_health_monitor.py tests/test_stress.py -q --no-cov</code>：<code>204 passed, 23 xfailed in 45.07s</code>。</li>
+    <li><code>npm run build</code>（於 <code>frontend/</code>）：<code>tsc -b &amp;&amp; vite build</code> 成功，<code>657 modules transformed</code>，總耗時 <code>5.14s</code>；Vite 仍提示部分 chunk 超過 500 kB，可考慮 code-splitting 或調整 chunk size warning limit。</li>
+    <li>排程中曾在 repo root 誤跑一次 <code>npm run build</code>，因根目錄沒有 <code>package.json</code> 得到 <code>ENOENT</code>；隨後在 <code>frontend/</code> 正確重跑並成功，因此不把第一次 ENOENT 視為產品測試失敗。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>沒有執行完整全倉 pytest、Vitest、E2E、Docker、live API、部署、ModelHub 訓練或 production activation。</li>
+    <li>23 個 xfailed 是刻意標記的既有缺口，不代表缺口已修復；尤其 calibration model drift、backfill training-data 隔離、module telemetry public schema 與 AgentCore adapter 決策仍需後續工作。</li>
+    <li>本篇只根據 GitHub main 的 commit、diff 與本機命令輸出撰寫；沒有宣稱 develop 分支或未 merge PR 已正式釋出。</li>
+    <li>GitHub CLI 認證只做狀態驗證與 git setup；devlog 內容沒有輸出任何 token 或秘密。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>針對 <code>#633</code> 更新 calibration model drift 的測試期望或校準產物，移除非必要 xfail。</li>
+    <li>針對 <code>#634</code> 補齊 backfill isolation 與 <code>training_data_dir</code> 功能契約，讓 training JSONL 測試回到嚴格通過。</li>
+    <li>針對 <code>#636</code> 把 module telemetry 的內部欄位收斂成安全 public schema，避免 Evidence lineage 或 metadata 意外外洩。</li>
+    <li>針對 <code>#637</code> 決定 AgentCore adapter 要實作、移除，或在 resolver 階段 fail-fast，不要長期停留在 env-gated NotImplemented 狀態。</li>
+    <li>補跑完整後端、前端 Vitest／E2E 與實際 UI 眼檢後，才可把本輪稱為完整 release-ready。</li>
+  </ol>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 24-2 · Portable Scheduler、三軌學習治理與 develop 後續契約</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-23-portable-scheduler-three-track.html</id>

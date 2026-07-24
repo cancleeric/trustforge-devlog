@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-23",
-    "total": 37,
+    "generated": "2026-07-24",
+    "total": 38,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-23",
+    "last_date": "2026-07-24",
     "categories": [
       "Continuous Analysis",
       "Hermes",
@@ -17,7 +17,7 @@
       "誠實性",
       "部署營運"
     ],
-    "count": 37,
+    "count": 38,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -25,6 +25,7 @@
       "api",
       "audit",
       "backfill",
+      "baseline",
       "bedrock",
       "cache",
       "calibration",
@@ -64,6 +65,7 @@
       "multidim",
       "nlp",
       "observability",
+      "openapi",
       "overview",
       "pit",
       "platform-contracts",
@@ -96,6 +98,7 @@
       "sqlite",
       "ssrf",
       "systemd",
+      "telemetry",
       "testing",
       "training-data",
       "trust",
@@ -110,6 +113,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-24",
+      "day": 25,
+      "date": "2026-07-24",
+      "title": "Day 25 · Baseline 解封、OpenAPI 遙測契約與前端 build 修復",
+      "summary": "TrustForge GitHub main 從 877b81a 推進到 159ebdd，本輪合併 PR #635，新增 7 個非 merge commit、10 個檔案變更，重點是補上 /api/module-telemetry 的 OpenAPI 契約、為既有 ports/adapters stub 建立稽核 allowlist、把校準模型漂移與 backfill 隔離缺陷標成明確 xfail，並修復 HermesRightRail 缺少 onOpenDivergence prop 導致的前端 build 阻塞。排程實跑 git diff --check、後端 targeted pytest 與前端 npm build：diff check 通過、204 passed／23 xfailed、前端 build 成功但仍有 Vite chunk size warning。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "baseline",
+        "openapi",
+        "telemetry",
+        "audit",
+        "testing",
+        "frontend",
+        "release-governance"
+      ],
+      "file": "2026-07-24.html",
+      "created_at": "2026-07-24 11:02:21"
+    },
     {
       "id": "2026-07-23-portable-scheduler-three-track",
       "day": 24,
