@@ -8,6 +8,82 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 25-2 · v0.18.1、Module 3 可視化與 release governance 收斂</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-24-module3-release-governance.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-24-module3-release-governance.html"/>
+    <updated>2026-07-24T00:00:00+08:00</updated>
+    <published>2026-07-24T00:00:00+08:00</published>
+    <summary>TrustForge GitHub main 自 159ebdd 推進到 de3baca（v0.18.1），本輪納入 199 個非 merge commit，涵蓋 Module 3 的 peer metrics／EcoLink read-only API 與前端頁、Asset Context／Glossary 可查詢體驗、trustforge_core 與 learning governance 擴張、wrapper sandbox／human activation／rollback，以及多項 source lineage、fixture honesty 與 public schema guard。排程實跑 diff check 通過；targeted backend pytest 52 passed／1 failed（ModuleTelemetry verified state 仍停在 invoked，且 coverage fail-under 75% 使命令失敗）；前端 npm ci 與 npm run build 成功，但仍有 Vite chunk size warning。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-24-module3-release-governance · Continuous Analysis</p>
+<h1>Day 25-2 · v0.18.1、Module 3 可視化與 release governance 收斂</h1>
+<p class="summary">TrustForge GitHub main 自 159ebdd 推進到 de3baca（v0.18.1），本輪納入 199 個非 merge commit，涵蓋 Module 3 的 peer metrics／EcoLink read-only API 與前端頁、Asset Context／Glossary 可查詢體驗、trustforge_core 與 learning governance 擴張、wrapper sandbox／human activation／rollback，以及多項 source lineage、fixture honesty 與 public schema guard。排程實跑 diff check 通過；targeted backend pytest 52 passed／1 failed（ModuleTelemetry verified state 仍停在 invoked，且 coverage fail-under 75% 使命令失敗）；前端 npm ci 與 npm run build 成功，但仍有 Vite chunk size warning。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #release #module3 #peer-metrics #ecolink #asset-context #glossary #testing #release-governance</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code>；devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code>。</li>
+    <li>排程執行時間：<code>2026-07-24 23:01:44 CST</code>（Asia/Taipei）。</li>
+    <li>前一篇 devlog 記錄的主線基準：<code>main</code> <code>159ebdd7dbdcf529820537849b06edc41127bd77</code>。</li>
+    <li>本輪 GitHub 遠端：<code>origin/main</code> <code>de3baca417548e8e3dc22a0674cdf19e2557b255</code>（tag <code>v0.18.1</code>）；<code>origin/develop</code> <code>0c91a9b87c96cfcc9469bf5bbb6b264703eabdde</code>。</li>
+    <li>分支關係：<code>origin/main</code> 相對前篇新增 <code>199</code> 個非 merge commit；<code>origin/develop</code> 相對前篇新增 <code>202</code> 個非 merge commit。<code>develop</code> 目前另有 <code>6</code> 個 commit 不在 <code>main</code>，<code>main</code> 也有 <code>3</code> 個 commit 不在 <code>develop</code>。</li>
+    <li>依據命令輸出：<code>gh auth status</code>、<code>gh auth setup-git</code>、<code>git fetch --prune</code>、<code>git pull --ff-only</code>、<code>git log</code>、<code>git diff --stat/name-status/check</code>、targeted pytest、前端 <code>npm ci</code>／<code>npm run build</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>v0.18.1 發行線收斂：</strong><code>main</code> 推進到 <code>de3baca</code> 並打上 <code>v0.18.1</code>，合併 release PR #656。這表示前幾輪在 <code>develop</code> 上堆疊的 core kernel、三軌 learning governance、ModelHub probe、asset context、glossary、peer metrics、EcoLink 與 wrapper control 等工作，已大批進入主線。</li>
+    <li><strong>Module 3 產品面完成一波垂直切片：</strong>新增 <code>GET /api/peer-metrics</code> 與 <code>GET /api/eco-link</code> read-only endpoint，前端新增 <code>/peer-metrics</code> 與 <code>/eco-link</code> 頁面；資料仍以 illustrative fixture 與明確揭露支撐，避免把示範資料誤說成 live 市場 Evidence。</li>
+    <li><strong>Asset Context / Glossary 進入可查詢體驗：</strong><code>/api/asset-context</code>、<code>/asset-context</code> 查詢頁、SectorLayerCard、glossary popover、risk_note、settlement_chain／gas_token／dependencies 等欄位補齊，讓 module ② 的背景脈絡可以脫離 <code>/analyze</code> 單獨呈現。</li>
+    <li><strong>信任核心與學習治理擴張：</strong>主線納入 <code>trustforge_core</code> 純核心、analysis quality emission、delayed outcome labeler、temporal calibration manifest、RAG gold set provenance、file event store、wrapper sandbox／human activation／offline rollback 等架構與實作，主軸是把「可學習」與「可啟用」分開，保留人類 gate。</li>
+    <li><strong>安全與誠實性修正：</strong>safe fetch lineage、TVL connector、stub scanner、upgrade approval、module escape detection、illustrative／fixture-source／host-allowlist guard 等多個 commit 都在收斂「不可偷渡資料來源、不可把內部或 fixture 當正式 Evidence」的邊界。</li>
+    <li><strong>develop 的後續差異：</strong><code>develop</code> 在 <code>main</code> 之外還有 <code>d3c441d</code>（Module3 UI safeHref 與 verdict validator）、<code>744fd8c</code>（<code>/api/module-telemetry</code> public schema whitelist，移除 <code>evidence_ref</code>/<code>metadata</code>）與 v0.18.1 release notes／version bump；這些還不是 <code>main</code> 的遠端 HEAD。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>本輪重點不是單一功能，而是 TrustForge 從「核心可信推理」走向「可被使用者看見的解釋型產品面」。Peer Metrics、EcoLink、Asset Context 與 Glossary 讓使用者能看見同業比較、依賴／升級影響路徑、資產背景與風險說明；同時每個 read-only／illustrative guard 都在提醒：目前能呈現脈絡，不等於已經能把所有資料當正式評分 Evidence。</p>
+  <p>另一個工程意義是 release governance 更成熟。v0.18.1 把多條功能線、治理線與測試線合併到主線，但仍保留 sandbox、人類 activation、rollback、public schema whitelist 等安全收斂點。這符合 TrustForge continuous analysis skill 的原則：歷史記憶與學習可以輔助診斷，但不能自動改 Trust 權重、模型或正式報告。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li><code>gh auth status</code>：GitHub CLI 以 <code>/opt/data/bin/gh</code> 執行，讀到 cancleeric 帳號；未輸出 token 原文。</li>
+    <li><code>git pull --ff-only</code>：TrustForge 本機切到 <code>develop</code> 並與 <code>origin/develop</code> 對齊；TrustForge-devlog <code>main</code> 與 <code>origin/main</code> 對齊，排程前沒有未 push commit。</li>
+    <li><code>git diff --check 159ebdd..origin/main</code> 與 <code>git diff --check 159ebdd..origin/develop</code>：皆通過，沒有 whitespace 錯誤輸出。</li>
+    <li>後端 targeted pytest：<code>uv run pytest tests/test_module_telemetry.py tests/test_asset_context_api.py tests/test_peer_metrics_api.py tests/test_ecolink_api.py tests/test_three_track_real_flow_e2e.py -q</code> 實際結果為 <code>52 passed, 1 failed</code>，另因 coverage fail-under 75% 使整體命令失敗（本次 targeted coverage 約 <code>30.14%</code>）。唯一功能失敗是 <code>tests/test_module_telemetry.py::TestModuleStateV2::test_configured_resolved_invoked_verified_lifecycle</code>，期望 <code>record_verified()</code> 後 state 為 <code>verified</code>，實際仍為 <code>invoked</code>。</li>
+    <li>前端：<code>npm ci</code> 成功；<code>npm run build</code> 成功，<code>vite v8.1.5</code> 轉換 <code>669</code> modules，輸出 <code>dist/</code>，但仍有 chunk 超過 <code>500 kB</code> 的 Vite warning。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>本篇沒有宣稱完整全倉 pytest、Vitest、E2E、Docker、live API、部署或 production activation 已通過；本輪只實跑上列 targeted backend 與 frontend build。</li>
+    <li>TrustForge 主 repo 在排程前後都有既有未提交變更：<code>data/training/BTC.jsonl</code>、<code>data/training/ETH.jsonl</code>，以及未追蹤 <code>uv.lock</code>。本輪未修改或提交 TrustForge 主 repo，只讀取 GitHub 遠端與執行驗證。</li>
+    <li>Module 3 的 illustrative fixture、public schema whitelist 與 source lineage guard 是誠實揭露，不代表正式資料源、live Evidence 或 scoring pipeline 全部完成。</li>
+    <li><code>develop</code> 已有修正 <code>/api/module-telemetry</code> public schema 的 commit，但 <code>main</code> 遠端 HEAD 仍停在 <code>de3baca</code>；因此本篇把它列為 develop 後續差異，而不是 main 已釋出內容。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>修正或確認 <code>ModuleTelemetry.record_verified()</code> 的 state transition，讓 targeted pytest 回到綠燈，或更新測試契約說明為何 verified 不覆蓋 invoked。</li>
+    <li>把 <code>develop</code> 的 <code>/api/module-telemetry</code> public schema whitelist、安全 URL guard 與 v0.18.1 release notes 正式收斂到 <code>main</code>，避免 main/develop 長期分叉。</li>
+    <li>對 <code>/peer-metrics</code>、<code>/eco-link</code>、<code>/asset-context</code> 補跑前端 Vitest、實際 UI 眼檢與 API fixture 誠實性檢查。</li>
+    <li>處理 Vite chunk size warning，評估是否對重圖表或大型頁面做 dynamic import。</li>
+    <li>釐清主 repo 既有 training JSONL 與 <code>uv.lock</code> 的本機變更來源，避免之後的排程分析被髒 worktree 混淆。</li>
+  </ol>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 25 · Baseline 解封、OpenAPI 遙測契約與前端 build 修復</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-24.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-24.html"/>
