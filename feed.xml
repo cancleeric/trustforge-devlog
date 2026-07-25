@@ -8,6 +8,58 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day auto · 2026-07-25 夜班自動記錄</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-25-night.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-25-night.html"/>
+    <updated>2026-07-25T00:00:00+08:00</updated>
+    <published>2026-07-25T00:00:00+08:00</published>
+    <summary>TrustForge main=c3be9c49b1 develop=origin/dev；近13h 9 筆 non-merge commit（不跑測試）。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-25-night · Continuous Analysis</p>
+<h1>Day auto · 2026-07-25 夜班自動記錄</h1>
+<p class="summary">TrustForge main=c3be9c49b1 develop=origin/dev；近13h 9 筆 non-merge commit（不跑測試）。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #auto-devlog</p>
+</header>
+<section>
+  <h3>本班自動產出概要</h3>
+  <ul>
+    <li><strong>執行時間：</strong>2026-07-25 15:18:36（本地）</li>
+    <li><strong>main HEAD：</strong><code>c3be9c49b1</code> ｜ <strong>develop HEAD：</strong><code>origin/dev</code></li>
+    <li><strong>近 13h non-merge commit：9 筆（不跑測試，依 boss 指示）</strong></li>
+  </ul>
+</section>
+
+<section>
+  <h3>提交清單（近 13h）</h3>
+  <ul>
+<li><code>4775d33</code> feat(ui): #542 Breakdown Drawer — composite drawer 補 evidence rows、誠實分歧分組、JSON 下載 (#670)</li>
+<li><code>cf93d8b</code> fix(ui): HelpCenter 來源掃描去除失實「150+」宣稱，改誠實多源說法 + UI 輪計劃文件 (#669)</li>
+<li><code>a7ffc3b</code> fix(ui): 復原 RightRail training status HUD（703dd1e a11y 誤刪）+ 修 #362 mobile 幾何</li>
+<li><code>5de0ddf</code> feat(ui): #361 hero tagline (variant A) + #541 snapshot lineage polish (#667)</li>
+<li><code>6b61cdc</code> test: use pytest.approx for golden float comparison, fix hostile test</li>
+<li><code>bb50cc6</code> test: align golden tests and hostile/non-finite checks with refactor/452 validation</li>
+<li><code>5b2d63d</code> test: skip tests needing refactor/452 API rewrite</li>
+<li><code>51f7713</code> test: remove xfail for #515 — timezone-naive bug now fixed</li>
+<li><code>d73462f</code> fix: apply refactor/452 kernel_mapper.py (was overwritten by auto-merge)</li>
+  </ul>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <p>依 boss 指示，本班<strong>不執行 pytest / npm build</strong>。僅記錄 git 差異與提交清單。</p>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>本篇由 Hermes 接管排程自動產出，僅記錄 git 差異與提交清單，不修改 trustforge 主 repo、不部署、不調權重、不跑測試。</li>
+    <li>若本班無新 commit，仍保留紀錄以利追溯；不虛構進度。</li>
+    <li>未執行測試不代表程式碼綠燈；如需驗證狀態請另行手動跑 gate。</li>
+  </ul>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 26 · 三軌 learning event 接線、live Bedrock 閘控與前端 build 阻塞</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-25.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-25.html"/>
