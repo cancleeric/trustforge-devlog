@@ -25,7 +25,6 @@
       "api",
       "asset-context",
       "audit",
-      "auto-devlog",
       "backfill",
       "baseline",
       "bedrock",
@@ -124,16 +123,15 @@
       "id": "2026-07-25-night",
       "day": 26,
       "date": "2026-07-25",
-      "title": "Day auto · 2026-07-25 夜班自動記錄",
-      "summary": "TrustForge main=c3be9c49b1 develop=origin/dev；近13h 9 筆 non-merge commit（不跑測試）。",
+      "title": "Day 26 · 資產分類契約落地、freshness 全 stale 降級標記與 replay PIT 時區防禦",
+      "summary": "origin/main 推進到 1b93d88：資產分類契約對齊、freshness degraded 標記、replay PIT 時區拒絕與 deploy 空陣列修復。",
       "category": "Continuous Analysis",
       "tags": [
         "trustforge",
-        "continuous-analysis",
-        "auto-devlog"
+        "continuous-analysis"
       ],
       "file": "2026-07-25-night.html",
-      "created_at": "2026-07-25 15:19:03"
+      "created_at": "2026-07-25 15:44:26"
     },
     {
       "id": "2026-07-25",
