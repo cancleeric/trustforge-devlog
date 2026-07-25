@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-24",
-    "total": 39,
+    "generated": "2026-07-25",
+    "total": 40,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-24",
+    "last_date": "2026-07-25",
     "categories": [
       "Continuous Analysis",
       "Hermes",
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 39,
+    "count": 40,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -105,6 +105,7 @@
       "systemd",
       "telemetry",
       "testing",
+      "three-track",
       "training-data",
       "trust",
       "trust-architecture",
@@ -118,6 +119,27 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-25",
+      "day": 26,
+      "date": "2026-07-25",
+      "title": "Day 26 · 三軌 learning event 接線、live Bedrock 閘控與前端 build 阻塞",
+      "summary": "TrustForge GitHub main/develop 本輪同步到 3dac00f；相對前篇基準 0c91a9b 新增 48 個非 merge commit、62 個檔案變更，重點是三軌 learning event 接入 daemon analysis flow、live Bedrock 改為 env/budget 動態閘控、trustforge_core 聚合 API 與 golden 測試收斂、前端 beginner narrative / snapshot lineage polish，以及 v0.18.2 / release governance 文件。排程實跑 diff check 失敗於既有文件 trailing whitespace；targeted pytest 110 passed 但 coverage fail-under 使命令失敗；前端 npm ci 成功但 npm run build 因 HermesRightRailProps 缺 trainingStatus prop 失敗。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis",
+        "three-track",
+        "learning-governance",
+        "bedrock",
+        "frontend",
+        "testing",
+        "release-governance",
+        "modelhub"
+      ],
+      "file": "2026-07-25.html",
+      "created_at": "2026-07-25 03:09:07"
+    },
     {
       "id": "2026-07-24-module3-release-governance",
       "day": 25,

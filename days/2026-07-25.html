@@ -1,0 +1,83 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 26 · 三軌 learning event 接線、live Bedrock 閘控與前端 build 阻塞 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-25 · Continuous Analysis</p>
+<h1>Day 26 · 三軌 learning event 接線、live Bedrock 閘控與前端 build 阻塞</h1>
+<p class="summary">TrustForge GitHub main/develop 本輪同步到 3dac00f；相對前篇基準 0c91a9b 新增 48 個非 merge commit、62 個檔案變更，重點是三軌 learning event 接入 daemon analysis flow、live Bedrock 改為 env/budget 動態閘控、trustforge_core 聚合 API 與 golden 測試收斂、前端 beginner narrative / snapshot lineage polish，以及 v0.18.2 / release governance 文件。排程實跑 diff check 失敗於既有文件 trailing whitespace；targeted pytest 110 passed 但 coverage fail-under 使命令失敗；前端 npm ci 成功但 npm run build 因 HermesRightRailProps 缺 trainingStatus prop 失敗。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #three-track #learning-governance #bedrock #frontend #testing #release-governance #modelhub</p>
+</header>
+<section>
+  <h3>資料來源</h3>
+  <ul>
+    <li>TrustForge 主 repo：<code>https://github.com/cancleeric/TrustForge.git</code>；TrustForge devlog repo：<code>https://github.com/cancleeric/trustforge-devlog.git</code>。</li>
+    <li>排程執行時間：<code>2026-07-25 11:00:47 CST</code>（工具取得 UTC <code>2026-07-25T03:00:47Z</code>）。</li>
+    <li>本輪分析基準：前篇 devlog 已記錄 <code>origin/develop</code> <code>0c91a9b87c96cfcc9469bf5bbb6b264703eabdde</code>；本輪 GitHub <code>origin/main</code> 與 <code>origin/develop</code> 皆推進到 <code>3dac00f0ac734318886adab01059da0d20ed1c75</code>。</li>
+    <li>本輪差異：相對 <code>0c91a9b</code>，目前 HEAD 新增 <code>48</code> 個非 merge commit、<code>62</code> 個檔案變更，約 <code>6913</code> 行新增、<code>3098</code> 行刪除。</li>
+    <li>依據命令輸出：<code>/opt/data/bin/gh auth status</code>、<code>gh auth setup-git</code>、<code>git fetch --prune</code>、<code>git pull --ff-only</code>、<code>git log</code>、<code>git diff --stat/name-status/check</code>、targeted <code>pytest</code>、前端 <code>npm ci</code>／<code>npm run build</code>。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>主要變更</h3>
+  <ul>
+    <li><strong>main 與 develop 收斂到同一個 HEAD：</strong>本輪遠端 <code>origin/main</code> 與 <code>origin/develop</code> 都是 <code>3dac00f</code>，表示前一輪提到的 develop 後續差異已進入 main，不再是 main/develop 分叉狀態。</li>
+    <li><strong>三軌 learning event 接入 daemon analysis flow：</strong><code>src/trustforge/three_track_wiring.py</code> 新增 feature flag gate、completed / failed job emission helper；<code>src/trustforge/analysis_flow.py</code> 在 success 與 terminal failure completion point 之後接入 learning event emission，並採 fail-soft 邊界，避免 learning event 失敗拖垮主分析。</li>
+    <li><strong>真 Bedrock live 路徑改成動態閘控：</strong><code>analysis_flow.py</code> 不再固定離線，改由 <code>BEDROCK_MODEL_ID</code>、budget guard、model pricing 與原子預留共同決定是否 live；相關計劃文件也釐清前端 HERMES 送分析走的是 register→flow 路徑，不需要把 live token 放進瀏覽器。</li>
+    <li><strong>trustforge_core 聚合 API 與 golden 測試收斂：</strong>新增 <code>src/trustforge_core/aggregation.py</code> 與 <code>tests/test_core_aggregation*.py</code>、<code>tests/test_aggregate_decision_golden.py</code>，把 legacy aggregate decision 委派到純核心，並用 golden / hostile / non-finite 測試補上相容與輸入邊界。</li>
+    <li><strong>前端敘事與 snapshot lineage polish：</strong>新增 beginner 3-step narrative entry、Hermes hero tagline、SnapshotModal lineage polish，並調整 HermesDashboard / HermesRightRail 相關測試；方向是讓使用者更容易理解「三個 context module」與分析來源線索。</li>
+    <li><strong>release governance 與本機啟動工具：</strong>新增 <code>docs/RELEASE-NOTES-v0.18.2.md</code>、<code>docs/RELEASE-DEPLOY-GOVERNANCE.md</code>、<code>scripts/start-local-live.sh</code>、<code>.nvmrc</code> 與 pre-push node 版本 fail-fast 檢查，降低本機 live / frontend / gate 執行時的環境漂移。</li>
+    <li><strong>ModelHub 唯讀端點需求轉交：</strong><code>docs/handoff/2026-07-25-modelhub-readonly-endpoint-requirements.md</code> 明確列出 read access 隔離、artifact checksum、provenance 與 identity 等唯讀端點要求，補齊 #503 / ModelHub 交界面的驗收契約。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>工程意義</h3>
+  <p>本輪的核心意義是把 TrustForge 的「可學習外框」從文件與測試推進到 daemon 五階段管線的真實 completion point。這符合 continuous analysis skill 的安全邊界：可以把 durable failure、retry、duration、question lineage 與 QA 結果送進診斷資料層，但不自動修改 Trust 權重、模型、正式報告或部署。</p>
+  <p>同時，main/develop 同步到 <code>3dac00f</code> 讓 release 線暫時收斂；前端 narrative / lineage polish 與 live Bedrock 路徑釐清，則把使用者體驗從「看到分數」往「理解分析如何產生」推進。</p>
+</section>
+
+<section>
+  <h3>驗證／測試狀態</h3>
+  <ul>
+    <li><code>gh auth status</code>：使用 <code>/opt/data/bin/gh</code> 成功讀到 GitHub 帳號 cancleeric；本篇不輸出任何 token 原文。</li>
+    <li><code>git pull --ff-only</code>：TrustForge 本機 <code>develop</code> 快轉到 <code>3dac00f</code>；TrustForge-devlog <code>main</code> 已與 <code>origin/main</code> 對齊。</li>
+    <li><code>git diff --check 0c91a9b..HEAD</code>：失敗，命令列出既有文件 trailing whitespace：<code>docs/plans/AI-AGENT-CONTEXT-FEASIBILITY-2026-07-23.md</code>、<code>docs/plans/PLAN-AI-AGENT-CONTEXT-FEATURES-2026-07-23.md</code>、<code>docs/plans/PLAN-asset-context-lookup-2026-07-24.md</code>。</li>
+    <li>後端 targeted pytest：<code>uv run pytest tests/test_core_aggregation.py tests/test_core_aggregation_legacy_facade.py tests/test_aggregate_decision_golden.py tests/test_three_track_wiring.py tests/test_analysis_flow.py -q</code> 實際跑出 <code>110 passed</code>；但因全域 coverage fail-under 75%，本 targeted 指令總 coverage 約 <code>23.52%</code>，所以命令 exit code 為 <code>1</code>。</li>
+    <li>前端：<code>npm ci</code> 成功，並回報 <code>2 high severity vulnerabilities</code>；<code>npm run build</code> 失敗於 TypeScript，<code>HermesDashboard.tsx</code> 傳入 <code>trainingStatus</code>，但 <code>HermesRightRailProps</code> 沒有該 prop。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>誠實邊界</h3>
+  <ul>
+    <li>本篇沒有宣稱完整 pre-push gate、全倉 pytest、Vitest、E2E、live API、Docker、部署或 production activation 已通過；實跑結果如上，且目前存在 diff check 與前端 build 阻塞。</li>
+    <li>TrustForge 主 repo worktree 在排程前後都有既有未提交變更：<code>data/training/BTC.jsonl</code>、<code>data/training/ETH.jsonl</code>，以及未追蹤 <code>uv.lock</code>；本輪未修改或提交 TrustForge 主 repo。</li>
+    <li><code>docs/RELEASE-NOTES-v0.18.2.md</code> 內記載 tag / commit / gate 全綠資訊，但本輪 <code>git tag --points-at HEAD</code> 沒列出 tag，且本輪實測 gate 並非全綠；因此本篇只把它當作 repo 內文件內容，不把那些 release note 陳述升格為本輪已驗證事實。</li>
+    <li>三軌 learning event feature flag 預設 OFF；本輪只確認程式碼與 targeted 測試，不代表 production 已開 flag 或已累積真實 learning event。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>下一步</h3>
+  <ol>
+    <li>修正三份 plan 文件的 trailing whitespace，讓 <code>git diff --check</code> 回到綠燈。</li>
+    <li>修正 <code>HermesRightRailProps</code> 與 <code>HermesDashboard</code> 的 <code>trainingStatus</code> prop 契約，重跑 <code>npm run build</code>。</li>
+    <li>釐清 release notes 的 <code>v0.18.2</code> tag / commit / gate 全綠敘述與目前 GitHub HEAD 實測結果之間的差異。</li>
+    <li>釐清主 repo 既有 <code>data/training/*.jsonl</code> 與 <code>uv.lock</code> 本機變更來源，避免污染後續排程分析。</li>
+    <li>若要啟用三軌 learning event，需在 sandbox / replay 證據與人類核准後，明確設定 feature flag 並觀察 append-only event store 輸出。</li>
+  </ol>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-25</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 26 · 三軌 learning event 接線、live Bedrock 閘控與前端 build 阻塞","datePublished":"2026-07-25","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>
