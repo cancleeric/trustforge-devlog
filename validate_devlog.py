@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent
 FIRST_DATE = date.fromisoformat("2026-06-30")
 STYLE_VERSION = "20260718-format-fix"
 DAY_COMMON_VERSION = "20260718-format-fix"
+CACHE_VERSION_DOCS = "20260726-docs-handoff"
 REQUIRED_ENTRY_FIELDS = {
     "id",
     "day",
@@ -230,11 +231,34 @@ def validate_static_contract(errors: list[str]) -> None:
         fail(errors, "day-common.js: nav title regex must support Day 18-2 style titles")
 
 
+
+def validate_docs_contract(errors: list[str]) -> None:
+    docs = ROOT / "docs"
+    if not docs.exists():
+        fail(errors, "docs/: customer technical documentation directory is missing")
+        return
+    required = ["index.html", "01-architecture.html", "02-deployment.html", "03-configuration.html", "04-api.html", "05-data-flow.html", "06-operations.html", "07-trust-algorithm.html", "08-frontend.html", "09-security-handover.html", "10-testing-qa.html", "11-customer-handover.html"]
+    for name in required:
+        path = docs / name
+        if not path.exists():
+            fail(errors, f"docs/{name}: required customer handoff doc is missing")
+            continue
+        html = path.read_text(encoding="utf-8")
+        if f"style.css?v={CACHE_VERSION_DOCS}" not in html:
+            fail(errors, f"docs/{name}: missing docs stylesheet cache buster")
+        if "v0.18.3" not in html:
+            fail(errors, f"docs/{name}: document version must be v0.18.3")
+    index = (docs / "index.html").read_text(encoding="utf-8")
+    for marker in ["Customer Handoff Pack", "閱讀路線", "docSearch", "安全與交接邊界", "測試、QA 與驗收", "客戶交接總表"]:
+        if marker not in index:
+            fail(errors, f"docs/index.html: missing customer handoff marker {marker!r}")
+
 def main() -> int:
     errors: list[str] = []
     entries = validate_entries(errors)
     validate_day_pages(entries, errors)
     validate_static_contract(errors)
+    validate_docs_contract(errors)
 
     if errors:
         print("Devlog validation failed:", file=sys.stderr)

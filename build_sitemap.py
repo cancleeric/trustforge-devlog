@@ -11,12 +11,17 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parent
 ENTRIES = ROOT / "entries.json"
 SITEMAP = ROOT / "sitemap.xml"
+DOCS = ROOT / "docs"
 SITE = "https://cancleeric.github.io/trustforge-devlog"
 
 
 def generate():
     data = json.loads(ENTRIES.read_text(encoding="utf-8"))
-    urls = [SITE + "/", SITE + "/references.html"]
+    urls = [SITE + "/", SITE + "/references.html", SITE + "/docs/"]
+    if DOCS.exists():
+        for p in sorted(DOCS.glob("*.html")):
+            if p.name != "index.html":
+                urls.append(f"{SITE}/docs/{p.name}")
     for e in data.get("entries", []):
         urls.append(f"{SITE}/days/{e['file']}")
     today = datetime.date.today().isoformat()
