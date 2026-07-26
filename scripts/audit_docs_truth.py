@@ -44,6 +44,7 @@ CANONICAL_DOCS = [
     "13-hands-on-labs.html",
     "14-troubleshooting-faq.html",
     "15-user-manual.html",
+    "16-competition-submission.html",
 ]
 
 STALE_MARKERS = [
