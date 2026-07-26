@@ -93,110 +93,52 @@
 
 <h3 id="endpoints">3. 端點清單</h3>
 
+<div class="warn-box">
+<strong>本輪已用 TrustForge <code>origin/main</code> 的 <code>docs/api/openapi.yaml</code> 重新對齊。</strong> 下表是客戶導讀版；完整欄位 schema、錯誤碼與範例仍以線上 <code>GET /api/openapi.yaml</code> 為準。
+</div>
+
 <table>
 <tr><th>端點</th><th>方法</th><th>Tag</th><th>說明</th></tr>
-<tr>
-  <td><code>/api/health</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>meta</td>
-  <td>JSON 健康檢查（零 I/O）。回 <code>{status, version, uptime_seconds}</code></td>
-</tr>
-<tr>
-  <td><code>/api/openapi.yaml</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>meta</td>
-  <td>OpenAPI 3.1 規格檔（讀自 <code>docs/api/openapi.yaml</code>）</td>
-</tr>
-<tr>
-  <td><code>/llms.txt</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>meta</td>
-  <td>AI agent / 客戶工程師一頁式契約，列出產品定位、端點、rate limit、錯誤語意與不可誇大規則。</td>
-</tr>
-<tr>
-  <td><code>/api/analyze</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>analysis</td>
-  <td><strong>★ 核心端點</strong>。完整信任加權市場分析。<br>參數：<code>?coin=BTC&type=multi_source&q=...</code></td>
-</tr>
-<tr>
-  <td><code>/api/overview</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>observability</td>
-  <td>多幣總覽儀表板快照（信任分、操縱風險、方向、幣種指標）</td>
-</tr>
-<tr>
-  <td><code>/api/status</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>observability</td>
-  <td>系統狀態：cache 鮮度矩陣、connector 健康、runtime state</td>
-</tr>
-<tr>
-  <td><code>/api/costs</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>observability</td>
-  <td>成本帳本摘要（日/月/全部，按模型分類）</td>
-</tr>
-<tr>
-  <td><code>/api/history</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>observability</td>
-  <td>Point-in-time 歷史分析快照（<code>?coin=BTC</code>）</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/flow</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>analysis</td>
-  <td>當前分析 flow 狀態</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/snapshot</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>analysis</td>
-  <td>分析快照檢索</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/job</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>analysis</td>
-  <td>分析 job 狀態</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/journey</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>analysis</td>
-  <td>Hermes 執行旅程（execution log）</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/question</code></td>
-  <td><span class="method post">POST</span></td>
-  <td>analysis</td>
-  <td>提交分析問題</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/comparison</code></td>
-  <td><span class="method post">POST</span></td>
-  <td>analysis</td>
-  <td>提交雙幣比較問題</td>
-</tr>
-<tr>
-  <td><code>/api/analysis/requeue</code></td>
-  <td><span class="method post">POST</span></td>
-  <td>analysis</td>
-  <td>重新排隊卡住的 job</td>
-</tr>
-<tr>
-  <td><code>/api/hermes/upgrades</code></td>
-  <td><span class="method get">GET</span></td>
-  <td>admin</td>
-  <td>Hermes 升級佇列</td>
-</tr>
-<tr>
-  <td><code>/api/admin/config</code></td>
-  <td><span class="method get">GET</span> / <span class="method put">PUT</span></td>
-  <td>admin</td>
-  <td>取得 / 更新 runtime config</td>
-</tr>
+<tr><td><code>/api/health</code></td><td><span class="method get">GET</span></td><td>meta</td><td>JSON 健康檢查（零 I/O）。回 <code>{status, version, uptime_seconds}</code></td></tr>
+<tr><td><code>/api/rate-limit-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>rate limit bucket 觀測狀態。</td></tr>
+<tr><td><code>/api/status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>系統狀態：cache backend、資料鮮度、dedup、runtime capability。</td></tr>
+<tr><td><code>/api/costs</code></td><td><span class="method get">GET</span></td><td>observability</td><td>成本帳本摘要（日/月/全部，按模型分類）。</td></tr>
+<tr><td><code>/api/overview</code></td><td><span class="method get">GET</span></td><td>observability</td><td>多幣總覽儀表板快照。</td></tr>
+<tr><td><code>/api/history</code></td><td><span class="method get">GET</span></td><td>observability</td><td>Point-in-time 歷史分析快照。</td></tr>
+<tr><td><code>/api/data-plane-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>資料平面狀態。</td></tr>
+<tr><td><code>/api/budget-governance</code></td><td><span class="method get">GET</span></td><td>observability</td><td>預算治理狀態。</td></tr>
+<tr><td><code>/api/module-telemetry</code></td><td><span class="method get">GET</span></td><td>observability</td><td>模組遙測資料。</td></tr>
+<tr><td><code>/api/operations-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>運維狀態摘要。</td></tr>
+<tr><td><code>/api/training-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>訓練資料與 backfill 進度。</td></tr>
+<tr><td><code>/api/analyze</code></td><td><span class="method get">GET</span></td><td>analysis</td><td><strong>★ 核心端點</strong>。完整信任加權市場分析。</td></tr>
+<tr><td><code>/api/analysis-flow</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>當前分析 flow 狀態。</td></tr>
+<tr><td><code>/api/analysis-snapshot</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>已發布分析快照檢索。</td></tr>
+<tr><td><code>/api/analysis-job</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>分析 job 狀態。</td></tr>
+<tr><td><code>/api/analysis-question</code></td><td><span class="method post">POST</span></td><td>analysis</td><td>提交分析問題。</td></tr>
+<tr><td><code>/api/analysis-question-context</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>問題相似度與對話上下文檢索。</td></tr>
+<tr><td><code>/api/analysis-comparison-question</code></td><td><span class="method post">POST</span></td><td>analysis</td><td>提交雙幣比較問題。</td></tr>
+<tr><td><code>/api/comparison-snapshot</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>雙幣比較快照檢索。</td></tr>
+<tr><td><code>/api/analysis-journey</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>Hermes 執行旅程與 dead-letter 檢視。</td></tr>
+<tr><td><code>/api/analysis-requeue</code></td><td><span class="method post">POST</span></td><td>analysis</td><td>重新排隊卡住的 job。</td></tr>
+<tr><td><code>/api/asset-context</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>資產背景資料；查無資料時回 <code>null</code>，不是錯誤。</td></tr>
+<tr><td><code>/api/peer-metrics</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>同儕指標；文件只寫相關性，不寫因果。</td></tr>
+<tr><td><code>/api/eco-link</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>生態連結影響路徑；為相關性揭露，不是因果證明。</td></tr>
+<tr><td><code>/api/improvement-diagnostics</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>改善診斷。</td></tr>
+<tr><td><code>/api/evidence-quality</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>證據品質摘要。</td></tr>
+<tr><td><code>/api/delivery-status</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>交付狀態。</td></tr>
+<tr><td><code>/api/memory-strategy</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>記憶策略狀態。</td></tr>
+<tr><td><code>/api/alerts-operations</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>告警與操作狀態。</td></tr>
+<tr><td><code>/api/intelligence-status</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>intelligence pipeline 狀態。</td></tr>
+<tr><td><code>/api/prompt-versions</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>prompt 版本資訊。</td></tr>
+<tr><td><code>/api/hermes-upgrades</code></td><td><span class="method get">GET</span></td><td>Hermes</td><td>Hermes 升級控制平面唯讀資料。</td></tr>
+<tr><td><code>/api/openapi.yaml</code></td><td><span class="method get">GET</span></td><td>meta</td><td>OpenAPI 3.1 規格檔（讀自 <code>docs/api/openapi.yaml</code>）。</td></tr>
+<tr><td><code>/llms.txt</code></td><td><span class="method get">GET</span></td><td>meta</td><td>AI agent / 客戶工程師一頁式契約。</td></tr>
+<tr><td><code>/api/admin/backend-providers</code></td><td><span class="method get">GET</span></td><td>admin</td><td>取得 backend provider 設定。</td></tr>
+<tr><td><code>/api/admin/config</code></td><td><span class="method get">GET</span> / <span class="method put">PUT</span></td><td>admin</td><td>取得 / 更新 runtime config。</td></tr>
+<tr><td><code>/api/admin/audit</code></td><td><span class="method get">GET</span></td><td>admin</td><td>Config change log。</td></tr>
+<tr><td><code>/api/admin/hermes-upgrades</code></td><td><span class="method get">GET</span></td><td>admin</td><td>管理端 Hermes 升級資料。</td></tr>
+<tr><td><code>/api/admin/hermes-upgrade-sandbox</code></td><td><span class="method post">POST</span></td><td>admin</td><td>執行 Hermes upgrade sandbox。</td></tr>
+<tr><td><code>/api/admin/hermes-upgrade-decision</code></td><td><span class="method post">POST</span></td><td>admin</td><td>核准／拒絕 Hermes upgrade proposal。</td></tr>
 </table>
 
 <h3 id="rate-limit">4. 速率限制分組</h3>
@@ -364,7 +306,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 
 <h3 id="openapi">9. OpenAPI Spec</h3>
 
-<p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>（1982 行，OpenAPI 3.1.0）。</p>
+<p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>（本輪從 TrustForge <code>origin/main</code> 取證為 2976 行，OpenAPI 3.1.0）。</p>
 <p>該規格是 <code>src/trustforge/web.py</code> 內 <code>_handle_api_*</code> series handler 的<strong>逐一對照</strong>——每個欄位都對照過真實回應，不是從手寫 docs 轉寫。</p>
 <p>可透過 <code>GET /api/openapi.yaml</code> 端點在執行期取得；給 AI agent 快速讀取的雙語契約則是 <code>GET /llms.txt</code>。</p>
 

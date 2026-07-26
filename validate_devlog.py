@@ -270,6 +270,19 @@ def validate_docs_contract(errors: list[str]) -> None:
     for stale in ['"version": "0.18.2"', '"bedrock_capable": true', '"cache_backend": "dynamodb"']:
         if stale in api:
             fail(errors, f"docs/05-api.html: stale /api/status example contains {stale!r}")
+    for stale in ["/api/analysis/flow", "/api/analysis/snapshot", "/api/analysis/job", "/api/analysis/question", "/api/analysis/comparison", "/api/analysis/requeue", "/api/hermes/upgrades", "1982 行"]:
+        if stale in api:
+            fail(errors, f"docs/05-api.html: stale upstream API reference contains {stale!r}")
+    for marker in ["/api/analysis-flow", "/api/analysis-snapshot", "/api/analysis-job", "/api/analysis-question", "/api/analysis-comparison-question", "/api/hermes-upgrades", "/api/peer-metrics", "/api/eco-link", "2976 行"]:
+        if marker not in api:
+            fail(errors, f"docs/05-api.html: missing upstream API marker {marker!r}")
+    frontend = (docs / "09-frontend.html").read_text(encoding="utf-8")
+    for stale in ["/api/hermes/upgrades", "/api/analysis/journey"]:
+        if stale in frontend:
+            fail(errors, f"docs/09-frontend.html: stale frontend endpoint reference contains {stale!r}")
+    for marker in ["/api/hermes-upgrades", "/api/analysis-journey", "/api/analysis-flow"]:
+        if marker not in frontend:
+            fail(errors, f"docs/09-frontend.html: missing current frontend endpoint marker {marker!r}")
     if '"version":"0.18.2"' in operations:
         fail(errors, "docs/07-operations.html: stale /api/health example version")
     legacy_redirects = {
