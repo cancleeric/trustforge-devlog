@@ -252,6 +252,20 @@ def validate_docs_contract(errors: list[str]) -> None:
     for marker in ["Evidence-first", "Evidence Map", "docSearch", "Hands-on Labs", "Troubleshooting FAQ", "客戶交接總表"]:
         if marker not in index:
             fail(errors, f"docs/index.html: missing customer handoff marker {marker!r}")
+    operations = (docs / "07-operations.html").read_text(encoding="utf-8")
+    if ".github/workflows/ci.yml" in operations or "CI 通過" in operations:
+        fail(errors, "docs/07-operations.html: release flow must not claim GitHub Actions/CI as current deployment gate")
+    for marker in ["PRE_PUSH_RELEASE_GATES.md", "GitHub Actions 不是目前 release/deploy gate", "llms.txt", "api/openapi.yaml"]:
+        if marker not in operations:
+            fail(errors, f"docs/07-operations.html: missing release governance marker {marker!r}")
+    evidence = (docs / "00-evidence-map.html").read_text(encoding="utf-8")
+    for marker in ["交付前 5 分鐘重驗", "llms.txt", "Release governance", "controlled local process"]:
+        if marker not in evidence:
+            fail(errors, f"docs/00-evidence-map.html: missing evidence/governance marker {marker!r}")
+    qa = (docs / "11-testing-qa.html").read_text(encoding="utf-8")
+    for marker in [".githooks/pre-push", "scripts/check_data_contracts.py", "scripts/scan_source_stubs.py", "llms.txt", "api/openapi.yaml"]:
+        if marker not in qa:
+            fail(errors, f"docs/11-testing-qa.html: missing QA gate marker {marker!r}")
     legacy_redirects = {
         "14-evidence-map.html": "00-evidence-map.html",
         "00-workshop-overview.html": "01-workshop-overview.html",

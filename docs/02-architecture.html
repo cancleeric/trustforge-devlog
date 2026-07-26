@@ -222,7 +222,7 @@ Report + List[Evidence] + ExecutionLog
 <tr><td>離線預設</td><td>公開 EC2 預設離線示範，真實 Bedrock 呼叫需 <code>TRUSTFORGE_LIVE_TOKEN</code> HTTP header</td></tr>
 <tr><td>Token Gate</td><td>Live 模式 token-gated（環境變數 <code>TRUSTFORGE_LIVE_TOKEN</code>），防止 Bedrock 被濫用</td></tr>
 <tr><td>反作弊（模型層）</td><td><code>bedrock.py</code> 強制：<code>fact</code> 型 claim 只能來自客觀來源（price/onchain/regulatory），社群/新聞主張一律降為 <code>inference</code></td></tr>
-<tr><td>版控安全</td><td>pre-push hook：pytest 全綠才放行；GitHub + Gitea 雙遠端；不入版控任何 AWS credential</td></tr>
+<tr><td>版控安全</td><td>pre-push hook：backend tests、data contracts、stub scan、question bank、frontend test/lint/build、diff check 全部通過才放行；GitHub + Gitea 雙遠端；不入版控任何 AWS credential</td></tr>
 <tr><td>SSRF 防護</td><td>所有外部連結先過 <code>safeHref()</code>（僅 http/https）</td></tr>
 <tr><td>CSP</td><td>Content-Security-Policy 限制資源來源，禁止 inline script/eval</td></tr>
 <tr><td>Rate Limit</td><td>依端點分三組獨立 per-IP 滑動視窗 bucket，超過回 <code>429</code></td></tr>

@@ -241,12 +241,24 @@
 <h3 id="deploy-update">8. 部署更新流程</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
-EC2 更新完整流程：
+EC2 更新完整流程（依主 repo docs/governance/PRE_PUSH_RELEASE_GATES.md）：
 
-1. 本機通過 pytest + lint（pre-push hook 自動檢查）
-2. git push（GitHub + Gitea 雙遠端）
-3. CI 通過（.github/workflows/ci.yml）
-4. 執行部署腳本：
+1. 啟用並跑本機 pre-push gate（GitHub Actions 不是目前 release/deploy gate）：
+
+   git config core.hooksPath .githooks
+   .githooks/pre-push
+
+2. pre-push gate 必須涵蓋：
+   - backend tests：env PYTHONPATH=src python -m pytest -q
+   - data contracts：python scripts/check_data_contracts.py
+   - source stub scan：python scripts/scan_source_stubs.py --out out/pre-push/stub-scan.json
+   - competition QA：TRUSTFORGE_BEDROCK_DAILY_USD_CAP=0 python scripts/run_question_bank.py --limit 24
+   - frontend tests/lint/build：npm test、npm run lint、npm run build
+   - git diff --check
+
+3. git push（GitHub + Gitea 雙遠端），PR/交接紀錄需附 head SHA、timestamp、gate result。
+
+4. 執行 controlled local release/deploy 腳本：
 
    <b># 後端更新</b>
    REGION=ap-southeast-2 ./deploy/deploy_ec2.sh
@@ -259,6 +271,8 @@ EC2 更新完整流程：
    curl https://trustforge.hurricanesoft.com.tw/healthz
    curl https://trustforge.hurricanesoft.com.tw/api/health
    curl https://trustforge.hurricanesoft.com.tw/api/status
+   curl https://trustforge.hurricanesoft.com.tw/llms.txt
+   curl https://trustforge.hurricanesoft.com.tw/api/openapi.yaml
 </pre>
 
 <h3 id="troubleshooting">9. 常見問題排錯</h3>

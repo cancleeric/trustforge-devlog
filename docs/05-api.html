@@ -108,6 +108,12 @@
   <td>OpenAPI 3.1 規格檔（讀自 <code>docs/api/openapi.yaml</code>）</td>
 </tr>
 <tr>
+  <td><code>/llms.txt</code></td>
+  <td><span class="method get">GET</span></td>
+  <td>meta</td>
+  <td>AI agent / 客戶工程師一頁式契約，列出產品定位、端點、rate limit、錯誤語意與不可誇大規則。</td>
+</tr>
+<tr>
   <td><code>/api/analyze</code></td>
   <td><span class="method get">GET</span></td>
   <td>analysis</td>
@@ -355,7 +361,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 
 <p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>（1982 行，OpenAPI 3.1.0）。</p>
 <p>該規格是 <code>src/trustforge/web.py</code> 內 <code>_handle_api_*</code> series handler 的<strong>逐一對照</strong>——每個欄位都對照過真實回應，不是從手寫 docs 轉寫。</p>
-<p>可透過 <code>GET /api/openapi.yaml</code> 端點在執行期取得。</p>
+<p>可透過 <code>GET /api/openapi.yaml</code> 端點在執行期取得；給 AI agent 快速讀取的雙語契約則是 <code>GET /llms.txt</code>。</p>
 
 </article>
 
