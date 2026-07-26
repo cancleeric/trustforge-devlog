@@ -43,6 +43,7 @@ CANONICAL_DOCS = [
     "12-customer-handover.html",
     "13-hands-on-labs.html",
     "14-troubleshooting-faq.html",
+    "15-user-manual.html",
 ]
 
 STALE_MARKERS = [

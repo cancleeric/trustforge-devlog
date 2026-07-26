@@ -166,14 +166,20 @@
 
 <table>
 <tr><th>路由</th><th>頁面</th><th>主要 API 消費</th></tr>
-<tr><td><code>/</code></td><td><code>HomePage</code></td><td><code>/api/overview</code>（多幣總覽卡網格）</td></tr>
+<tr><td><code>/</code></td><td><code>HermesDashboard</code></td><td><code>/api/hermes-upgrades</code>、<code>/api/analysis-flow</code>、<code>/api/analysis-journey</code></td></tr>
+<tr><td><code>/home</code></td><td><code>Navigate</code></td><td>redirect 到 <code>/</code></td></tr>
 <tr><td><code>/analyze</code></td><td><code>AnalyzePage</code></td><td><code>/api/analyze</code>（完整分析報告檢視）</td></tr>
-<tr><td><code>/compare</code></td><td><code>ComparePage</code></td><td><code>/api/analyze?type=comparison</code></td></tr>
+<tr><td><code>/compare</code></td><td><code>ComparePage</code></td><td><code>/api/analyze?type=comparison</code>、<code>/api/analysis-comparison-question</code></td></tr>
 <tr><td><code>/history</code></td><td><code>HistoryPage</code></td><td><code>/api/history</code>（PIT 歷史走勢）</td></tr>
 <tr><td><code>/status</code></td><td><code>StatusPage</code></td><td><code>/api/status</code>（cache 鮮度、connector 健康）</td></tr>
 <tr><td><code>/costs</code></td><td><code>CostsPage</code></td><td><code>/api/costs</code>（成本帳本儀表板）</td></tr>
-<tr><td><code>/hermes</code></td><td><code>HermesDashboard</code></td><td><code>/api/hermes-upgrades</code>、<code>/api/analysis-journey</code></td></tr>
-<tr><td><code>/admin</code></td><td><code>AdminPage</code></td><td><code>/api/admin/*</code></td></tr>
+<tr><td><code>/help</code></td><td><code>HelpCenterPage</code></td><td>說明中心；source route 與 live SPA route 已確認</td></tr>
+<tr><td><code>/asset-context</code></td><td><code>AssetContextLookupPage</code></td><td><code>/api/asset-context</code>（repo 支援；本輪 production API 仍待部署驗證）</td></tr>
+<tr><td><code>/eco-link</code></td><td><code>EcoLinkPage</code></td><td><code>/api/eco-link</code>（repo 支援；本輪 production API 仍待部署驗證）</td></tr>
+<tr><td><code>/peer-metrics</code></td><td><code>PeerMetricsPage</code></td><td><code>/api/peer-metrics</code>（repo 支援；本輪 production API 仍待部署驗證）</td></tr>
+<tr><td><code>/notifications</code></td><td><code>NotificationsPage</code></td><td>通知頁；source route 與 live SPA route 已確認</td></tr>
+<tr><td><code>/settings</code></td><td><code>SettingsPage</code></td><td>設定頁；刻意不進 Header 主導覽</td></tr>
+<tr><td><code>/admin</code></td><td><code>AdminPage</code></td><td><code>/api/admin/*</code>；需要 Admin Token</td></tr>
 </table>
 
 <h3 id="api-client">5. API Client 層</h3>

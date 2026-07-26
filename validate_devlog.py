@@ -237,7 +237,7 @@ def validate_docs_contract(errors: list[str]) -> None:
     if not docs.exists():
         fail(errors, "docs/: customer technical documentation directory is missing")
         return
-    required = ["index.html", "00-evidence-map.html", "01-workshop-overview.html", "02-architecture.html", "03-deployment.html", "04-configuration.html", "05-api.html", "06-data-flow.html", "07-operations.html", "08-trust-algorithm.html", "09-frontend.html", "10-security-handover.html", "11-testing-qa.html", "12-customer-handover.html", "13-hands-on-labs.html", "14-troubleshooting-faq.html"]
+    required = ["index.html", "00-evidence-map.html", "01-workshop-overview.html", "02-architecture.html", "03-deployment.html", "04-configuration.html", "05-api.html", "06-data-flow.html", "07-operations.html", "08-trust-algorithm.html", "09-frontend.html", "10-security-handover.html", "11-testing-qa.html", "12-customer-handover.html", "13-hands-on-labs.html", "14-troubleshooting-faq.html", "15-user-manual.html"]
     for name in required:
         path = docs / name
         if not path.exists():
@@ -249,7 +249,7 @@ def validate_docs_contract(errors: list[str]) -> None:
         if "v0.18.5" not in html:
             fail(errors, f"docs/{name}: document version must be v0.18.5")
     index = (docs / "index.html").read_text(encoding="utf-8")
-    for marker in ["Evidence-first", "Evidence Map", "docSearch", "Hands-on Labs", "Troubleshooting FAQ", "客戶交接總表"]:
+    for marker in ["Evidence-first", "Evidence Map", "docSearch", "Hands-on Labs", "Troubleshooting FAQ", "使用者手冊", "客戶交接總表"]:
         if marker not in index:
             fail(errors, f"docs/index.html: missing customer handoff marker {marker!r}")
     operations = (docs / "07-operations.html").read_text(encoding="utf-8")
