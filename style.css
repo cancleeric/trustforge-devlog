@@ -151,7 +151,13 @@ article ul { padding-left: 1.2rem; }
 .back { display: inline-block; margin-bottom: 1rem; font-size: .9rem; }
 footer { color: var(--mut); font-size: .8rem; margin-top: 2rem; border-top: 1px solid var(--bd); padding-top: 1rem; }
 table { border-collapse: collapse; width: 100%; font-size: .88rem; margin: .6rem 0; }
-td, th { border: 1px solid var(--bd); padding: .4rem .6rem; text-align: left; }
+td, th { border: 1px solid var(--bd); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+.risk-table th { background: var(--bd); color: var(--fg); font-weight: 600; }
+.risk-table td strong { color: var(--acc); }
+@media (max-width: 640px) {
+  .risk-table { font-size: .8rem; }
+  .risk-table td, .risk-table th { padding: .35rem .4rem; }
+}
 
 @media (max-width: 560px) {
   .stats { grid-template-columns: repeat(2, 1fr); }

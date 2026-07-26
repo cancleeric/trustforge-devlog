@@ -12,64 +12,59 @@
 <p class="summary">本班 9 筆提交收口 v0.19.2/v0.20.0：peer metrics 讀寫分離、ImpactPath 誠實語言契約、ecolink fail-soft、freshness 全 stale 降級；CI 退場待補位。</p>
 <p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
 </header>
-<section><h3>資料來源</h3>
-<p>本班開發日誌依據下列兩個公開儲存庫的本輪快照產出：</p>
+<section><h3>老闆版摘要</h3>
 <ul>
-  <li>TrustForge 主程式庫：<code>https://github.com/cancleeric/trustforge</code></li>
-  <li>開發日誌庫：<code>https://github.com/cancleeric/trustforge-devlog</code></li>
+  <li><strong>本日重點：</strong>Phase 4 主要功能已晉級 main，版本推進到 v0.20.0。</li>
+  <li><strong>落地四條線：</strong>peer metrics、ImpactPath、ecolink、freshness degraded 皆完成收口。</li>
+  <li><strong>最大風險：</strong>CI workflow 目前被停用，測試責任轉移到本地 pre-push gate。</li>
+  <li><strong>誠實聲明：</strong>本篇僅完成 diff-level review，<strong>尚未實際執行測試</strong>。</li>
+  <li><strong>決策建議：</strong>發布前先恢復 CI 或跑完整 gate（見文末 checklist）。</li>
 </ul>
-<p><strong>本輪範圍：</strong><code>HEAD..origin/main</code>（以本班 fetch 後的 origin/main 為基準，往前回推 13 小時）。GitHub 認證可用；兩 repo 的 git fetch 皆成功，過程未輸出或記錄任何認證憑證原文。</p>
-<p><strong>使用了哪些指令：</strong></p>
-<ul>
-  <li><code>git fetch</code>（兩 repo，更新 origin/main 快照）</li>
-  <li><code>git log --since=&lt;13h前&gt; --no-merges --format='%h %s'</code></li>
-  <li><code>git diff --stat</code> 相對 13 小時前的 origin/main</li>
-  <li><code>git diff</code> / <code>git show</code> 閱讀改動行數較多的來源檔邏輯變更</li>
-</ul>
-<p><strong>本輪數據：</strong>近 13 小時共 <strong>9 筆 non-merge commit</strong>（含兩筆 develop→main 的 release-promote），涵蓋 <strong>27 個檔案</strong>，<strong>+4087 / −32 行</strong>。其中測試檔佔約 2700+ 行，來源邏輯檔約 1100 行，顯示本輪是以「補測試 + 新模組落地」為主軸的發布性批次。</p>
 </section>
 
 <section><h3>主要變更</h3>
 
 <h4>1. 雙版本發布晉級：v0.19.2 與 v0.20.0（#582/#586/#587/#590/#674/#681/#682）</h4>
-<ul>
-  <li><strong>變更：</strong>本班出現兩筆 <code>release-promote: develop → main</code> 提交，把 Phase 4 的多個功能分支一次晉級到 main：包含 ecolink 升級事件連接器、TVL 連接器 100% 覆蓋、TPS+Gas 連接器邊界、peer metrics 排程器、ImpactPath 評估器，以及觀測降級標記。同時把 GitHub Actions 的 CI workflow 改名為 <code>.disabled</code>，將 <code>--cov-fail-under=75</code> 從 pytest addopts 移到 pre-push gate，避免單測跑分過低誤殺。</li>
-  <li><strong>風險：</strong>一次晉級多個互相依賴的模組，任一模組的 import 契約（如 <code>peer_metrics</code> 的 <code>PeerMetricsSnapshot</code>）若與既有程式碼不一致，會在 pre-push 之前就讓 main 出現無法啟動的風險；CI 關閉後，唯一把關只剩下本地 pre-push，等于把『持續整合』降級為『開發者本地承諾』。</li>
-  <li><strong>影響：</strong>這是把過去兩週的治理/觀測/連接器工作正式收口成對外版本的一步。若本地 gate 真實綠燈，main 即具備可發布的語意快照；若只是開發者自述綠燈，則風險被悄悄轉移到發布時才暴露。</li>
-  <li><strong>未驗證處：</strong>本班未執行 pre-push gate，無法確認這兩筆 release 在 main 上是否真的通過全部測試與 lint；版本號與 changelog 是否與提交一致亦未核對。</li>
-</ul>
+<p><strong>完成：</strong>兩筆 <code>release-promote: develop → main</code> 把 Phase 4 多個功能分支一次晉級到 main；同時把 CI workflow 改名 <code>.disabled</code>，將 <code>--cov-fail-under=75</code> 從 pytest addopts 移到 pre-push gate。</p>
+<p><strong>價值：</strong>過去兩週治理/觀測/連接器工作正式收口成對外版本。</p>
+<p><strong>風險：</strong>CI 關閉後唯一把關只剩本地 pre-push，等於把『持續整合』降級為『開發者本地承諾』。</p>
+<p><strong>待驗證：</strong>未執行 pre-push gate；版本號與 changelog 與實際 diff 的一致性未核對。</p>
 
 <h4>2. Peer Metrics 排程器與快取讀寫分離（#587）</h4>
-<ul>
-  <li><strong>變更：</strong>新增 <code>peer_metrics_scheduler.py</code>（約 475 行）。設計上明確切分為兩條路徑：<code>build_peer_metrics_snapshot()</code> / <code>schedule_peer_metrics_snapshot()</code> 是「唯一會呼叫真實連接器」的寫入路徑，把 TVL+TPS+Gas 三組結果組裝成 <code>PeerMetricsSnapshot</code> 寫入快取；<code>CachedPeerMetricsProvider</code> 則是請求路徑，只讀快取、絕不觸發真實連接器，cache miss 或硬過期時拋出 <code>CacheMissError</code>（與既有 <code>CachedSource</code> 模式一致）。部分失敗時保留上一版快照並標記 <code>degraded</code>，而非整批失效。</li>
-  <li><strong>風險：</strong>讀寫分離的正確性完全依賴排程器的寫入頻率（15 分鐘 cron）與快取硬過期（45 分鐘）設定合理；若排程器當掉而請求路徑靜默拋 <code>CacheMissError</code>，前端會直接看到缺失而非降級資料，反而比『略舊但可用』更糟。</li>
-  <li><strong>影響：</strong>把「高頻外部依賴」從請求關鍵路徑移除，是觀測系統抗抖動的核心架構改進，也讓 SSRF/限流問題被收斂到單一寫入點。</li>
-  <li><strong>未驗證處：</strong>未實際執行排程器或模擬 cache miss；<code>degraded</code> 標記在真實快取後端（非單測 fake）的 roundtrip 行為未驗證。</li>
-</ul>
+<p><strong>完成：</strong>新增 <code>peer_metrics_scheduler.py</code>（約 475 行）。寫入路徑（排程）組裝 <code>PeerMetricsSnapshot</code> 寫入快取；請求路徑只讀快取，絕不觸發真實連接器；cache miss 拋 <code>CacheMissError</code>；部分失敗保留上一版並標記 <code>degraded</code>。</p>
+<p><strong>價值：</strong>把高頻外部依賴從請求關鍵路徑抽離，降低 API 抖動、SSRF、限流影響，是抗抖動的結構性改進。</p>
+<p><strong>風險：</strong>若排程器當掉而請求路徑靜默拋 <code>CacheMissError</code>，前端會直接缺資料而非降級，比『略舊但可用』更糟。</p>
+<p><strong>待驗證：</strong>未實跑排程器或模擬 cache miss；<code>degraded</code> 在真實快取後端的 roundtrip 行為未驗證。</p>
 
-<h4>3. ImpactPath 評估器：多跳 BFS + 證據綁定，且強制「相關而非因果」語言契約（#590）</h4>
-<ul>
-  <li><strong>變更：</strong>新增 <code>impact_path_evaluator.py</code>（約 352 行）。以 <code>DependencyEdge</code> 為圖，從事件 asset_id 出發做有界 BFS（最大深度 3、最多 20 條路徑，只走 confidence ≥ 門檻且時間窗活躍的邊），每條路徑綁定支持/反證 <code>Evidence</code>，輸出三態：<code>Evaluated</code> / <code>InsufficientCoverage</code> / <code>NoMatchingEvent</code>。模組 docstring 強制「語言誠實契約」：只能用「可能相關」等模糊表述，禁止把相關表述為因果；並明確規定 <code>InsufficientCoverage</code> 不得被誤讀為「無影響」或「證偽」。</li>
-  <li><strong>風險：</strong>誠實契約是『靠開發者自律』的文字約束，沒有靜態檢查擋住未來有人寫出「證明造成」之類的結論句；BFS 的 max-paths=20 與 depth=3 上限若過小，可能在高連通資產上截斷真實路徑，造成 <code>InsufficientCoverage</code> 被誤判。</li>
-  <li><strong>影響：</strong>這是 TrustForge 把「升級事件影響分析」從直覺敘事拉到可審計圖遍歷的關鍵一步，也把『不得過度宣稱』寫進了程式介面層級，符合產品誠信定位。</li>
-  <li><strong>未驗證處：</strong>未跑 <code>test_impact_path_evaluator.py</code>（604 行新增測試）；語言契約在實際輸出文字上的合規性僅見測試與 docstring，未做端到端文字檢查。</li>
-</ul>
+<h4>3. ImpactPath 評估器：多跳 BFS + 證據綁定，強制「相關而非因果」語言契約（#590）</h4>
+<p><strong>完成：</strong>新增 <code>impact_path_evaluator.py</code>（約 352 行）。以 <code>DependencyEdge</code> 為圖做有界 BFS（深度 ≤3、路徑 ≤20），輸出三態：<code>Evaluated</code> / <code>InsufficientCoverage</code> / <code>NoMatchingEvent</code>；docstring 強制只能用「可能相關」等模糊表述。</p>
+<p><strong>價值：</strong>把升級事件影響分析從直覺敘事拉到可審計圖遍歷，並把『不得過度宣稱』寫進程式介面層級。</p>
+<p><strong>風險：</strong>誠實契約靠開發者自律，無靜態檢查擋住未來過度宣稱的結論句；BFS 上限過小可能截斷真實路徑。</p>
+<p><strong>待驗證：</strong>未跑 <code>test_impact_path_evaluator.py</code>（604 行新增）；語言契約合規性未做端到端文字檢查。</p>
 
 <h4>4. Ecolink 升級事件連接器：fail-soft 批次解析（#586）</h4>
-<ul>
-  <li><strong>變更：</strong>擴充 <code>ecolink_connector.py</code>，新增 <code>UpgradeEventConnector</code>：以不可變 <code>ConnectorResult(events, errors, skipped_count)</code> 回傳批次解析結果。設計上惡意/畸形項目被 skip 並記入 <code>errors</code> 而非整批拋錯；依 <code>event_id</code> 去重（首筆勝出）；同一 event_id 不同 <code>scheduled_at</code> 取最新；<code>scheduled_at</code> 早於 <code>fetched_at</code> 的過期項目先濾掉再嚴格解析，避免被算成錯誤；每個事件攜帶 <code>observed_at</code> 與 <code>official_source_url</code> 產地資訊。</li>
-  <li><strong>風險：</strong>fail-soft 的代價是『錯誤被溫和吞掉』——若上游持續吐畸形資料，<code>skipped_count</code> 會累積但系統表面健康；需要下游監控告警才有意義，否則靜默退化。</li>
-  <li><strong>影響：</strong>讓官方升級事件這類外部不穩定來源，從『一筆壞就全掛』變成『壞的跳過、好的照常』，提升 ingestion 韌性，也為 ImpactPath 提供乾淨的事件輸入。</li>
-  <li><strong>未驗證處：</strong>未執行 <code>test_ecolink_connector.py</code> / <code>test_ecolink_contract.py</code>（共約 500 行新增）；去重與產地欄位的真實行為未實跑確認。</li>
-</ul>
+<p><strong>完成：</strong>擴充 <code>ecolink_connector.py</code>，新增 <code>UpgradeEventConnector</code>：以 <code>ConnectorResult(events, errors, skipped_count)</code> 回傳；畸形項目被 skip 記入 <code>errors</code> 而非整批拋錯；依 <code>event_id</code> 去重、過期項先濾再解析。</p>
+<p><strong>價值：</strong>外部不穩定來源從『一筆壞就全掛』變成『壞的跳過、好的照常』，提升 ingestion 韌性。</p>
+<p><strong>風險：</strong>fail-soft 溫和吞錯，上游持續吐畸形時 <code>skipped_count</code> 累積但系統表面健康，需下游監控告警才有意義。</p>
+<p><strong>待驗證：</strong>未執行 <code>test_ecolink_connector.py</code> / <code>test_ecolink_contract.py</code>（共約 500 行新增）；去重與產地欄位真實行為未實跑。</p>
 
-<h4>5. 觀測降級標記：全 stale 即 degraded，且 fail-safe 防誤報 healthy（#537 / #674）</h4>
-<ul>
-  <li><strong>變更：</strong><code>freshness.dashboard()</code> 新增降級判定：當觀測資料缺失（<code>total==0</code> 或全 missing）標記 <code>degraded</code> 且原因 <code>no_data</code>；當全部 stale 標記 <code>all_freshness_stale</code>；部分 stale 但超過門檻則 <code>stale_exceeds_threshold</code>。核心原則是 fail-safe：觀測資料本身缺失時，絕不回報 healthy。</li>
-  <li><strong>風險：</strong>降級門檻（<code>degraded_stale_after</code>）若未由呼叫方正確傳入，會讓部分 stale 場景永遠不降級；另外 degraded 狀態僅在 dashboard 層計算，是否真的串到告警/UI 尚未核對。</li>
-  <li><strong>影響：</strong>把『無資料≠健康』這條安全原則寫進觀測核心，避免運維在資料管線斷掉時誤以為系統正常，是可信賴度（trust）的直接支撐。</li>
-  <li><strong>未驗證處：</strong>未執行 <code>test_freshness_degraded.py</code>（199 行新增）；degraded 狀態在真實前端看板上的呈現未驗證。</li>
-</ul>
+<h4>5. 觀測降級標記：全 stale 即 degraded，fail-safe 防誤報 healthy（#537 / #674）</h4>
+<p><strong>完成：</strong><code>freshness.dashboard()</code> 新增降級判定：全 missing → <code>no_data</code>；全 stale → <code>all_freshness_stale</code>；超過門檻 → <code>stale_exceeds_threshold</code>。核心原則 fail-safe：觀測缺失絕不回報 healthy。</p>
+<p><strong>價值：</strong>把『無資料≠健康』寫進觀測核心，避免運維在管線斷掉時誤以為正常。</p>
+<p><strong>風險：</strong>降級門檻若未被呼叫方正確傳入會永不降級；degraded 狀態是否真串到告警/UI 尚未核對。</p>
+<p><strong>待驗證：</strong>未執行 <code>test_freshness_degraded.py</code>（199 行新增）；前端看板呈現未驗證。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table">
+<thead><tr><th>風險項</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead>
+<tbody>
+<tr><td>CI workflow 停用</td><td><strong>高</strong></td><td>main 缺少遠端自動驗證</td><td>發布前恢復 CI 或建立 release gate</td></tr>
+<tr><td>pre-push 未實跑</td><td><strong>高</strong></td><td>release-promote 可信度未確認</td><td>立即跑完整 gate</td></tr>
+<tr><td>cache miss 行為未驗證</td><td>中</td><td>前端可能無降級資料</td><td>補整合測試</td></tr>
+<tr><td>語言誠實契約靠自律</td><td>中</td><td>未來文案可能過度宣稱</td><td>加靜態/端到端檢查</td></tr>
+</tbody>
+</table>
 </section>
 
 <section><h3>工程意義</h3>
@@ -85,7 +80,7 @@
 <section><h3>驗證狀態</h3>
 <p><strong>⚠️ 本班執行範圍未包含測試。</strong>以下為已執行動作，不代表程式碼已通過執行驗證：</p>
 <ul>
-  <li>GitHub 認證可用；TrustForge 與 devlog 兩 repo 的 git fetch 皆成功（commit range：13 小時前 origin/main → 本班 origin/main，含 9 筆 non-merge commit），未輸出或記錄任何認證憑證原文。</li>
+  <li>兩 repo fetch 成功，未記錄任何憑證內容。</li>
   <li>git log / git diff --stat / git diff / git show 已讀取 peer_metrics_scheduler、impact_path_evaluator、ecolink_connector、throughput_gas_connector、freshness 等來源檔的邏輯變更。</li>
   <li><strong>未執行：</strong>pytest / npm ci / npm run build / 任何 pre-push gate（含 release-promote 提交中聲稱的 4176+ 通過測試）。因此本文僅代表 diff-level review，不代表程式碼已通過執行驗證。</li>
 </ul>
@@ -103,13 +98,40 @@
 
 <section><h3>下一步（可執行 checklist）</h3>
 <ul>
-  <li><label><input type="checkbox" disabled> <code>cd /opt/data/trustforge && python3 -m pytest tests/test_peer_metrics_scheduler.py tests/test_impact_path_evaluator.py tests/test_ecolink_connector.py tests/test_ecolink_contract.py tests/test_freshness_degraded.py tests/test_throughput_gas_connector.py tests/test_tvl_connector.py -q</code>；通過標準：全部 7 個測試檔綠燈、0 失敗。</label></li>
-  <li><label><input type="checkbox" disabled> <code>cd /opt/data/trustforge && python3 -m pytest --cov=src/trustforge --cov-report=term-missing -q</code>；通過標準：peer_metrics_scheduler / impact_path_evaluator / ecolink_connector / throughput_gas_connector / freshness 模組達到 commit message 所述覆蓋目標（tvl_connector 100%）。</label></li>
-  <li><label><input type="checkbox" disabled> 重跑本地 pre-push gate：<code>bash .githooks/pre-push</code>（含 lint / build / data check / <code>git diff --check</code>）；通過標準：exit code 0，且確認 <code>--cov-fail-under</code> 門檻已由 gate 執行而非 addopts。</label></li>
-  <li><label><input type="checkbox" disabled> 核對 release 一致性：<code>git show 763ad38 --stat</code> 與 <code>git show af32ba0 --stat</code> 比對版本號/changelog 與實際 diff；通過標準：版本號、changelog、合併檔清單三者一致，無遺漏模組。</label></li>
-  <li><label><input type="checkbox" disabled> 前端誠實度視覺掃描：<code>npm ci && npm run build</code> 後對 asset 分類與 SectorLayerCard 做桌面/行動版 eye-scan；通過標準：資料真實、無 overflow、狀態轉換正確、錯誤態可見。</label></li>
-  <li><label><input type="checkbox" disabled> 決定 CI 退場補位：確認 <code>.github/workflows/ci.yml.disabled</code> 是否需在發布前重新啟用或改以本地 gate 證據入 PR；通過標準：發布流程文件（AGENTS.md）與實際 gate 行為一致。</label></li>
+  <li><label><input type="checkbox" disabled> <strong>跑核心新增測試</strong><br>
+  <code>cd /opt/data/trustforge && python3 -m pytest tests/test_peer_metrics_scheduler.py tests/test_impact_path_evaluator.py tests/test_ecolink_connector.py tests/test_ecolink_contract.py tests/test_freshness_degraded.py tests/test_throughput_gas_connector.py tests/test_tvl_connector.py -q</code><br>
+  通過標準：全部 7 個測試檔綠燈、0 失敗。</label></li>
+
+  <li><label><input type="checkbox" disabled> <strong>跑完整 coverage gate</strong><br>
+  <code>cd /opt/data/trustforge && python3 -m pytest --cov=src/trustforge --cov-report=term-missing -q</code><br>
+  通過標準：peer_metrics_scheduler / impact_path_evaluator / ecolink_connector / throughput_gas_connector / freshness 模組達到 commit message 所述覆蓋目標（tvl_connector 100%）。</label></li>
+
+  <li><label><input type="checkbox" disabled> <strong>重跑本地 pre-push gate</strong><br>
+  <code>bash .githooks/pre-push</code>（含 lint / build / data check / <code>git diff --check</code>）<br>
+  通過標準：exit code 0，且確認 <code>--cov-fail-under</code> 門檻已由 gate 執行而非 addopts。</label></li>
+
+  <li><label><input type="checkbox" disabled> <strong>核對 release 一致性</strong><br>
+  <code>git show 763ad38 --stat</code> 與 <code>git show af32ba0 --stat</code> 比對版本號/changelog 與實際 diff<br>
+  通過標準：版本號、changelog、合併檔清單三者一致，無遺漏模組。</label></li>
+
+  <li><label><input type="checkbox" disabled> <strong>前端誠實度視覺掃描</strong><br>
+  <code>npm ci && npm run build</code> 後對 asset 分類與 SectorLayerCard 做桌面/行動版 eye-scan<br>
+  通過標準：資料真實、無 overflow、狀態轉換正確、錯誤態可見。</label></li>
+
+  <li><label><input type="checkbox" disabled> <strong>決定 CI 退場補位</strong><br>
+  確認 <code>.github/workflows/ci.yml.disabled</code> 是否需在發布前重新啟用或改以本地 gate 證據入 PR<br>
+  通過標準：發布流程文件（AGENTS.md）與實際 gate 行為一致。</label></li>
 </ul>
+</section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p>本班開發日誌依據下列兩個公開儲存庫的本輪快照產出：</p>
+<ul>
+  <li>TrustForge 主程式庫：<code>https://github.com/cancleeric/trustforge</code></li>
+  <li>開發日誌庫：<code>https://github.com/cancleeric/trustforge-devlog</code></li>
+</ul>
+<p><strong>本輪範圍：</strong><code>HEAD..origin/main</code>（以本班 fetch 後的 origin/main 為基準，往前回推 13 小時）。</p>
+<p><strong>本輪數據：</strong>近 13 小時共 <strong>9 筆 non-merge commit</strong>（含兩筆 develop→main 的 release-promote），涵蓋 <strong>27 個檔案</strong>，<strong>+4087 / −32 行</strong>。其中測試檔佔約 2700+ 行，來源邏輯檔約 1100 行，顯示本輪是以「補測試 + 新模組落地」為主軸的發布性批次。</p>
 </section>
 
 </article>
