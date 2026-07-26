@@ -270,12 +270,12 @@ def validate_docs_contract(errors: list[str]) -> None:
     for stale in ['"version": "0.18.2"', '"bedrock_capable": true', '"cache_backend": "dynamodb"']:
         if stale in api:
             fail(errors, f"docs/05-api.html: stale /api/status example contains {stale!r}")
-    for stale in ["/api/analysis/flow", "/api/analysis/snapshot", "/api/analysis/job", "/api/analysis/question", "/api/analysis/comparison", "/api/analysis/requeue", "/api/hermes/upgrades", "1982 行"]:
+    for stale in ["/api/analysis/flow", "/api/analysis/snapshot", "/api/analysis/job", "/api/analysis/question", "/api/analysis/comparison", "/api/analysis/requeue", "/api/hermes/upgrades", "/api/admin/upgrade-queue", "/api/admin/upgrade-action", "1982 行"]:
         if stale in api:
             fail(errors, f"docs/05-api.html: stale upstream API reference contains {stale!r}")
-    for marker in ["/api/analysis-flow", "/api/analysis-snapshot", "/api/analysis-job", "/api/analysis-question", "/api/analysis-comparison-question", "/api/hermes-upgrades", "/api/peer-metrics", "/api/eco-link", "2976 行"]:
+    for marker in ["/api/analysis-flow", "/api/analysis-snapshot", "/api/analysis-job", "/api/analysis-question", "/api/analysis-comparison-question", "/api/hermes-upgrades", "/api/peer-metrics", "/api/eco-link", "2976 行", "2560 行", "repo 支援／待部署驗證"]:
         if marker not in api:
-            fail(errors, f"docs/05-api.html: missing upstream API marker {marker!r}")
+            fail(errors, f"docs/05-api.html: missing upstream/live API marker {marker!r}")
     frontend = (docs / "09-frontend.html").read_text(encoding="utf-8")
     for stale in ["/api/hermes/upgrades", "/api/analysis/journey"]:
         if stale in frontend:
@@ -285,6 +285,8 @@ def validate_docs_contract(errors: list[str]) -> None:
             fail(errors, f"docs/09-frontend.html: missing current frontend endpoint marker {marker!r}")
     if '"version":"0.18.2"' in operations:
         fail(errors, "docs/07-operations.html: stale /api/health example version")
+    if "/api/analysis/journey" in operations:
+        fail(errors, "docs/07-operations.html: stale analysis journey endpoint; use /api/analysis-journey")
     legacy_redirects = {
         "14-evidence-map.html": "00-evidence-map.html",
         "00-workshop-overview.html": "01-workshop-overview.html",

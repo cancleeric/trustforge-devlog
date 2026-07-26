@@ -94,7 +94,7 @@
 <h3 id="endpoints">3. 端點清單</h3>
 
 <div class="warn-box">
-<strong>本輪已用 TrustForge <code>origin/main</code> 的 <code>docs/api/openapi.yaml</code> 重新對齊。</strong> 下表是客戶導讀版；完整欄位 schema、錯誤碼與範例仍以線上 <code>GET /api/openapi.yaml</code> 為準。
+<strong>本輪同時比對 TrustForge <code>origin/main</code> 與 production live spec。</strong> 下表是客戶導讀版；完整欄位 schema、錯誤碼與範例仍以線上 <code>GET /api/openapi.yaml</code> 為準。若 repo 最新 spec 有端點但 live spec 尚未列出，文件只能寫「repo 支援／待部署驗證」，不能當 production 驗收端點。
 </div>
 
 <table>
@@ -107,9 +107,9 @@
 <tr><td><code>/api/history</code></td><td><span class="method get">GET</span></td><td>observability</td><td>Point-in-time 歷史分析快照。</td></tr>
 <tr><td><code>/api/data-plane-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>資料平面狀態。</td></tr>
 <tr><td><code>/api/budget-governance</code></td><td><span class="method get">GET</span></td><td>observability</td><td>預算治理狀態。</td></tr>
-<tr><td><code>/api/module-telemetry</code></td><td><span class="method get">GET</span></td><td>observability</td><td>模組遙測資料。</td></tr>
+
 <tr><td><code>/api/operations-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>運維狀態摘要。</td></tr>
-<tr><td><code>/api/training-status</code></td><td><span class="method get">GET</span></td><td>observability</td><td>訓練資料與 backfill 進度。</td></tr>
+
 <tr><td><code>/api/analyze</code></td><td><span class="method get">GET</span></td><td>analysis</td><td><strong>★ 核心端點</strong>。完整信任加權市場分析。</td></tr>
 <tr><td><code>/api/analysis-flow</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>當前分析 flow 狀態。</td></tr>
 <tr><td><code>/api/analysis-snapshot</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>已發布分析快照檢索。</td></tr>
@@ -120,9 +120,9 @@
 <tr><td><code>/api/comparison-snapshot</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>雙幣比較快照檢索。</td></tr>
 <tr><td><code>/api/analysis-journey</code></td><td><span class="method get">GET</span></td><td>analysis</td><td>Hermes 執行旅程與 dead-letter 檢視。</td></tr>
 <tr><td><code>/api/analysis-requeue</code></td><td><span class="method post">POST</span></td><td>analysis</td><td>重新排隊卡住的 job。</td></tr>
-<tr><td><code>/api/asset-context</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>資產背景資料；查無資料時回 <code>null</code>，不是錯誤。</td></tr>
-<tr><td><code>/api/peer-metrics</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>同儕指標；文件只寫相關性，不寫因果。</td></tr>
-<tr><td><code>/api/eco-link</code></td><td><span class="method get">GET</span></td><td>market intelligence</td><td>生態連結影響路徑；為相關性揭露，不是因果證明。</td></tr>
+
+
+
 <tr><td><code>/api/improvement-diagnostics</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>改善診斷。</td></tr>
 <tr><td><code>/api/evidence-quality</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>證據品質摘要。</td></tr>
 <tr><td><code>/api/delivery-status</code></td><td><span class="method get">GET</span></td><td>diagnostics</td><td>交付狀態。</td></tr>
@@ -133,13 +133,18 @@
 <tr><td><code>/api/hermes-upgrades</code></td><td><span class="method get">GET</span></td><td>Hermes</td><td>Hermes 升級控制平面唯讀資料。</td></tr>
 <tr><td><code>/api/openapi.yaml</code></td><td><span class="method get">GET</span></td><td>meta</td><td>OpenAPI 3.1 規格檔（讀自 <code>docs/api/openapi.yaml</code>）。</td></tr>
 <tr><td><code>/llms.txt</code></td><td><span class="method get">GET</span></td><td>meta</td><td>AI agent / 客戶工程師一頁式契約。</td></tr>
-<tr><td><code>/api/admin/backend-providers</code></td><td><span class="method get">GET</span></td><td>admin</td><td>取得 backend provider 設定。</td></tr>
+
 <tr><td><code>/api/admin/config</code></td><td><span class="method get">GET</span> / <span class="method put">PUT</span></td><td>admin</td><td>取得 / 更新 runtime config。</td></tr>
 <tr><td><code>/api/admin/audit</code></td><td><span class="method get">GET</span></td><td>admin</td><td>Config change log。</td></tr>
 <tr><td><code>/api/admin/hermes-upgrades</code></td><td><span class="method get">GET</span></td><td>admin</td><td>管理端 Hermes 升級資料。</td></tr>
 <tr><td><code>/api/admin/hermes-upgrade-sandbox</code></td><td><span class="method post">POST</span></td><td>admin</td><td>執行 Hermes upgrade sandbox。</td></tr>
 <tr><td><code>/api/admin/hermes-upgrade-decision</code></td><td><span class="method post">POST</span></td><td>admin</td><td>核准／拒絕 Hermes upgrade proposal。</td></tr>
 </table>
+
+<div class="warn-box">
+<strong>repo 最新但本輪 production live spec 尚未列出的端點：</strong>
+<code>/api/asset-context</code>、<code>/api/peer-metrics</code>、<code>/api/eco-link</code>、<code>/api/module-telemetry</code>、<code>/api/training-status</code>。本輪 live smoke 對這些 public GET 端點回 404；交付時只能說 repo 最新規格支援，不能說 production 已可用。<code>/api/admin/backend-providers</code> live 會因缺 Admin Token 回 401，屬管理面保護端點，不列入匿名 production smoke。
+</div>
 
 <h3 id="rate-limit">4. 速率限制分組</h3>
 
@@ -300,13 +305,14 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 <tr><td><code>GET /api/admin/config</code></td><td>取得 runtime config（live_token、bedrock_enabled、daily_cap）</td><td>Admin Token</td></tr>
 <tr><td><code>PUT /api/admin/config</code></td><td>更新 runtime config</td><td>Admin Token</td></tr>
 <tr><td><code>GET /api/admin/audit</code></td><td>Config change log（誰在何時改什麼）</td><td>Admin Token</td></tr>
-<tr><td><code>GET /api/admin/upgrade-queue</code></td><td>Hermes 升級審核佇列</td><td>Admin Token</td></tr>
-<tr><td><code>POST /api/admin/upgrade-action/{action}</code></td><td>批准／拒絕升級</td><td>Admin Token</td></tr>
+<tr><td><code>GET /api/admin/hermes-upgrades</code></td><td>Hermes 升級審核資料</td><td>Admin Token</td></tr>
+<tr><td><code>POST /api/admin/hermes-upgrade-sandbox</code></td><td>執行 upgrade sandbox</td><td>Admin Token</td></tr>
+<tr><td><code>POST /api/admin/hermes-upgrade-decision</code></td><td>核准／拒絕 proposal</td><td>Admin Token</td></tr>
 </table>
 
 <h3 id="openapi">9. OpenAPI Spec</h3>
 
-<p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>（本輪從 TrustForge <code>origin/main</code> 取證為 2976 行，OpenAPI 3.1.0）。</p>
+<p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>。本輪取證結果：TrustForge <code>origin/main</code> spec 為 2976 行；production live <code>GET /api/openapi.yaml</code> 為 2560 行。兩者不同時，以 production live spec 作為客戶驗收依據，origin/main 多出的端點標為「repo 支援／待部署驗證」。</p>
 <p>該規格是 <code>src/trustforge/web.py</code> 內 <code>_handle_api_*</code> series handler 的<strong>逐一對照</strong>——每個欄位都對照過真實回應，不是從手寫 docs 轉寫。</p>
 <p>可透過 <code>GET /api/openapi.yaml</code> 端點在執行期取得；給 AI agent 快速讀取的雙語契約則是 <code>GET /llms.txt</code>。</p>
 
