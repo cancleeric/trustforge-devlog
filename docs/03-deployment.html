@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>02 — 部署指南 | TrustForge 技術文件</title>
+<title>03 — 部署指南 | TrustForge 技術文件</title>
 <meta name="description" content="TrustForge 部署指南：App Runner、EC2+nginx、Lambda 三條路徑完整步驟。">
 <link rel="stylesheet" href="../style.css?v=20260726-evidence-grade">
 <style>
@@ -23,14 +23,10 @@
 </style>
 </head><body><div class="wrap">
 
-<div class="nav-bar">
-  <a href="01-architecture.html">← 01 架構總覽</a>
-  <a href="index.html">文件首頁</a>
-  <a href="03-configuration.html">03 配置參考 →</a>
-</div>
+<div class="nav-bar"><a href="02-architecture.html">← 02 系統架構總覽</a><a href="index.html">文件首頁</a><a href="04-configuration.html">04 環境變數參考 →</a></div>
 
 <article>
-<h2>02 — 部署指南</h2>
+<h2>03 — 部署指南</h2>
 <p style="color:var(--mut)">Deployment Guide · App Runner / EC2+nginx / Lambda 三路徑完整步驟</p>
 
 <details class="toc" open>
@@ -156,7 +152,7 @@ cd .. && ./deploy/deploy_frontend_nginx.sh
 
 <h3 id="env-vars">5. 各環境變數部署注意事項</h3>
 
-<p>詳細環境變數清單見 <a href="03-configuration.html">03 配置參考</a>。部署時特別注意：</p>
+<p>詳細環境變數清單見 <a href="04-configuration.html">03 配置參考</a>。部署時特別注意：</p>
 
 <table>
 <tr><th>變數</th><th>部署方式</th><th>注意</th></tr>
@@ -222,10 +218,10 @@ cd .. && ./deploy/deploy_frontend_nginx.sh
 </article>
 
 <footer>
-  <a href="01-architecture.html">← 01 架構總覽</a>
-  <span style="float:right"><a href="03-configuration.html">03 配置參考 →</a></span>
+  <a href="02-architecture.html">← 02 架構總覽</a>
+  <span style="float:right"><a href="04-configuration.html">03 配置參考 →</a></span>
   <div style="clear:both;margin-top:1rem;color:var(--mut);font-size:.8rem">
-    TrustForge 技術文件 · 02 部署指南 · v0.18.5
+    TrustForge 技術文件 · 03 部署指南 · v0.18.5
   </div>
 </footer>
 

@@ -237,7 +237,7 @@ def validate_docs_contract(errors: list[str]) -> None:
     if not docs.exists():
         fail(errors, "docs/: customer technical documentation directory is missing")
         return
-    required = ["index.html", "00-workshop-overview.html", "01-architecture.html", "02-deployment.html", "03-configuration.html", "04-api.html", "05-data-flow.html", "06-operations.html", "07-trust-algorithm.html", "08-frontend.html", "09-security-handover.html", "10-testing-qa.html", "11-customer-handover.html", "12-hands-on-labs.html", "13-troubleshooting-faq.html", "14-evidence-map.html"]
+    required = ["index.html", "00-evidence-map.html", "01-workshop-overview.html", "02-architecture.html", "03-deployment.html", "04-configuration.html", "05-api.html", "06-data-flow.html", "07-operations.html", "08-trust-algorithm.html", "09-frontend.html", "10-security-handover.html", "11-testing-qa.html", "12-customer-handover.html", "13-hands-on-labs.html", "14-troubleshooting-faq.html"]
     for name in required:
         path = docs / name
         if not path.exists():
