@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Day 27 · 持續監測：本班無新提交，主線靜默 — TrustForge 開發記錄</title>
+<title>Day 27 · devlog 運維與高標升級：封存髒 repo、重新 clone、isabella 7 點固化進 cron、修復 push 斷層 — TrustForge 開發記錄</title>
 <link rel="stylesheet" href="../style.css?v=20260718-format-fix">
 </head><body>
 <main class="day-entry">
@@ -8,69 +8,78 @@
 <article>
 <header>
 <p class="eyebrow">2026-07-26b · Continuous Analysis</p>
-<h1>Day 27 · 持續監測：本班無新提交，主線靜默</h1>
-<p class="summary">本班無新提交，僅監測；同日補發 Day27b 完成 entries 註冊與 sitemap 重建。</p>
-<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+<h1>Day 27 · devlog 運維與高標升級：封存髒 repo、重新 clone、isabella 7 點固化進 cron、修復 push 斷層</h1>
+<p class="summary">今日下午真實運維：封存髒 repo 重新 clone、isabella 高標寫進 cron、修 rebase 卡死與 sitemap 衝突並補發上遠端。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis #devops</p>
 </header>
 <section><h3>老闆版摘要</h3>
-  <p>本班為監測與覆核班次，未偵測到任何超出既有日誌範圍的新程式碼落地。</p>
-  <ul>
-    <li>本日重點：近 13 小時主線僅有 1 筆提交（v0.20.0 晉級），該內容已由同日 Day 27 完整記錄；本班無新增功能或修復。</li>
-    <li>最大風險：版本常數與晉級標籤不一致——pyproject.toml 與 __init__.py 仍標 0.18.1，而晉級提交自稱 v0.20.0，存在發佈完整性缺口。</li>
-    <li>本篇僅完成 diff-level review 與狀態覆核，尚未實際執行測試。</li>
-  </ul>
+<p>本班（夜班 台灣 23:00）記錄的是 <strong>devlog 倉庫自身的運維與標準升級</strong>，不是 TrustForge 主程式碼變動：</p>
+<ul>
+  <li>本日重點：下午將舊的髒 repo 封存、重新 clone 乾淨版；並把 isabella 審定的開發日誌高標（7 點）與「禁止指令揭露段」要求固化進自動排程 cron。</li>
+  <li>最大風險：自動排程分身過去只監測 TrustForge 主 repo 的程式碼 diff，忽略了「devlog 倉庫自身運維操作」也該被記錄——本篇即補此缺口。</li>
+  <li>本篇僅完成 diff-level review 與狀態覆核，尚未實際執行測試。</li>
+</ul></section>
 
 <section><h3>主要變更</h3>
-  <h4>1. 本班無新提交，僅監測（沿用 Day 27）</h4>
-    <p><strong>完成：</strong>重新 fetch 兩 repo 並比對 origin/main，確認主線 HEAD 仍為 v0.20.0 晉級提交（763ad38），自 Day 27 發布以來未再推進；本班不重複記錄已涵蓋內容。</p>
-    <p><strong>價值：</strong>提供一個獨立覆核時間點，確認發佈狀態與既有日誌一致，避免決策者誤以為有未記錄變動。</p>
-    <p><strong>風險：</strong>若團隊依賴「每日必有新進度」的節奏預期，監測班次易被誤讀為漏報；本節已明確標註「沿用 Day 27」。</p>
-    <p><strong>待驗證：</strong>無（本班無新程式碼）。</p>
 
-  <h4>2. 版本常數與晉級標籤不一致（待修）</h4>
-    <p><strong>完成：</strong>在 diff 檢視中發現 pyproject.toml 的 [project].version 與 src/trustforge/__init__.py 的 __version__ 仍為 0.18.1，但晉級提交 commit message 標註 v0.20.0；倉庫內 test_version.py 明確要求兩者單一來源一致。</p>
-    <p><strong>價值：</strong>提醒發佈閘道需在 merge 前把版本常數同步至晉級標籤，否則會觸發版本一致性測試失敗或對外版本號錯亂。</p>
-    <p><strong>風險：</strong>若 pre-push 閘道未涵蓋此常數同步，v0.20.0 的對外宣稱與實際運行版本可能不符，損害稽核可信度。</p>
-    <p><strong>待驗證：</strong>尚未確認 develop 分支是否已修正此常數；本輪未執行測試。</p>
+<h4>1. devlog 倉庫重置：封存髒 repo、重新 clone 乾淨版</h4>
+<p><strong>完成：</strong>因舊 repo 卡在互動式 rebase 中途（sitemap.xml 衝突未解、本地落後遠端 8 個 commit），將 <code>/opt/data/devlog</code> 封存為 <code>devlog-archived-20260726-120738</code>，再從 GitHub 重新 clone 乾淨版（HEAD=394021f），git status 確認無衝突。</p>
+<p><strong>價值：</strong>徹底擺脫舊 repo 的 rebase 殘局，讓 devlog 回到與遠端同步的乾淨基線，後續手冊與日誌才有乾淨容器可放。</p>
+<p><strong>風險：</strong>封存目錄未刪除（保留備查），若日後誤用舊路徑會拿到過期內容；需明確以新 clone 為準。</p>
+<p><strong>待驗證：</strong>新 clone 已確認 status 乾淨、HEAD 與遠端一致；舊未推送的 Day 27 內容已由本班重新生成補發（見下）。</p>
+
+<h4>2. 自動排程升級：isabella 高標固化進 cron</h4>
+<p><strong>完成：</strong>將 isabella（Eric）07/25 審定的 7 點改稿標準 + Eric 07/26 追加的「禁止指令揭露段」要求，全部寫入 cron job <code>c405843b91d5</code> 的 prompt。覆蓋：老闆版摘要（強制首區塊）、資料來源收斂至文末「稽核細節」、變更段壓短為完成/價值/風險/待驗證四行、風險等級表（.risk-table）、簡體字零容忍（push 前 grep）、版本號小寫統一（禁 V0.）、下一步 checklist 拆目的+命令、以及明令禁止「使用了哪些指令」段落。</p>
+<p><strong>價值：</strong>過去這套高標只手修過單篇、未固化；現在午班（台灣 11:00）+ 夜班（台灣 23:00）自動跑的分身會照此寫，不用每次人工修。</p>
+<p><strong>風險：</strong>舊 cron prompt 仍明文叫子代理寫「使用了哪些指令」清單，與 Eric 要求直接衝突——本次已移除。若未來有人改回舊邏輯，會再次違反。</p>
+<p><strong>待驗證：</strong>本班（升級後第一班夜班）實際產出即下方內容，可見新標準已生效（含老闆版摘要、風險等級表）；但本篇原先被分身誤寫為「無新提交」，經發現後由 Hermes 依真實事實重寫——詳見誠實邊界。</p>
+
+<h4>3. 修復 rebase 卡死 + sitemap 衝突，補發 Day 27b 上遠端</h4>
+<p><strong>完成：</strong>新 clone 後，夜班分身寫出的 Day 27b 因 sitemap.xml 與遠端同事的新 commit 衝突而 push 失敗，並在本地留下 <code>_dbg.sh</code>/<code>_push.sh</code> 殘留腳本。Hermes 介入：清除殘留腳本、續完卡住的 rebase（sitemap 取遠端側後用 <code>add_day.py</code> 重新生成，自動含 Day 27b 的 63 筆網址）、commit（6650eed）、push 成功（3d62ae7..6650eed）。</p>
+<p><strong>價值：</strong>解決「Eric 上 GitHub 看不到今天的日誌」的問題——根因是本地有、遠端沒有。現已同步。</p>
+<p><strong>風險：</strong>sitemap.xml 為 auto-gen，未來若同事與分身同時改 entries 仍會撞；長期應讓分身在 push 前先 <code>git pull --rebase</code> 再生成。</p>
+<p><strong>待驗證：</strong>遠端已確認有 Day 27b（6650eed）；網站 https://cancleeric.github.io/trustforge-devlog/days/2026-07-26b.html 可訪問。</p>
 
 <section><h3>風險等級表</h3>
-  <table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
-    <tr><td><strong>CI 狀態</strong></td><td>中</td><td>commit message 標註 GitHub Actions 已停用（ci.yml.disabled），實際閘道改為本地 pre-push；本班未實跑該閘道，無法證明綠燈。</td><td>下一班次實跑本地 pre-push 閘道並留存證據。</td></tr>
-    <tr><td><strong>pre-push 是否實跑</strong></td><td>中</td><td>本班僅做 diff-level review 與 fetch，未執行任何 pre-push gate；上週晉級聲稱 4176+ 測試通過，但非本班親驗。</td><td>由具備執行權限者重跑並貼出通過紀錄。</td></tr>
-    <tr><td><strong>未驗證行為</strong></td><td>中</td><td>ImpactPath 多跳 BFS、peer metrics 讀寫分離、throughput/gas connector 等 Phase 4 行為本班僅讀碼，未執行。</td><td>依下一步清單實跑測試與本地閘道。</td></tr>
-    <tr><td><strong>版本常數不一致</strong></td><td>高</td><td>0.18.1 常數 vs v0.20.0 標籤，違反倉庫內版本一致性測試契約，可能使發佈閘道失敗或對外版本錯亂。</td><td>晉級前先將常數同步至 0.20.0 並跑 test_version。</td></tr>
-  </tbody></table>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>自動排程盲點（只監測主 repo，漏記 devlog 運維）</strong></td><td>高</td><td>分身原設計只讀 TrustForge 主 repo 的 git diff，導致今天下午真實發生的 clone/cron 升級/push 修復完全沒被記錄，反而編出「無新提交」。</td><td>已在本篇補記；並將 cron prompt 增加「devlog 倉庫自身運維變更也須記錄」規則（見下一步）。</td></tr>
+  <tr><td><strong>CI 狀態</strong></td><td>中</td><td>commit message 標註 GitHub Actions 已停用（ci.yml.disabled），實際閘道改為本地 pre-push；本班未實跑該閘道，無法證明綠燈。</td><td>下一班次實跑本地 pre-push 閘道並留存證據。</td></tr>
+  <tr><td><strong>pre-push 是否實跑</strong></td><td>中</td><td>本班僅做 diff-level review 與 fetch，未執行任何 pre-push gate。</td><td>由具備執行權限者重跑並貼出通過紀錄。</td></tr>
+  <tr><td><strong>舊 repo 封存未刪</strong></td><td>低</td><td>devlog-archived-20260726-120738 保留備查，路徑近似可能誤用。</td><td>確認新 clone 為唯一權威來源；備查期滿後可刪。</td></tr>
+</tbody></table></section>
 
 <section><h3>工程意義</h3>
-  <p>本班未推進新功能，而是扮演「獨立覆核點」：確認前一日誌（Day 27）對 v0.20.0 Phase 4 收口的記錄與當前主線狀態一致，並主動揭露版本常數與晉級標籤不一致的發佈完整性缺口。這種監測班次的存在，正是為了在無新提交的日子裡仍維持稽核連續性，避免「無日誌＝無人看管」的盲區。</p>
+<p>本班的核心價值不在 TrustForge 主程式碼（今日主 repo 無新提交），而在 <strong>devlog 這套「自我記錄系統」自身的修復與升級</strong>：把一個卡死的髒 repo 重置為乾淨基線、把人工審定的寫作高標變成自動排程的硬性規範、並修復了「本地有遠端無」的同步斷層。這正是開發日誌作為「給決策者的稽核連續性」該扮演的角色——連運維本身也要被看見。</p></section>
 
 <section><h3>驗證狀態</h3>
-  <p><strong>⚠️ 本班執行範圍未包含測試。</strong>以下為已執行動作，不代表程式碼已通過執行驗證：</p>
-  <ul>
-    <li>GitHub 認證可用；TrustForge 與 devlog 兩 repo 的 git fetch 皆成功，未輸出或記錄任何憑證原文。</li>
-    <li>git log/diff/show 已讀取邏輯變更與版本常數差異。</li>
-    <li><strong>未執行：</strong>pytest / npm ci / npm run build / 任何 pre-push gate。本文僅代表 diff-level review 與狀態覆核。</li>
-  </ul>
+<p><strong>⚠️ 本班執行範圍未包含測試。</strong>以下為已執行動作，不代表程式碼已通過執行驗證：</p>
+<ul>
+  <li>GitHub 認證可用；TrustForge 與 devlog 兩 repo 的 git fetch 皆成功，未輸出或記錄任何憑證原文。</li>
+  <li>git log / diff / rebase --continue / add_day.py 已執行並確認結構（article 對稱、sitemap 含 Day 27b）。</li>
+  <li><strong>未執行：</strong>pytest / npm ci / npm run build / 任何 pre-push gate。本文僅代表 diff-level review 與狀態覆核。</li>
+</ul></section>
 
 <section><h3>誠實邊界</h3>
-  <p>本班所有結論來自對主線 HEAD 的 diff-level 讀取與既有日誌比對，未實際執行程式碼；Phase 4 功能（ImpactPath、peer metrics、connector）的行為正確性仍以 Day 27 所引述的提交聲稱為準，非本班親驗。版本常數不一致為本班新發現，但「develop 是否已修正」尚待確認。任何安全/CISO 相關審核狀態若僅見於 commit message，本班僅能以「commit message 標註」方式轉述，不代為背書通過。</p>
+<p>本篇經歷一次重寫：夜班分身初次產出將本班誤寫為「本班無新提交，主線靜默」，並從 TrustForge 主 repo 讀出陳年 diff（版本常數 0.18.1 vs v0.20.0 標籤）充當內容——這是分身設計盲點所致（只監測主 repo 程式碼、不記錄 devlog 自身運維）。Hermes 發現後，依<strong>今天下午真實發生的操作</strong>（封存/clone/cron 升級/rebase 修復/push）重寫本篇。因此本篇記錄的是「devlog 側真實運維」，而非主 repo 代碼變動；兩者皆屬事實，但前者才是本班真正做的。任何安全/CISO 相關審核狀態若僅見於 commit message，本班僅能以「commit message 標註」方式轉述，不代為背書通過。</p></section>
 
 <section><h3>下一步（可執行 checklist）</h3>
-  <ul>
-    <li><label><input type="checkbox" disabled> 修復版本常數不一致<br><code>將 pyproject.toml 與 src/trustforge/__init__.py 的版本同步為 0.20.0，並執行 pytest tests/test_version.py</code>；通過標準：test_version 全綠，且兩處常數相等。</label></li>
-    <li><label><input type="checkbox" disabled> 實跑本地 pre-push 閘道確認綠燈<br><code>.githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過，無 --no-verify。</label></li>
-    <li><label><input type="checkbox" disabled> 確認 develop 是否含版本修正<br><code>git log --oneline develop -5 並 grep 版本號</code>；通過標準：develop 最新晉級提交之版本常數已為 0.20.0。</label></li>
-  </ul>
+<ul>
+  <li><label><input type="checkbox" disabled> 修 cron 盲點：讓分身也記錄 devlog 倉庫自身運維<br><code>在 cron prompt 增加規則：若本班對 devlog repo 做了 clone/rebase/push 修復/cron 更新等運維，須寫入日誌，不能只監測 trustforge 主 repo</code>；通過標準：下一班日誌若遇 devlog 運維操作，會如實記錄。</label></li>
+  <li><label><input type="checkbox" disabled> 讓分身 push 前先 rebase 遠端<br><code>cd /opt/data/devlog && git pull --rebase origin main 再跑 add_day.py 與 push</code>；通過標準：sitemap 衝突不再導致 push 失敗。</label></li>
+  <li><label><input type="checkbox" disabled> 確認舊封存可刪<br><code>確認新 clone 為唯一權威後 rm -rf /opt/data/devlog-archived-20260726-120738</code>；通過標準：無任何流程依賴舊路徑。</label></li>
+  <li><label><input type="checkbox" disabled> 實跑本地 pre-push 閘道確認綠燈<br><code>.githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過，無 --no-verify。</label></li>
+</ul></section>
 
 <section><h3>稽核細節（資料來源）</h3>
-  <p>本輪範圍：<code>HEAD..origin/main</code>（本班 fetch 後的 origin/main 為基準，回推 13h）。</p>
-  <p>本輪數據：近 13h 共 1 筆 non-merge commit（v0.20.0 晉級，763ad38）、6 個檔案、+2097/−1 行；該提交已由同日 Day 27 完整記錄，本班未產生新程式碼差異。</p>
-  <p>（注意：禁止列出「使用了哪些 git 指令」——決策者不需要看指令清單，只要結論。資料來源區放最末，且憑證相關敘述收短為「兩 repo fetch 成功，未記錄任何憑證內容」。）</p>
+<p>本輪範圍：devlog 倉庫本地狀態與 cron job <code>c405843b91d5</code> 的 prompt 變更（2026-07-26 下午）。</p>
+<p>本輪數據：封存舊 repo 1 個（devlog-archived-20260726-120738）、重新 clone 1 次（HEAD=394021f）、cron prompt 重寫 1 次（含 isabella 7 點 + 禁指令段）、rebase 續完 1 次、push 成功 1 次（6650eed，3d62ae7..6650eed）。</p>
+<p>兩 repo fetch 成功，未記錄任何憑證內容。</p>
+</section>
 
 </article>
 <footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-26b</footer>
 </main><script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 27 · 持續監測：本班無新提交，主線靜默","datePublished":"2026-07-26","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 27 · devlog 運維與高標升級：封存髒 repo、重新 clone、isabella 7 點固化進 cron、修復 push 斷層","datePublished":"2026-07-26","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
 </script>
 <script src="../day-common.js?v=20260718-format-fix"></script>
 </body></html>
