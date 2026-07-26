@@ -8,6 +8,75 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 27 · 持續監測：本班無新提交，主線靜默</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-26b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-26b.html"/>
+    <updated>2026-07-26T00:00:00+08:00</updated>
+    <published>2026-07-26T00:00:00+08:00</published>
+    <summary>本班無新提交，僅監測；同日補發 Day27b 完成 entries 註冊與 sitemap 重建。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-26b · Continuous Analysis</p>
+<h1>Day 27 · 持續監測：本班無新提交，主線靜默</h1>
+<p class="summary">本班無新提交，僅監測；同日補發 Day27b 完成 entries 註冊與 sitemap 重建。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+  <p>本班為監測與覆核班次，未偵測到任何超出既有日誌範圍的新程式碼落地。</p>
+  <ul>
+    <li>本日重點：近 13 小時主線僅有 1 筆提交（v0.20.0 晉級），該內容已由同日 Day 27 完整記錄；本班無新增功能或修復。</li>
+    <li>最大風險：版本常數與晉級標籤不一致——pyproject.toml 與 __init__.py 仍標 0.18.1，而晉級提交自稱 v0.20.0，存在發佈完整性缺口。</li>
+    <li>本篇僅完成 diff-level review 與狀態覆核，尚未實際執行測試。</li>
+  </ul>
+
+<section><h3>主要變更</h3>
+  <h4>1. 本班無新提交，僅監測（沿用 Day 27）</h4>
+    <p><strong>完成：</strong>重新 fetch 兩 repo 並比對 origin/main，確認主線 HEAD 仍為 v0.20.0 晉級提交（763ad38），自 Day 27 發布以來未再推進；本班不重複記錄已涵蓋內容。</p>
+    <p><strong>價值：</strong>提供一個獨立覆核時間點，確認發佈狀態與既有日誌一致，避免決策者誤以為有未記錄變動。</p>
+    <p><strong>風險：</strong>若團隊依賴「每日必有新進度」的節奏預期，監測班次易被誤讀為漏報；本節已明確標註「沿用 Day 27」。</p>
+    <p><strong>待驗證：</strong>無（本班無新程式碼）。</p>
+
+  <h4>2. 版本常數與晉級標籤不一致（待修）</h4>
+    <p><strong>完成：</strong>在 diff 檢視中發現 pyproject.toml 的 [project].version 與 src/trustforge/__init__.py 的 __version__ 仍為 0.18.1，但晉級提交 commit message 標註 v0.20.0；倉庫內 test_version.py 明確要求兩者單一來源一致。</p>
+    <p><strong>價值：</strong>提醒發佈閘道需在 merge 前把版本常數同步至晉級標籤，否則會觸發版本一致性測試失敗或對外版本號錯亂。</p>
+    <p><strong>風險：</strong>若 pre-push 閘道未涵蓋此常數同步，v0.20.0 的對外宣稱與實際運行版本可能不符，損害稽核可信度。</p>
+    <p><strong>待驗證：</strong>尚未確認 develop 分支是否已修正此常數；本輪未執行測試。</p>
+
+<section><h3>風險等級表</h3>
+  <table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+    <tr><td><strong>CI 狀態</strong></td><td>中</td><td>commit message 標註 GitHub Actions 已停用（ci.yml.disabled），實際閘道改為本地 pre-push；本班未實跑該閘道，無法證明綠燈。</td><td>下一班次實跑本地 pre-push 閘道並留存證據。</td></tr>
+    <tr><td><strong>pre-push 是否實跑</strong></td><td>中</td><td>本班僅做 diff-level review 與 fetch，未執行任何 pre-push gate；上週晉級聲稱 4176+ 測試通過，但非本班親驗。</td><td>由具備執行權限者重跑並貼出通過紀錄。</td></tr>
+    <tr><td><strong>未驗證行為</strong></td><td>中</td><td>ImpactPath 多跳 BFS、peer metrics 讀寫分離、throughput/gas connector 等 Phase 4 行為本班僅讀碼，未執行。</td><td>依下一步清單實跑測試與本地閘道。</td></tr>
+    <tr><td><strong>版本常數不一致</strong></td><td>高</td><td>0.18.1 常數 vs v0.20.0 標籤，違反倉庫內版本一致性測試契約，可能使發佈閘道失敗或對外版本錯亂。</td><td>晉級前先將常數同步至 0.20.0 並跑 test_version。</td></tr>
+  </tbody></table>
+
+<section><h3>工程意義</h3>
+  <p>本班未推進新功能，而是扮演「獨立覆核點」：確認前一日誌（Day 27）對 v0.20.0 Phase 4 收口的記錄與當前主線狀態一致，並主動揭露版本常數與晉級標籤不一致的發佈完整性缺口。這種監測班次的存在，正是為了在無新提交的日子裡仍維持稽核連續性，避免「無日誌＝無人看管」的盲區。</p>
+
+<section><h3>驗證狀態</h3>
+  <p><strong>⚠️ 本班執行範圍未包含測試。</strong>以下為已執行動作，不代表程式碼已通過執行驗證：</p>
+  <ul>
+    <li>GitHub 認證可用；TrustForge 與 devlog 兩 repo 的 git fetch 皆成功，未輸出或記錄任何憑證原文。</li>
+    <li>git log/diff/show 已讀取邏輯變更與版本常數差異。</li>
+    <li><strong>未執行：</strong>pytest / npm ci / npm run build / 任何 pre-push gate。本文僅代表 diff-level review 與狀態覆核。</li>
+  </ul>
+
+<section><h3>誠實邊界</h3>
+  <p>本班所有結論來自對主線 HEAD 的 diff-level 讀取與既有日誌比對，未實際執行程式碼；Phase 4 功能（ImpactPath、peer metrics、connector）的行為正確性仍以 Day 27 所引述的提交聲稱為準，非本班親驗。版本常數不一致為本班新發現，但「develop 是否已修正」尚待確認。任何安全/CISO 相關審核狀態若僅見於 commit message，本班僅能以「commit message 標註」方式轉述，不代為背書通過。</p>
+
+<section><h3>下一步（可執行 checklist）</h3>
+  <ul>
+    <li><label><input type="checkbox" disabled> 修復版本常數不一致<br><code>將 pyproject.toml 與 src/trustforge/__init__.py 的版本同步為 0.20.0，並執行 pytest tests/test_version.py</code>；通過標準：test_version 全綠，且兩處常數相等。</label></li>
+    <li><label><input type="checkbox" disabled> 實跑本地 pre-push 閘道確認綠燈<br><code>.githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過，無 --no-verify。</label></li>
+    <li><label><input type="checkbox" disabled> 確認 develop 是否含版本修正<br><code>git log --oneline develop -5 並 grep 版本號</code>；通過標準：develop 最新晉級提交之版本常數已為 0.20.0。</label></li>
+  </ul>
+
+<section><h3>稽核細節（資料來源）</h3>
+  <p>本輪範圍：<code>HEAD..origin/main</code>（本班 fetch 後的 origin/main 為基準，回推 13h）。</p>
+  <p>本輪數據：近 13h 共 1 筆 non-merge commit（v0.20.0 晉級，763ad38）、6 個檔案、+2097/−1 行；該提交已由同日 Day 27 完整記錄，本班未產生新程式碼差異。</p>
+  <p>（注意：禁止列出「使用了哪些 git 指令」——決策者不需要看指令清單，只要結論。資料來源區放最末，且憑證相關敘述收短為「兩 repo fetch 成功，未記錄任何憑證內容」。）</p>]]></content>
+  </entry>
+  <entry>
     <title>Day 27 · 雙版本晉級與觀測誠實邊界（Phase 4 收口）</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-26.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-26.html"/>

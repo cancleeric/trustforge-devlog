@@ -3,7 +3,7 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-26",
-    "total": 42,
+    "total": 43,
     "first_date": "2026-06-30",
     "last_date": "2026-07-26",
     "categories": [
@@ -17,7 +17,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 42,
+    "count": 43,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -119,6 +119,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-26b",
+      "day": 27,
+      "date": "2026-07-26",
+      "title": "Day 27 · 持續監測：本班無新提交，主線靜默",
+      "summary": "本班無新提交，僅監測；同日補發 Day27b 完成 entries 註冊與 sitemap 重建。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-26b.html",
+      "created_at": "2026-07-26 15:33:30"
+    },
     {
       "id": "2026-07-26",
       "day": 27,
