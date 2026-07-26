@@ -288,17 +288,22 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 {
   "ok": true,
   "data": {
-    "status": "ok",
-    "version": "0.18.2",
-    "uptime_seconds": 3600,
-    "bedrock_capable": true,
-    "live_token_set": false,
-    "cache_backend": "dynamodb",
-    "cache_healthy": true,
-    "cache_degraded": false,
-    "freshness_matrix": {
-      "BTC": { "news": "fresh", "social": "stale", ... },
-      ...
+    "version": "v0.16.18",
+    "uptime_seconds": 191402.507,
+    "bedrock_capable": false,
+    "live_token_set": true,
+    "cache_backend": {
+      "name": "DynamoDBCache",
+      "connected": true,
+      "primary_connected": true,
+      "active_backend": "DynamoDBCache",
+      "degraded": false
+    },
+    "freshness": {
+      "fresh": 96,
+      "stale": 0,
+      "missing": 19,
+      "entries": [ ... ]
     },
     "dedup": {
       "degraded": false,

@@ -266,6 +266,12 @@ def validate_docs_contract(errors: list[str]) -> None:
     for marker in [".githooks/pre-push", "scripts/check_data_contracts.py", "scripts/scan_source_stubs.py", "llms.txt", "api/openapi.yaml"]:
         if marker not in qa:
             fail(errors, f"docs/11-testing-qa.html: missing QA gate marker {marker!r}")
+    api = (docs / "05-api.html").read_text(encoding="utf-8")
+    for stale in ['"version": "0.18.2"', '"bedrock_capable": true', '"cache_backend": "dynamodb"']:
+        if stale in api:
+            fail(errors, f"docs/05-api.html: stale /api/status example contains {stale!r}")
+    if '"version":"0.18.2"' in operations:
+        fail(errors, "docs/07-operations.html: stale /api/health example version")
     legacy_redirects = {
         "14-evidence-map.html": "00-evidence-map.html",
         "00-workshop-overview.html": "01-workshop-overview.html",
