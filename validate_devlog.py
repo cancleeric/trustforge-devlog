@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent
 FIRST_DATE = date.fromisoformat("2026-06-30")
 STYLE_VERSION = "20260718-format-fix"
 DAY_COMMON_VERSION = "20260718-format-fix"
-CACHE_VERSION_DOCS = "20260726-docs-handoff"
+CACHE_VERSION_DOCS = "20260726-workshop-grade"
 REQUIRED_ENTRY_FIELDS = {
     "id",
     "day",
@@ -237,7 +237,7 @@ def validate_docs_contract(errors: list[str]) -> None:
     if not docs.exists():
         fail(errors, "docs/: customer technical documentation directory is missing")
         return
-    required = ["index.html", "01-architecture.html", "02-deployment.html", "03-configuration.html", "04-api.html", "05-data-flow.html", "06-operations.html", "07-trust-algorithm.html", "08-frontend.html", "09-security-handover.html", "10-testing-qa.html", "11-customer-handover.html"]
+    required = ["index.html", "00-workshop-overview.html", "01-architecture.html", "02-deployment.html", "03-configuration.html", "04-api.html", "05-data-flow.html", "06-operations.html", "07-trust-algorithm.html", "08-frontend.html", "09-security-handover.html", "10-testing-qa.html", "11-customer-handover.html", "12-hands-on-labs.html", "13-troubleshooting-faq.html"]
     for name in required:
         path = docs / name
         if not path.exists():
@@ -246,10 +246,10 @@ def validate_docs_contract(errors: list[str]) -> None:
         html = path.read_text(encoding="utf-8")
         if f"style.css?v={CACHE_VERSION_DOCS}" not in html:
             fail(errors, f"docs/{name}: missing docs stylesheet cache buster")
-        if "v0.18.3" not in html:
-            fail(errors, f"docs/{name}: document version must be v0.18.3")
+        if "v0.18.4" not in html:
+            fail(errors, f"docs/{name}: document version must be v0.18.4")
     index = (docs / "index.html").read_text(encoding="utf-8")
-    for marker in ["Customer Handoff Pack", "閱讀路線", "docSearch", "安全與交接邊界", "測試、QA 與驗收", "客戶交接總表"]:
+    for marker in ["AWS Workshop-grade", "Workshop 閱讀路線", "docSearch", "Hands-on Labs", "Troubleshooting FAQ", "客戶交接總表"]:
         if marker not in index:
             fail(errors, f"docs/index.html: missing customer handoff marker {marker!r}")
 

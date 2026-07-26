@@ -2,7 +2,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>11 — 客戶交接總表 | TrustForge 技術文件</title>
 <meta name="description" content="Customer Handover · 接手角色、Day 0 驗收、前 7 天維運、簽收清單">
-<link rel="stylesheet" href="../style.css?v=20260726-docs-handoff">
+<link rel="stylesheet" href="../style.css?v=20260726-workshop-grade">
 </head><body><div class="wrap">
 <div class="nav-bar"><a href="10-testing-qa.html">← 10 測試驗收</a><a href="index.html">文件首頁</a></div>
 <article><h2>11 — 客戶交接總表</h2><p style="color:var(--mut)">Customer Handover · 接手角色、Day 0 驗收、前 7 天維運、簽收清單</p>
@@ -13,5 +13,5 @@
 <h3 id="day7">4. 前 7 天維運節奏</h3><div class="table-scroll"><table><tr><th>時間</th><th>檢查</th><th>目標</th></tr><tr><td>每日</td><td><code>/api/status</code>、<code>/api/costs</code>、CloudWatch alarms</td><td>確認資料新鮮度與成本</td></tr><tr><td>每次部署前</td><td>git diff、backend tests、frontend build</td><td>避免不可回滾變更</td></tr><tr><td>每次部署後</td><td>healthz、API smoke、UI smoke</td><td>確認線上服務正常</td></tr><tr><td>每週</td><td>檢查 token rotation、成本 cap、DynamoDB table 成長</td><td>降低安全與成本風險</td></tr></table></div>
 <h3 id="risks">5. 風險與待辦</h3><ul><li><strong>成本風險：</strong>Bedrock live analyze 必須搭配 daily cap 與 rate limit。</li><li><strong>資料新鮮度：</strong>外部 connector 失敗時要顯示 stale/partial，不輸出假完整報告。</li><li><strong>權限風險：</strong>交接後應輪替 token，並移除開發者個人權限。</li><li><strong>競賽／展示邊界：</strong>Function URL 403 gated 不是正式公開入口；production 以 EC2+nginx 為準。</li></ul>
 <h3 id="signoff">6. 簽收清單</h3><ol class="handoff-checklist"><li><input type="checkbox" disabled> 客戶收到 repo access 與部署文件。</li><li><input type="checkbox" disabled> 客戶環境已獨立持有 AWS/GitHub/Domain/TLS 控制權。</li><li><input type="checkbox" disabled> 客戶知道如何停用 Bedrock 或調低 daily cap。</li><li><input type="checkbox" disabled> 客戶知道如何回滾到上一版前端／後端。</li><li><input type="checkbox" disabled> 客戶確認公開文件未含 secret。</li><li><input type="checkbox" disabled> 雙方確認剩餘限制與後續維護窗口。</li></ol><div class="next-steps"><a href="index.html">文件首頁</a><a href="02-deployment.html">部署指南</a><a href="06-operations.html">運維手冊</a><a href="10-testing-qa.html">測試驗收</a></div></article>
-<footer>TrustForge by HurricaneSoft（颶風軟體）· 技術文件區 · 客戶交接版<br>文件版本：v0.18.3 · 最後更新：2026-07-26</footer>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 技術文件區 · 客戶交接版<br>文件版本：v0.18.4 · 最後更新：2026-07-26</footer>
 </div></body></html>

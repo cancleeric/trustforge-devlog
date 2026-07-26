@@ -2,7 +2,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>10 — 測試、QA 與驗收 | TrustForge 技術文件</title>
 <meta name="description" content="Testing & QA · 後端、前端、production smoke、客戶驗收準則">
-<link rel="stylesheet" href="../style.css?v=20260726-docs-handoff">
+<link rel="stylesheet" href="../style.css?v=20260726-workshop-grade">
 </head><body><div class="wrap">
 <div class="nav-bar"><a href="09-security-handover.html">← 09 安全交接</a><a href="index.html">文件首頁</a><a href="11-customer-handover.html">11 交接總表 →</a></div>
 <article><h2>10 — 測試、QA 與驗收</h2><p style="color:var(--mut)">Testing & QA · 後端、前端、production smoke、客戶驗收準則</p>
@@ -22,5 +22,5 @@ curl -fsS "$BASE/api/health"
 curl -fsS "$BASE/api/status"
 curl -fsS "$BASE/api/costs"</div><div class="doc-callout warn"><strong>注意：</strong>若 smoke 需要 live analyze，必須先確認 daily cap 與 token，避免交接測試造成額外 Bedrock 成本。</div>
 <h3 id="acceptance">5. 客戶驗收準則</h3><ol class="handoff-checklist"><li><input type="checkbox" disabled> 文件首頁能引導客戶找到部署、API、運維、安全與測試。</li><li><input type="checkbox" disabled> 後端測試報告與 coverage 門檻可重跑。</li><li><input type="checkbox" disabled> 前端 build 可重跑並產出可部署 dist。</li><li><input type="checkbox" disabled> production smoke 在客戶環境回 200。</li><li><input type="checkbox" disabled> Bedrock 成本上限已設定，超額時拒絕請求而非繼續燒錢。</li></ol><h3 id="known">6. 已知邊界</h3><ul><li>公開技術文件不承諾包含私有 repo 的所有最新 commit；交接前需以客戶可存取 repo 的 HEAD 再跑一次驗收。</li><li>Live token、AWS secret、GitHub token 不放文件，交接時另走安全通道。</li></ul><div class="next-steps"><a href="04-api.html">API 參考</a><a href="08-frontend.html">前端架構</a><a href="09-security-handover.html">安全交接</a><a href="11-customer-handover.html">交接總表</a></div></article>
-<footer>TrustForge by HurricaneSoft（颶風軟體）· 技術文件區 · 客戶交接版<br>文件版本：v0.18.3 · 最後更新：2026-07-26</footer>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 技術文件區 · 客戶交接版<br>文件版本：v0.18.4 · 最後更新：2026-07-26</footer>
 </div></body></html>
