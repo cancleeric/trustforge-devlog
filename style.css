@@ -252,3 +252,18 @@ td, th { border: 1px solid var(--bd); padding: .4rem .6rem; text-align: left; ve
 .outcome-list li { margin:.35rem 0; }
 .badge-required { color:#ffdf5d; border:1px solid rgba(255,223,93,.45); background:rgba(255,223,93,.08); border-radius:999px; padding:.05rem .45rem; font-size:.72rem; }
 .badge-optional { color:var(--mut); border:1px solid var(--bd); border-radius:999px; padding:.05rem .45rem; font-size:.72rem; }
+
+
+/* evidence-grade docs */
+.evidence-banner { border:1px solid rgba(63,185,80,.55); background:linear-gradient(135deg, rgba(63,185,80,.13), rgba(88,166,255,.10)); border-radius:18px; padding:1.1rem 1.2rem; margin:1rem 0; }
+.evidence-banner h2 { margin:.2rem 0 .45rem; }
+.evidence-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.85rem; margin:1rem 0; }
+.evidence-card { border:1px solid var(--bd); background:var(--card); border-radius:var(--radius); padding:1rem; }
+.evidence-card h4 { margin:0 0 .35rem; color:var(--acc); }
+.evidence-card p { margin:.25rem 0; color:var(--mut); font-size:.9rem; }
+.status-ok { color:var(--good); font-weight:700; }
+.status-warn { color:var(--warn); font-weight:700; }
+.status-off { color:#f85149; font-weight:700; }
+.evidence-table { overflow-x:auto; border:1px solid var(--bd); border-radius:10px; margin:.8rem 0; }
+.evidence-table table { margin:0; min-width:780px; }
+.evidence-note { color:var(--mut); font-size:.88rem; }

@@ -2,7 +2,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>01 — 系統架構總覽 | TrustForge 技術文件</title>
 <meta name="description" content="TrustForge 系統架構總覽：三層管線、AWS 拓樸、核心元件、資料流全景圖。">
-<link rel="stylesheet" href="../style.css?v=20260726-workshop-grade">
+<link rel="stylesheet" href="../style.css?v=20260726-evidence-grade">
 <style>
 .toc { margin:1rem 0 1.2rem; border:1px solid var(--bd); border-radius:10px; background:var(--card); padding:.6rem .9rem; }
 .toc summary { cursor:pointer; color:var(--acc); font-size:.9rem; }
@@ -139,19 +139,16 @@ TrustScore = w_src · SourceReputation
 <span class="box">Amazon Bedrock（Claude Sonnet 4.6）</span>
 </div>
 
-<h4>AWS 服務對應表</h4>
-<table>
-<tr><th>服務</th><th>用途</th><th>狀態</th></tr>
-<tr><td>EC2 t3.micro</td><td>公開 HTTP 伺服器，跑 nginx + Python</td><td>已部署</td></tr>
-<tr><td>Amazon Bedrock</td><td>唯一 LLM 入口（Step 1/3/4）</td><td>已部署</td></tr>
-<tr><td>S3</td><td>部署 zip 暫存（<code>trustforge-deploy-{acct}</code>）</td><td>已部署</td></tr>
-<tr><td>IAM Instance Role</td><td>最小權限（bedrock:InvokeModel + s3:GetObject + SSMCore）</td><td>已部署</td></tr>
-<tr><td>SSM Session Manager</td><td>無金鑰遠端運維（不開 port 22）</td><td>已部署</td></tr>
-<tr><td>CloudWatch Logs</td><td>EC2 systemd/stdout 日誌落地</td><td>已部署</td></tr>
-<tr><td>CloudWatch Metrics</td><td>自訂指標上報（dedup 失效 + budget guard 降級）</td><td>已部署</td></tr>
-<tr><td>DynamoDB</td><td>Connector cache / Budget counter / Rate limit / Idempotency lease</td><td>已部署</td></tr>
-<tr><td>Lambda</td><td><code>trustforge-demo</code> 函數（Function URL 403 gated，非公開入口）</td><td>已部署</td></tr>
-</table>
+<h4>AWS 服務對應表（Evidence Snapshot：2026-07-26 13:50 Asia/Taipei）</h4>
+<div class="evidence-table"><table>
+<tr><th>服務</th><th>repo 佐證</th><th>線上佐證／目前狀態</th></tr>
+<tr><td>EC2 + nginx</td><td><code>deploy/deploy_ec2.sh</code>、<code>deploy/nginx.conf</code>、<code>deploy/setup_tls.sh</code></td><td><span class="status-ok">已線上驗證</span>：<code>/healthz</code>、<code>/api/health</code> 回 200；nginx header 與 CSP 可見。</td></tr>
+<tr><td>Amazon Bedrock</td><td><code>src/trustforge/bedrock.py</code> 是唯一模型入口；<code>pyproject.toml</code> 依賴 <code>boto3</code></td><td><span class="status-warn">程式支援，線上目前關閉</span>：<code>/api/status</code> 顯示 <code>bedrock_capable=false</code>，不可寫成 live Bedrock 已啟用。</td></tr>
+<tr><td>DynamoDB cache</td><td><code>ingestion/cache.py</code>、<code>ledger.py</code>、<code>rate_limit_store.py</code>、<code>idempotency_lease.py</code></td><td><span class="status-ok">已線上驗證</span>：<code>/api/status</code> 顯示 <code>DynamoDBCache connected=true</code>。</td></tr>
+<tr><td>SSM / runtime token</td><td><code>src/trustforge/ssm_params.py</code>、<code>deploy/put_runtime_tokens.sh</code>、<code>deploy/deploy_ec2.sh</code></td><td><span class="status-ok">設計已落地</span>：公開文件不列 secret；線上 <code>live_token_set=true</code>，但不讀取 token 值。</td></tr>
+<tr><td>CloudWatch / alarms</td><td><code>cloudwatch_metrics.py</code>、<code>deploy/put_dedup_alarm.sh</code></td><td><span class="status-warn">repo 佐證</span>：有上報與告警腳本；本次未讀取 AWS Console 狀態。</td></tr>
+<tr><td>Lambda Function URL</td><td><code>lambda_handler.py</code>、<code>deploy/deploy_lambda.sh</code></td><td><span class="status-warn">備援路徑</span>：文件只能寫支援／gated，不能寫成公開 production 入口。</td></tr>
+</table></div>
 
 <h3 id="components">4. 核心元件對照表</h3>
 
@@ -240,7 +237,7 @@ Report + List[Evidence] + ExecutionLog
 <tr><th>模式</th><th>觸發條件</th><th>資料來源</th><th>Bedrock</th><th>成本</th></tr>
 <tr><td><strong>Real Data, $0（預設）</strong></td><td>未帶 <code>live</code>/<code>sample</code> 參數</td><td>Live connectors + cache reads</td><td>OFF</td><td>$0</td></tr>
 <tr><td><strong>Offline Demo</strong></td><td><code>?sample=1</code></td><td><code>demo/sample_data/</code> 離線樣本</td><td>Stub（不回傳真實內容）</td><td>$0</td></tr>
-<tr><td><strong>Live Bedrock</strong></td><td><code>?live=1</code> + <code>X-Live-Token</code> header</td><td>Live connectors + cache reads</td><td>ON（Claude Sonnet）</td><td>依 token 計費</td></tr>
+<tr><td><strong>Live Bedrock</strong></td><td><code>?live=1</code> + <code>X-Live-Token</code> header</td><td>Live connectors + cache reads</td><td>程式支援；本輪線上 <code>bedrock_capable=false</code></td><td>啟用後依 token 計費</td></tr>
 </table>
 
 <h3 id="deliverables">8. 每輪分析交付物</h3>
@@ -260,7 +257,7 @@ Report + List[Evidence] + ExecutionLog
   <a class="back" href="index.html">← 文件首頁</a>
   <span style="float:right"><a href="02-deployment.html">02 部署指南 →</a></span>
   <div style="clear:both;margin-top:1rem;color:var(--mut);font-size:.8rem">
-    TrustForge 技術文件 · 01 系統架構總覽 · v0.18.4
+    TrustForge 技術文件 · 01 系統架構總覽 · v0.18.5
   </div>
 </footer>
 
