@@ -20,8 +20,12 @@ def generate():
     urls = [SITE + "/", SITE + "/references.html", SITE + "/docs/"]
     if DOCS.exists():
         for p in sorted(DOCS.glob("*.html")):
-            if p.name != "index.html":
-                urls.append(f"{SITE}/docs/{p.name}")
+            if p.name == "index.html":
+                continue
+            html = p.read_text(encoding="utf-8")
+            if 'data-legacy-redirect="true"' in html:
+                continue
+            urls.append(f"{SITE}/docs/{p.name}")
     for e in data.get("entries", []):
         urls.append(f"{SITE}/days/{e['file']}")
     today = datetime.date.today().isoformat()

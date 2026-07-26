@@ -252,6 +252,49 @@ def validate_docs_contract(errors: list[str]) -> None:
     for marker in ["Evidence-first", "Evidence Map", "docSearch", "Hands-on Labs", "Troubleshooting FAQ", "客戶交接總表"]:
         if marker not in index:
             fail(errors, f"docs/index.html: missing customer handoff marker {marker!r}")
+    legacy_redirects = {
+        "14-evidence-map.html": "00-evidence-map.html",
+        "00-workshop-overview.html": "01-workshop-overview.html",
+        "01-architecture.html": "02-architecture.html",
+        "02-deployment.html": "03-deployment.html",
+        "03-configuration.html": "04-configuration.html",
+        "04-api.html": "05-api.html",
+        "05-data-flow.html": "06-data-flow.html",
+        "06-operations.html": "07-operations.html",
+        "07-trust-algorithm.html": "08-trust-algorithm.html",
+        "08-frontend.html": "09-frontend.html",
+        "09-security-handover.html": "10-security-handover.html",
+        "10-testing-qa.html": "11-testing-qa.html",
+        "11-customer-handover.html": "12-customer-handover.html",
+        "12-hands-on-labs.html": "13-hands-on-labs.html",
+        "13-troubleshooting-faq.html": "14-troubleshooting-faq.html",
+    }
+    canonical_names = set(required)
+    for old_name, new_name in legacy_redirects.items():
+        redirect_path = docs / old_name
+        if not redirect_path.exists():
+            fail(errors, f"docs/{old_name}: legacy redirect is missing")
+            continue
+        redirect_html = redirect_path.read_text(encoding="utf-8")
+        if 'data-legacy-redirect="true"' not in redirect_html or f"url={new_name}" not in redirect_html:
+            fail(errors, f"docs/{old_name}: legacy redirect must point to {new_name}")
+    for p in docs.glob("*.html"):
+        if p.name in canonical_names or p.name in legacy_redirects:
+            continue
+        fail(errors, f"docs/{p.name}: unexpected docs page; update numbering contract or remove it")
+    sitemap = ROOT / "sitemap.xml"
+    if sitemap.exists():
+        sitemap_text = sitemap.read_text(encoding="utf-8")
+        for old_name in legacy_redirects:
+            if f"/docs/{old_name}" in sitemap_text:
+                fail(errors, f"sitemap.xml: legacy redirect docs/{old_name} must not be indexed")
+    old_hrefs = set(legacy_redirects)
+    for name in required:
+        html = (docs / name).read_text(encoding="utf-8")
+        for old_name in old_hrefs:
+            if old_name in html:
+                fail(errors, f"docs/{name}: canonical page still references legacy filename {old_name}")
+
 
 def main() -> int:
     errors: list[str] = []
