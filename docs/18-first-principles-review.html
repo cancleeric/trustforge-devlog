@@ -1,0 +1,202 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>18 — 第一性原理審視報告 | TrustForge 技術文件</title>
+<meta name="description" content="TrustForge 第一性原理審視報告：從根本問題、核心價值、護城河、風險、建議路線與不可變原則重新檢視專案方向。">
+<link rel="stylesheet" href="../style.css?v=20260726-evidence-grade">
+<style>
+.toc { margin:1rem 0 1.2rem; border:1px solid var(--bd); border-radius:10px; background:var(--card); padding:.6rem .9rem; }
+.toc summary { cursor:pointer; color:var(--acc); font-size:.9rem; }
+.toc ol { margin:.5rem 0 0; padding-left:1.2rem; }
+.toc li { margin:.2rem 0; }
+.toc a { color:var(--mut); font-size:.88rem; }
+.toc a:hover { color:var(--fg); }
+.nav-bar { display:flex; gap:.6rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+.nav-bar a { font-size:.9rem; padding:.4rem .9rem; border-radius:8px; border:1px solid var(--bd); background:var(--card); color:var(--fg); }
+.nav-bar a:hover { text-decoration:none; border-color:var(--acc); }
+.warn-box { background:rgba(210,153,34,.08); border:1px solid var(--warn); border-radius:8px; padding:.8rem 1rem; margin:1rem 0; font-size:.9rem; }
+.warn-box strong { color:var(--warn); }
+.info-box { background:rgba(88,166,255,.06); border:1px solid var(--acc); border-radius:8px; padding:.8rem 1rem; margin:1rem 0; font-size:.9rem; }
+.danger-box { background:rgba(248,81,73,.08); border:1px solid #f85149; border-radius:8px; padding:.8rem 1rem; margin:1rem 0; font-size:.9rem; }
+.danger-box strong { color:#f85149; }
+.diagram { background:var(--card2); border:1px solid var(--bd); border-radius:10px; padding:1rem; margin:1rem 0; font-family:monospace; font-size:.82rem; line-height:1.6; overflow:auto; white-space:pre; color:var(--fg); }
+.score { font-size:1.15rem; font-weight:700; color:var(--acc); }
+</style>
+</head><body><div class="wrap">
+
+<div class="nav-bar"><a href="17-outer-framework-upgrade-governance.html">← 17 外框升級治理</a><a href="index.html">文件首頁</a><a href="00-evidence-map.html">Evidence Map</a></div>
+
+<article>
+<h2>18 — 第一性原理審視報告</h2>
+<p style="color:var(--mut)">First-principles Review · 從根本問題、可信閉環、產品邊界與下一步建議重新檢視 TrustForge</p>
+
+<div class="info-box">
+<strong>一句話結論：</strong>TrustForge 的第一性價值不是「AI 會分析幣」，而是「AI 的每個市場判斷都能被追溯、質疑、反駁與回放」。後續所有功能都應服務這條 Evidence-first 閉環。
+</div>
+
+<details class="toc" open>
+<summary>目錄</summary>
+<ol>
+  <li><a href="#executive-summary">執行摘要</a></li>
+  <li><a href="#first-question">第一性問題</a></li>
+  <li><a href="#value-chain">可信分析價值鏈</a></li>
+  <li><a href="#moat">真正護城河</a></li>
+  <li><a href="#current-state">目前狀態判斷</a></li>
+  <li><a href="#risks">主要風險</a></li>
+  <li><a href="#principles">不可變原則</a></li>
+  <li><a href="#recommendations">建議路線</a></li>
+  <li><a href="#positioning">對外定位與禁語</a></li>
+  <li><a href="#scorecard">第一性評分表</a></li>
+</ol>
+</details>
+
+<h3 id="executive-summary">1. 執行摘要</h3>
+<p>TrustForge 應被視為 <strong>Evidence-first 加密市場分析系統</strong>，不是一般聊天式投資助理。它的核心能力是把多源、雜訊高、容易被操縱的市場資訊拆成可評分、可追溯、可反駁的 Evidence，再由 Bedrock 產生受控分析報告。</p>
+
+<table>
+<tr><th>問題</th><th>第一性判斷</th></tr>
+<tr><td>核心方向是否成立？</td><td><strong>成立。</strong>加密市場真正缺的是可信判斷流程，不是更多流暢文字。</td></tr>
+<tr><td>最大護城河是什麼？</td><td><strong>Trust Layer + Evidence Binding + 可回放紀錄。</strong>不是模型本身，也不是 UI。</td></tr>
+<tr><td>目前最大弱點？</td><td><strong>功能很多，但主線容易被稀釋。</strong>需要把所有功能收斂到 Evidence-first 閉環。</td></tr>
+<tr><td>下一步最該做什麼？</td><td><strong>把可信分析閉環打硬。</strong>先補 evidence-bound report、abstain、live/fixture 邊界、run replay，再推更多亮點。</td></tr>
+</table>
+
+<h3 id="first-question">2. 第一性問題</h3>
+<p>加密市場裡，使用者的根本痛點不是「沒有 AI 回答」，而是：</p>
+<table>
+<tr><th>根本問題</th><th>表面症狀</th><th>TrustForge 應回應的能力</th></tr>
+<tr><td>來源品質差異巨大</td><td>官方公告、新聞、KOL、社群喊單與機器人轉發混在一起。</td><td>Source reputation、source type、content hash、fetched_at。</td></tr>
+<tr><td>市場敘事容易被操縱</td><td>假新聞、拉盤喊單、回音室、多帳號轉貼。</td><td>Manipulation penalty、cross-source corroboration、contrarian evidence。</td></tr>
+<tr><td>LLM 容易產生合理但不可查證的結論</td><td>文字流暢，但無法驗證根據。</td><td>Evidence-bound report、claim_id、execution log。</td></tr>
+<tr><td>使用者不知道該信什麼</td><td>看完仍只能憑感覺。</td><td>Decision state、confidence、limits、could flip、abstain。</td></tr>
+<tr><td>競賽需要展示技術深度</td><td>單純 RAG 摘要容易被視為套殼。</td><td>Trust Kernel、可稽核資料流、AWS Bedrock 受控生成。</td></tr>
+</table>
+
+<p>因此 TrustForge 的根本任務是：</p>
+<div class="diagram">把「混亂市場資訊」轉成「可查證、可反駁、可回放的市場判斷」。</div>
+
+<h3 id="value-chain">3. 可信分析價值鏈</h3>
+<p>TrustForge 的正確價值鏈應固定為：</p>
+<div class="diagram">Raw Sources
+  ↓
+Documents
+  ↓
+Claims
+  ↓
+Trust Scoring
+  ↓
+Evidence Binding
+  ↓
+Contrarian / Limits
+  ↓
+Final Report
+  ↓
+Execution Log / Replay</div>
+
+<div class="danger-box">
+<strong>反模式：</strong>不得先讓 LLM 寫結論，再找 citation 裝飾。這會把 TrustForge 退化成「看似有來源的聊天機器人」。
+</div>
+
+<h3 id="moat">4. 真正護城河</h3>
+<p>模型不是護城河。Bedrock、Claude、GPT、Gemini 都會進步，單純 prompt 或 RAG 摘要也容易被複製。TrustForge 真正難抄的是：</p>
+<table>
+<tr><th>護城河</th><th>理由</th></tr>
+<tr><td>Trust Layer</td><td>資料進 LLM 前先做來源信譽、交叉佐證、時效與操縱風險評分。</td></tr>
+<tr><td>Evidence Binding</td><td>每個重要判斷都可回到 source、claim、content reference 與 fetched_at。</td></tr>
+<tr><td>Abstain / Decision State</td><td>把「不知道」產品化，避免低證據時硬講。</td></tr>
+<tr><td>Contrarian Evidence</td><td>不是只找支持證據，而是固定要求反方與可推翻條件。</td></tr>
+<tr><td>Run Replay</td><td>保留 snapshot、policy revision、model id、execution log 與 evidence hash，讓判斷可稽核。</td></tr>
+<tr><td>Approval-gated outer framework</td><td>外框可改善流程，但不能自行改核心權重、正式結論或 production。</td></tr>
+</table>
+
+<h3 id="current-state">5. 目前狀態判斷</h3>
+<table>
+<tr><th>面向</th><th>判斷</th><th>說明</th></tr>
+<tr><td>核心概念</td><td>成立</td><td>README 與架構主軸明確是「多源資訊的信任提煉」。</td></tr>
+<tr><td>工程厚度</td><td>已非玩具</td><td>目前粗估有 138 個 Python modules、227 個 backend test files、57 個 frontend test files。</td></tr>
+<tr><td>Trust Kernel</td><td>有骨架</td><td>已有 Evidence、Report、TrustScore、scoring、orchestrator、execution log。</td></tr>
+<tr><td>新手脈絡模組</td><td>原型可驗證</td><td>Asset Context、Glossary、Peer / EcoLink 已有 API / UI / tests，但仍有 fixture 與覆蓋限制。</td></tr>
+<tr><td>外框治理</td><td>架構已補</td><td>已整理 31 個控制面模組、5 個 policy family、sandbox、人審 gate 與 rollback。</td></tr>
+<tr><td>Continuous analysis</td><td>尚未形成完整運作循環</td><td>目前應避免宣稱 fully autonomous self-improvement。</td></tr>
+<tr><td>Release-ready 宣稱</td><td>需保守</td><td>若要宣稱 release-ready，需完整 pre-push gate、live smoke 與 commit-bound evidence。</td></tr>
+</table>
+
+<h3 id="risks">6. 主要風險</h3>
+<table>
+<tr><th>風險</th><th>說明</th><th>處置建議</th></tr>
+<tr><td>功能拼盤化</td><td>Dashboard、外框、自動升級、Glossary、EcoLink 等亮點很多，容易稀釋主線。</td><td>所有 roadmap item 必須回答：是否強化 Evidence-first 閉環？不能就降級。</td></tr>
+<tr><td>過度宣稱</td><td>fixture / sample / live 邊界若沒標清，容易被認為全即時真資料。</td><td>UI、API、文件、簡報都固定標示 data mode、source、freshness。</td></tr>
+<tr><td>LLM 結論先行</td><td>若報告由 LLM 主導結論，Trust Layer 會變成裝飾。</td><td>把 Evidence → Claim → Score → Judgment 設成不可變管線。</td></tr>
+<tr><td>外框越權</td><td>自我改善若能碰 Trust weights / model gate / production code，可信度會崩。</td><td>維持 approval_required=true、automatic_apply=false，且 sandbox attestation 必須綁定 artifact hash。</td></tr>
+<tr><td>測試只跑 targeted</td><td>targeted tests 可證明局部，但不能證明 release-ready。</td><td>重要 PR 必須跑 repo-local pre-push gate，並附結果。</td></tr>
+</table>
+
+<h3 id="principles">7. 不可變原則</h3>
+<ol>
+  <li><strong>Evidence 先於結論。</strong>先建立 Evidence / Claim / Score，再生成市場判斷。</li>
+  <li><strong>缺資料要 abstain。</strong>資料不足、來源衝突、時間窗過舊時，寧可不給方向性結論。</li>
+  <li><strong>歷史記憶不能成為 Evidence。</strong>歷史問答可幫助理解使用者意圖，但不得進入當前市場證據或 deterministic Trust scoring。</li>
+  <li><strong>外框只能改善流程，不能改真相。</strong>外框不得自行修改 Trust weights、Evidence binding、正式報告、模型 gate、成本上限或部署。</li>
+  <li><strong>live / fixture / sample 必須無法誤解。</strong>每個報告與視覺元件都應明確揭露資料模式與 freshness。</li>
+</ol>
+
+<h3 id="recommendations">8. 建議路線</h3>
+<h4>P0：把可信分析閉環打硬</h4>
+<ul>
+  <li>每份 report 完整綁定 Evidence：conclusion、key basis、limits、could flip、contrarian evidence 都要能回到 claim/source。</li>
+  <li>把 abstain 做成正式產品狀態：資料不足時不要 fallback 成漂亮廢話。</li>
+  <li>全面標示 live / fixture / sample / stale；正式資料未接前不可暗示即時觀測。</li>
+  <li>每輪 run 固定記錄 source snapshot、policy revision、model id、execution log 與 evidence hash。</li>
+  <li>以完整 repo-local pre-push gate 作為 release-ready 前置條件。</li>
+</ul>
+
+<h4>P1：把新手脈絡整合進主分析流程</h4>
+<ul>
+  <li>報告上方直接呈現 Asset Context：例如 ARB 顯示 Layer 2、Ethereum settlement、gas token ETH、governance token。</li>
+  <li>Glossary 不只標 market_judgment，而是 section-aware 覆蓋 facts、inferences、key basis、limits。</li>
+  <li>同層比較與 EcoLink 應在 compare / analysis result 主路徑出現，並維持「可能相關，不是因果」措辭。</li>
+  <li>前後端 glossary catalog 改成生成或同步驗證，避免雙份漂移。</li>
+</ul>
+
+<h4>P2：讓外框從「可治理」變成「真的跑過一圈」</h4>
+<ul>
+  <li>先啟動 durable analysis jobs / stage runs / failures / diagnostics。</li>
+  <li>從低風險 family 開始 proposal：優先 <code>report</code>、<code>source</code>、<code>evaluation</code>。</li>
+  <li>完成第一個 sandbox → human approval → activation → rollback drill 的受控循環。</li>
+  <li>暫不碰 <code>analysis</code>、<code>model-gate</code>、<code>core-adjacent</code>，避免越過可信邊界。</li>
+</ul>
+
+<h3 id="positioning">9. 對外定位與禁語</h3>
+<table>
+<tr><th>建議說法</th><th>避免說法</th></tr>
+<tr><td>Evidence-first 加密市場分析 Agent。</td><td>最強 AI 投資顧問。</td></tr>
+<tr><td>先把多源資訊拆成可評分、可追溯、可反駁的 Evidence，再由 Bedrock 產生受控分析報告。</td><td>AI 自動預測幣價。</td></tr>
+<tr><td>支援 approval-gated outer-framework improvement。</td><td>AI 已可全自動自我升級。</td></tr>
+<tr><td>目前部分能力為 repo 支援或 fixture prototype，正式 demo 需標示資料模式。</td><td>全幣種、全即時、全自動市場監控已完成。</td></tr>
+</table>
+
+<h3 id="scorecard">10. 第一性評分表</h3>
+<table>
+<tr><th>項目</th><th>評分</th><th>理由</th></tr>
+<tr><td>問題定義</td><td><span class="score">9 / 10</span></td><td>切中「可信市場判斷」而非單純聊天。</td></tr>
+<tr><td>技術差異化</td><td><span class="score">8 / 10</span></td><td>Trust Layer、Evidence Binding、Execution Log 有護城河潛力。</td></tr>
+<tr><td>產品聚焦</td><td><span class="score">6 / 10</span></td><td>功能多，主線需要更強收斂。</td></tr>
+<tr><td>可信邊界</td><td><span class="score">7 / 10</span></td><td>文件與治理已補，但 live / fixture / release-ready 語言仍需嚴格控管。</td></tr>
+<tr><td>可運作閉環</td><td><span class="score">6 / 10</span></td><td>核心與外框架構存在，但 continuous improvement 尚未完整跑通。</td></tr>
+<tr><td>競賽展示價值</td><td><span class="score">8 / 10</span></td><td>如果 demo 聚焦 Evidence-first，而不是功能大雜燴，辨識度高。</td></tr>
+</table>
+
+<div class="info-box">
+<strong>最終建議：</strong>停止追逐更多無關亮點，先把「可信分析閉環」做成不可被質疑的主線。TrustForge 贏面不在於 AI 多會說，而在於它能證明自己為什麼這樣說、何時不該說、以及哪些證據會推翻它。
+</div>
+
+</article>
+
+<footer>
+  <a href="17-outer-framework-upgrade-governance.html">← 17 外框升級治理</a>
+  <span style="float:right"><a href="index.html">文件首頁</a></span>
+  <div style="clear:both;margin-top:1rem;color:var(--mut);font-size:.8rem">
+    TrustForge 技術文件 · 18 第一性原理審視報告 · v0.18.5
+  </div>
+</footer>
+
+</div></body></html>
