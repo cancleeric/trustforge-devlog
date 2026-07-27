@@ -12,17 +12,21 @@
 <p class="summary">向比賽方展示前端 UX 設計：信任概覽卡片、跨源分歧雙欄面板、證據表格逐條展開、四維信任拆解 bar、決策態徽章，附完整視覺化 mockup。</p>
 <p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #frontend #ux #visualization</p>
 </header>
+<section class="doc-callout info"><h3>本篇定位</h3>
+<p>本篇是 competition pitch / 說明稿紀錄，用來整理要對評審說明的系統設計、已落地能力與展示方式；不是宣稱所有項目都在同一天新增完成。文中涉及 mockup 或展示資料時，會明確標示展示邊界。</p>
+</section>
 <section>
   <h3>老闆版摘要</h3>
   <ul>
     <li><strong>本日重點：</strong>向比賽方展示前端如何呈現矛盾資訊——五層漸進式揭露的完整 UX 設計。</li>
     <li><strong>核心設計語言：</strong>配色即語意（紅=操縱/藍=中性/黃=警示/綠=共識）、漸進式揭露、溯源可點擊。</li>
-    <li><strong>前端技術棧：</strong>React + Vite + TypeScript + Tailwind CSS，元件已完整實作。</li>
+    <li><strong>前端技術棧：</strong>React + Vite + TypeScript + Tailwind CSS，已有元件實作並接入主要報告頁；仍需依 live data 做最終 eye scan。</li>
   </ul>
 </section>
 
 <section>
   <h3>前端元件架構總覽</h3>
+  <div class="doc-callout warn"><strong>展示資料邊界：</strong>以下 UI 範例使用 UX 展示用 sample / mock data，目的在說明視覺層級與互動設計，不代表本次 pipeline 真實輸出、真實新聞或真實鏈上事件。</div>
   <div class="evidence-grid">
     <div class="evidence-card">
       <h4>EvidenceTrailPanel</h4>
@@ -100,12 +104,12 @@
         style="display:inline-block; background:rgba(63,185,80,.15); border:1px solid var(--good); border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:var(--good); margin-bottom:.5rem;">▲
         BULLISH</span>
       <div style="margin-bottom:.5rem;">
-        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">CoinDesk</p>
-        <p style="margin:0; font-size:.78rem; color:var(--mut);">BTC ETF 本週淨流入 $2.1B，連續 5 週正流入</p>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Sample News A</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">UX 展示用 sample：資金面偏正向</p>
       </div>
       <div>
-        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Reuters</p>
-        <p style="margin:0; font-size:.78rem; color:var(--mut);">機構增持加速，灰度 GBTC 流出趨緩</p>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Sample Wire B</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">UX 展示用 sample：機構訊號偏正向</p>
       </div>
     </div>
     <div style="border:2px solid #f85149; border-radius:12px; padding:.8rem; background:rgba(248,81,73,.06);">
@@ -113,19 +117,19 @@
         style="display:inline-block; background:rgba(248,81,73,.15); border:1px solid #f85149; border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:#f85149; margin-bottom:.5rem;">▼
         BEARISH</span>
       <div style="margin-bottom:.5rem;">
-        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@whale_alert</p>
-        <p style="margin:0; font-size:.78rem; color:var(--mut);">10,000 BTC 轉入 Binance，鏈上大額流出訊號</p>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Sample Social Signal A</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">UX 展示用 sample：鏈上出現偏風險訊號</p>
       </div>
       <div>
-        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@crypto_fear</p>
-        <p style="margin:0; font-size:.78rem; color:var(--mut);">恐慌貪婪指數 28（極度恐慌），30 日新低</p>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Sample Sentiment Index A</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">UX 展示用 sample：市場情緒偏風險</p>
       </div>
     </div>
   </div>
   <p style="font-size:.75rem; color:var(--mut);">佐證
-    claim_ids：coindesk_042#1、reuters_003#2、whale_alert_017#0、fear_index_001#0</p>
+    sample claim_ids：news_a#1、wire_b#2、social_a#0、sentiment_a#0</p>
   <div class="doc-callout warn">
-    <strong>⚠️ 跨源背離：</strong>客觀數據（ETF 資金流入、機構增持）方向與情緒訊號（鏈上流出、恐慌指數飆升）方向不一致。建議讀者注意此分歧。
+    <strong>⚠️ 跨源背離：</strong>示意的正向資料與風險訊號方向不一致。此區塊用來展示 TrustForge 如何把分歧攤開，而不是把 sample 當成真實市場結論。
   </div>
 
   <h4>設計細節</h4>
@@ -183,7 +187,7 @@
         <tr>
           <td><code>E2</code></td>
           <td>
-            <strong>Reuters</strong>
+            <strong>Sample Wire B</strong>
             <span class="st st-research">新聞</span>
             <span style="font-size:.72rem; color:var(--mut)">2026-07-27T14:00Z</span>
             <span
@@ -202,11 +206,11 @@
   <h4>展開後可見（details 區）</h4>
   <div
     style="background:var(--card); border:1px solid var(--bd); border-radius:10px; padding:.8rem; margin:.6rem 0; font-size:.85rem;">
-    <p style="margin:0 0 .3rem;"><strong>原文摘要：</strong>BTC ETF 本週淨流入 $2.1B，創下自 3 月以來最高週流入紀錄</p>
-    <p style="margin:0 0 .3rem; color:var(--mut);">關聯主張：ETF 資金持續流入代表機構信心回升</p>
+    <p style="margin:0 0 .3rem;"><strong>原文摘要：</strong>UX 展示用 sample：多源訊號顯示資金面偏正向</p>
+    <p style="margin:0 0 .3rem; color:var(--mut);">關聯主張：sample 正向資金訊號代表市場信心回升（示意）</p>
     <p style="margin:0 0 .3rem; color:var(--mut); font-size:.78rem;">
-      資料血緣：data/btc_daily.csv｜2021-07-01~2026-07-27｜SHA-256 a3f8e2...</p>
-    <p style="margin:0 0 .5rem;"><a href="#" style="color:var(--acc);">來源連結 ↗</a> · <a href="#"
+      資料血緣：sample_dataset.csv｜示意期間｜SHA-256 sample-hash...</p>
+    <p style="margin:0 0 .5rem;"><span style="color:var(--mut);">來源連結（mock）</span> · <a href="#"
         style="color:var(--acc);">原始快照 ↗</a></p>
     <div
       style="display:grid; grid-template-columns: repeat(3, 1fr); gap:.2rem .8rem; font-size:.72rem; color:var(--mut); font-family:ui-monospace,monospace;">

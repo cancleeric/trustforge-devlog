@@ -12,6 +12,9 @@
 <p class="summary">以開發團隊身份向黑客松比賽方完整介紹 TrustForge Hermes 系統——問題定義、Trust Layer 核心機制、三層架構、技術選型與交付物。</p>
 <p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #hackathon</p>
 </header>
+<section class="doc-callout info"><h3>本篇定位</h3>
+<p>本篇是 competition pitch / 說明稿紀錄，用來整理要對評審說明的系統設計、已落地能力與展示方式；不是宣稱所有項目都在同一天新增完成。文中涉及 mockup 或展示資料時，會明確標示展示邊界。</p>
+</section>
 <section><h3>老闆版摘要</h3>
 <ul>
   <li><strong>本日重點：</strong>向「2026 雲湧智生 台灣生成式 AI 應用黑客松」比賽方進行系統介紹 pitch。</li>
@@ -46,14 +49,14 @@
 
 <h4>技術選型</h4>
 <ul>
-  <li><strong>LLM：</strong>100% AWS Bedrock，單一入口集中管理（符合競賽規則）</li>
+  <li><strong>LLM：</strong>正式 LLM 呼叫集中經 AWS Bedrock；判斷、評分與證據整合由 TrustForge pipeline 產生</li>
   <li><strong>後端：</strong>Python 3.11+，零第三方 runtime 依賴（僅 boto3），高可攜性</li>
   <li><strong>前端：</strong>React + Vite + TypeScript + Tailwind CSS 互動式儀表板</li>
-  <li><strong>部署：</strong>AWS App Runner / Lambda，完整雲原生</li>
+  <li><strong>部署：</strong>以 AWS App Runner / Lambda 為正式展示部署目標，並保留離線 demo 模式供快速驗證</li>
   <li><strong>護欄：</strong>內建執行時間與 token 成本控管，15 分鐘內完成全流程</li>
 </ul>
 
-<h4>交付物（四件齊全）</h4>
+<h4>交付物（三件主要輸出＋程式碼/設定證據）</h4>
 <table>
 <thead><tr><th>項目</th><th>格式</th><th>說明</th></tr></thead>
 <tbody>

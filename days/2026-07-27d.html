@@ -9,13 +9,16 @@
 <header>
 <p class="eyebrow">2026-07-27d · Competition Pitch</p>
 <h1>Day 28 · 深入說明：Live Demo 完整流程與評分對照</h1>
-<p class="summary">向比賽方走一遍 Live Demo 流程——一鍵啟動、四階段 pipeline、交付物結構、逐項對照比賽六項評分權重的 demo 亮點。</p>
+<p class="summary">向比賽方走一遍 Live Demo 流程——可實測 CLI、四階段 pipeline、三件主要輸出、逐項對照比賽六項評分權重的 demo 亮點。</p>
 <p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #demo #pipeline</p>
 </header>
+<section class="doc-callout info"><h3>本篇定位</h3>
+<p>本篇是 competition pitch / 說明稿紀錄，用來整理要對評審說明的系統設計、已落地能力與展示方式；不是宣稱所有項目都在同一天新增完成。文中涉及 mockup 或展示資料時，會明確標示展示邊界。</p>
+</section>
 <section><h3>老闆版摘要</h3>
 <ul>
-  <li><strong>本日重點：</strong>向比賽方走一遍 Live Demo 完整流程——從一鍵啟動到四件交付物產出。</li>
-  <li><strong>核心展示：</strong>pipeline 全自動 8~12 分鐘跑完、report.md 帶溯源鏈結構、evidence.json 每條可追溯。</li>
+  <li><strong>本日重點：</strong>向比賽方走一遍 Live Demo 完整流程——從可實測 CLI 到三件主要輸出產出。</li>
+  <li><strong>核心展示：</strong>offline demo 可在數秒內完成；live / Bedrock 模式以 15 分鐘內為硬限制，完整展示流程預估 8~12 分鐘。</li>
   <li><strong>對應評分：</strong>逐項對照比賽六項評分權重，說明 demo 各環節如何命中得分點。</li>
 </ul>
 </section>
@@ -23,8 +26,8 @@
 <section><h3>Live Demo 流程</h3>
 
 <h4>一鍵啟動</h4>
-<pre><code>python -m trustforge --coin BTC</code></pre>
-<p>輸入幣種代碼，pipeline 全自動跑完，15 分鐘內產出完整四件交付物。</p>
+<pre><code>PYTHONPATH=src python3 -m trustforge.cli analyze --coin BTC --query '分析 BTC 過去兩週市場狀況' --type multi_source --offline --out /tmp/trustforge-demo --quiet</code></pre>
+<p>輸入幣種代碼與查詢後，offline demo 可在數秒內完成；live / Bedrock 模式以 15 分鐘內產出三件主要輸出為硬限制。</p>
 
 <h4>完整執行流程（以 BTC 為例）</h4>
 <pre><code>[00:00] Phase 1: Ingestion（多源平行抓取）
@@ -51,7 +54,7 @@
   ├── evidence.json      ← 結構化證據清單
   └── execution_log.jsonl ← 完整執行紀錄
 
-[08:30] Pipeline Complete（實際 8~12 分鐘，&lt; 15 分鐘硬限）</code></pre>
+[00:02] Offline Demo Complete（本機實測約 2 秒；live / Bedrock 展示仍以 &lt; 15 分鐘為硬限）</code></pre>
 
 <h4>報告結構（report.md）</h4>
 <ul>
@@ -73,8 +76,8 @@
   <tr><td>技術可行性</td><td>25%</td><td>一鍵跑完 / 15 分鐘內出結果 / AWS Bedrock 唯一入口 / 預算護欄不崩</td></tr>
   <tr><td>商業應用性</td><td>20%</td><td>報告可讀性高 / 不提供投資建議（合規）/ 前端儀表板互動探索</td></tr>
   <tr><td>創意度</td><td>15%</td><td>Trust Layer 原創方法——可解釋的信任加權推理，非表面摘要</td></tr>
-  <tr><td>完成度</td><td>10%</td><td>輸入幣種即跑完整流程 / 四件交付物齊全</td></tr>
-  <tr><td>Kiro 加分</td><td>+10%</td><td>全程 Kiro 開發 / Steering 管理規範 / Hooks 自動化品質控管</td></tr>
+  <tr><td>完成度</td><td>10%</td><td>輸入幣種與查詢即可跑完整流程 / 產出 report.md、evidence.json、execution_log.jsonl 三件主要輸出</td></tr>
+  <tr><td>Kiro 加分</td><td>+10%</td><td>部分採用 Kiro spec-driven workflow / Steering 規範 / Hooks 自動化品質控管證據</td></tr>
 </tbody>
 </table>
 </section>
