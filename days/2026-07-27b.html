@@ -1,0 +1,144 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 28 · 深入說明：信任評分細節與架構技術實作 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-27b · Competition Pitch</p>
+<h1>Day 28 · 深入說明：信任評分細節與架構技術實作</h1>
+<p class="summary">向比賽方展開 TrustScore 四分項公式（信譽/佐證/時效/操縱）完整算法，以及三層 pipeline 架構的技術選型與關鍵設計決策。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #trust-scoring #architecture</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向比賽方深入說明「信任評分細節」與「架構技術實作」兩大主題。</li>
+  <li><strong>信任評分：</strong>完整展開四分項公式（信譽/佐證/時效/操縱）的計算邏輯、設計決策、邊界情境處理。</li>
+  <li><strong>架構實作：</strong>說明三層 pipeline 完整流程、Bedrock 集中管理、預算護欄、反作弊設計、溯源鏈完整性、純 stdlib 原則。</li>
+</ul>
+</section>
+
+<section><h3>信任評分細節</h3>
+
+<h4>公式</h4>
+<pre><code>TrustScore = 信譽 × 0.50
+           + 交叉佐證 × 0.25
+           + 時效衰減 × 0.15
+           − 操縱懲罰 × 0.40</code></pre>
+<p>操縱懲罰是<strong>減法</strong>，權重(0.40)故意比其他正項都高。設計決策：操縱偵測的「漏抓」比「誤判」風險低，但為保守，偵測本身只用啟發式關鍵詞、命中門檻刻意拉高。</p>
+
+<h4>分項 1：來源信譽（Source Reputation）— 權重 0.50</h4>
+<p><strong>靜態先驗：</strong>每種來源類型有基礎信譽分，反映「客觀程度」：</p>
+<table>
+<thead><tr><th>來源類型</th><th>基礎信譽</th><th>理由</th></tr></thead>
+<tbody>
+  <tr><td>price / onchain</td><td>0.95</td><td>鏈上事實、價格數據最客觀</td></tr>
+  <tr><td>regulatory</td><td>0.90</td><td>官方監管公告</td></tr>
+  <tr><td>hoyabit</td><td>0.85</td><td>HOYA BIT 企業級交易所數據</td></tr>
+  <tr><td>price_live (CoinGecko)</td><td>0.90</td><td>即時市價</td></tr>
+  <tr><td>news</td><td>0.65</td><td>新聞媒體</td></tr>
+  <tr><td>sentiment / dev_activity</td><td>0.50</td><td>輔助訊號</td></tr>
+  <tr><td>social</td><td>0.35</td><td>匿名社群（最低）</td></tr>
+</tbody>
+</table>
+<p><strong>動態信譽（W2 進階）：</strong>truth-discovery 迭代——長期被其他獨立來源佐證的來源信譽上調，被矛盾得多的下修。bounded 迭代（最多 5 輪）+ 收斂門檻 + 下限 clamp。離線有 Dawid-Skene EM 統計共識 fallback。</p>
+
+<h4>分項 2：交叉佐證（Cross-Source Corroboration）— 權重 0.25</h4>
+<p>同一主張有多少「獨立」來源也在說類似的事？</p>
+<ul>
+  <li>Token overlap 前置閘（Jaccard ≥ 0.4 才算「相似主題」）</li>
+  <li>方向閘（明確看多 vs 看空不算佐證）</li>
+  <li>可選 W1.5 Bedrock stance 語意分類（偵測「表面相似但實質矛盾」）</li>
+  <li>同源排除：同一 publisher 正規化為同一源，同源不算獨立佐證</li>
+</ul>
+<p>算法：<code>1 - 0.5^n</code>（n = 獨立佐證來源數）。1 源佐證 → 0.5，2 源 → 0.75，飽和 → 1.0。回音室（同源灌水）完全無效。</p>
+
+<h4>分項 3：時效衰減（Recency Decay）— 權重 0.15</h4>
+<p>指數衰減：<code>decay = 0.5 ^ (age_hours / half_life_hours)</code></p>
+<ul>
+  <li>鯨魚/名人交易信號：半衰期 2 小時（市場秒級反應）</li>
+  <li>其他來源：半衰期 12 小時</li>
+  <li>未來時間戳（壞資料）或 NaN → 保守回 0.5（中性）</li>
+</ul>
+
+<h4>分項 4：操縱懲罰（Manipulation Penalty）— 權重 0.40</h4>
+<p>兩層偵測：</p>
+<ul>
+  <li><strong>關鍵詞啟發式</strong>：泵/倒詞命中。否定守門：「不會暴漲」不算命中。可疑用語回填到 Evidence 供人工查看。</li>
+  <li><strong>確定性協同偵測（informational-only）</strong>：多源文字高度相似（Jaccard ≥ 0.8、≥3 來源）標記為「可能協同或聯播，供判讀」。CEO 定案：不自動扣分——分不清協同操縱 vs 合法聯播，自動扣分必然誤傷。</li>
+</ul>
+
+<h4>聚合：ScoredClaim → TrustedBrief</h4>
+<ul>
+  <li>trust ≥ 0.50 → 歸入「支撐證據 supporting」</li>
+  <li>trust &lt; 0.50 → 歸入「反方證據 contrarian」</li>
+  <li>整體信心 = evidence_strength 綜合指標（獨立來源數 × kind 多元度 × 佐證比例 × 裸信心）→ 校準表映射</li>
+  <li>低校準信心（&lt; 0.35）或獨立來源數不足（&lt; 2）→ abstain，不硬給方向結論</li>
+</ul>
+</section>
+
+<section><h3>架構技術實作</h3>
+
+<h4>三層 Pipeline 完整流程</h4>
+<pre><code>Layer 1 — Ingestion（多源輸入）
+  connectors: prices / news / social / onchain / coingecko / regulatory / hoyabit
+  統一輸出：list[Document] (id, kind, source, text, timestamp, url, meta)
+
+Layer 2 — Trust（信任提煉）
+  Step 1: extract_claims(docs) → list[Claim]（句級切分 / 可選 LLM 抽取）
+  Step 2: score(claims, now) → list[ScoredClaim]（確定性公式）
+  Step 3: aggregate(scored, query, coin) → TrustedBrief
+
+Layer 3 — Agent（編排 + 溯源生成）
+  orchestrator.py 4 步推理鏈：
+    Step 1: Bedrock #1 — Claim 抽取（LLM 輔助結構化）
+    Step 2: 判斷形成（純 pipeline，不用 LLM）
+    Step 3: Bedrock #2 — 帶溯源行文（強制引用 claim_id）
+    Step 4: Bedrock #3 — 限制複審（選用，預算允許才執行）
+  輸出：Report + Evidence List + Execution Log</code></pre>
+
+<h4>關鍵技術決策</h4>
+
+<h5>1. Bedrock 集中管理（bedrock.py）</h5>
+<ul>
+  <li>所有 LLM 呼叫唯一入口</li>
+  <li>集中 token 計量、成本追蹤</li>
+  <li>統一 timeout/retry 策略</li>
+  <li>單點切換模型（Claude 3 Sonnet / Haiku）</li>
+  <li>離線/線上模式切換一個 flag</li>
+</ul>
+
+<h5>2. 預算護欄（budget_guard.py）</h5>
+<ul>
+  <li>ExecutionLog 追蹤即時剩餘時間</li>
+  <li>Stance 呼叫預留 25 秒（connect 3s + read 8s + report 裕量 14s）</li>
+  <li>Stance 配對硬上限 40 次（防 O(n²) 爆 Bedrock）</li>
+  <li>預算不足時 fail-safe 降級，不 crash</li>
+</ul>
+
+<h5>3. 反作弊設計</h5>
+<p>判斷結構、證據整合、信任評分由本 pipeline 產生。Bedrock 只負責行文。Bedrock 角色嚴格限定：幫切分 claim（Step 1）、寫成可讀 narrative（Step 3）、審查報告（Step 4）。<strong>判斷本身——哪些值得信、信多少、正反方怎麼分——完全是確定性公式算的，不是 LLM 說了算。</strong></p>
+
+<h5>4. 溯源鏈完整性</h5>
+<pre><code>報告段落 → claim_id → ScoredClaim.components（四個分項）
+         → Document（原始文件）→ source URL + timestamp</code></pre>
+<p>Evidence List（JSON）包含完整 trust breakdown、命中的操縱關鍵詞、reputation trace。</p>
+
+<h5>5. 純 stdlib + boto3 原則</h5>
+<ul>
+  <li>整個後端零第三方 runtime 依賴</li>
+  <li>部署極簡（任何 Python 3.11 + boto3 環境都能跑）</li>
+  <li>沒有 supply chain 風險</li>
+  <li>容器映像極小</li>
+</ul>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-27b</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 28 · 深入說明：信任評分細節與架構技術實作","datePublished":"2026-07-27","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Competition Pitch"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

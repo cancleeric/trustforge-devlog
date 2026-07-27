@@ -1,0 +1,98 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-27 · Competition Pitch</p>
+<h1>Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明</h1>
+<p class="summary">以開發團隊身份向黑客松比賽方完整介紹 TrustForge Hermes 系統——問題定義、Trust Layer 核心機制、三層架構、技術選型與交付物。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #hackathon</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向「2026 雲湧智生 台灣生成式 AI 應用黑客松」比賽方進行系統介紹 pitch。</li>
+  <li><strong>對話情境：</strong>比賽方扮演不了解系統的評審，團隊需從零說明 TrustForge 是什麼、解決什麼問題、如何做到。</li>
+  <li><strong>核心訊息傳達：</strong>成功闡述「信任提煉層」為核心差異化——不是又一個摘要工具，而是有判斷力、能溯源的分析 Agent。</li>
+</ul>
+</section>
+
+<section><h3>Pitch 內容紀錄</h3>
+
+<h4>問題定義</h4>
+<p>加密市場資訊環境混亂：Twitter KOL 喊單、新聞標題黨、鏈上鯨魚異動、監管公告散落各處，品質參差不齊。核心困難不是「缺資訊」，而是<strong>哪些資訊值得信、哪些是噪音甚至操縱</strong>。現有 AI 摘要工具僅拼湊多源內容，不做可信度判斷，不提供證據溯源，不呈現反方觀點——在高風險金融決策場景中不夠用。</p>
+
+<h4>核心差異化：Trust Layer（信任提煉層）</h4>
+<p>在資訊匯聚和 AI 行文之間插入信任提煉層，四大機制：</p>
+<ol>
+  <li><strong>逐條評分</strong> — TrustScore = 信譽×0.5 + 交叉佐證×0.25 + 時效性×0.15 − 操縱指標×0.40</li>
+  <li><strong>交叉佐證</strong> — 同一 claim 若被多個獨立來源支持則信心上升；互相矛盾則明確標示衝突</li>
+  <li><strong>完整溯源</strong> — 每個結論 → claim_id → 原始文件 → source URL/timestamp</li>
+  <li><strong>反方證據主動呈現</strong> — 正反兩面都攤出來，不只給支撐方</li>
+</ol>
+
+<h4>三層架構</h4>
+<table>
+<thead><tr><th>層級</th><th>職責</th><th>關鍵模組</th></tr></thead>
+<tbody>
+  <tr><td>Layer 1 — Ingestion</td><td>多源資料輸入</td><td>prices / news / social / onchain / hoyabit / regulatory / coingecko</td></tr>
+  <tr><td>Layer 2 — Trust ★</td><td>信任提煉（核心）</td><td>Claim 抽取 → 信譽評估 → 交叉佐證 → 操縱偵測 → 信任加權</td></tr>
+  <tr><td>Layer 3 — Agent</td><td>編排 + 溯源生成</td><td>4步推理：Claim 抽取 → 信任評分 → 帶溯源行文 → 限制複審</td></tr>
+</tbody>
+</table>
+
+<h4>技術選型</h4>
+<ul>
+  <li><strong>LLM：</strong>100% AWS Bedrock，單一入口集中管理（符合競賽規則）</li>
+  <li><strong>後端：</strong>Python 3.11+，零第三方 runtime 依賴（僅 boto3），高可攜性</li>
+  <li><strong>前端：</strong>React + Vite + TypeScript + Tailwind CSS 互動式儀表板</li>
+  <li><strong>部署：</strong>AWS App Runner / Lambda，完整雲原生</li>
+  <li><strong>護欄：</strong>內建執行時間與 token 成本控管，15 分鐘內完成全流程</li>
+</ul>
+
+<h4>交付物（四件齊全）</h4>
+<table>
+<thead><tr><th>項目</th><th>格式</th><th>說明</th></tr></thead>
+<tbody>
+  <tr><td>分析報告</td><td>Markdown</td><td>帶溯源鏈的完整市場分析</td></tr>
+  <tr><td>證據清單</td><td>JSON</td><td>結構化 evidence，每條 claim 可追溯</td></tr>
+  <tr><td>執行紀錄</td><td>JSONL</td><td>完整重現決策過程</td></tr>
+  <tr><td>程式碼與配置</td><td>—</td><td>完整可運行的系統</td></tr>
+</tbody>
+</table>
+
+<h4>設計原則（不做的事）</h4>
+<ul>
+  <li>不提供投資建議（HOYA BIT 合規要求）</li>
+  <li>不硬給結論——資訊完整度優先於結論果斷性</li>
+  <li>不用第三方現成結論當主要結果——Bedrock 只負責行文，判斷由 pipeline 產生</li>
+</ul>
+
+<h4>涵蓋幣種</h4>
+<p>BTC / ETH / SOL / BNB / XRP（使用 HOYA BIT 提供的企業級 5 年 Daily OHLCV 數據）</p>
+
+</section>
+
+<section><h3>Pitch 核心一句話</h3>
+<blockquote>
+  <p>TrustForge Hermes 把「我看到一堆加密資訊」變成「我知道哪些資訊可信、為什麼可信、證據在哪」——不是又一個摘要工具，而是一個有判斷力、能溯源的分析 Agent。</p>
+</blockquote>
+</section>
+
+<section><h3>下一步</h3>
+<ul>
+  <li>根據比賽方回饋深入展開特定主題（信任評分細節、技術實作 demo、矛盾處理機制等）</li>
+  <li>準備 live demo 展示完整 pipeline 運行流程</li>
+</ul>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-27</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明","datePublished":"2026-07-27","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Competition Pitch"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

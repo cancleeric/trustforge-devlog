@@ -1,0 +1,84 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-27c · Competition Pitch</p>
+<h1>Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現</h1>
+<p class="summary">向比賽方說明矛盾偵測三道防線（方向閘/Stance Classification/跨源背離偵測）、最終結構化呈現、三態 abstain 設計哲學。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #contradiction #stance</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向比賽方深入說明「如何處理矛盾資訊」——三道防線機制與最終呈現方式。</li>
+  <li><strong>核心訊息：</strong>矛盾不是被消除的，是被結構化呈現的。使用者看到的是完整牌面，不是和稀泥的摘要。</li>
+  <li><strong>設計哲學：</strong>三態 abstain 機制——誠實說「不確定」比硬掰結論安全。</li>
+</ul>
+</section>
+
+<section><h3>矛盾資訊處理：三道防線</h3>
+
+<h4>問題場景</h4>
+<p>加密市場矛盾是常態——同一時刻可能出現：新聞說「ETF 資金大幅流入」、社群說「鯨魚在拋」、監管說「SEC 加強審查」。大多數 AI 摘要工具只能和稀泥「市場觀點分歧」。TrustForge 要做的是：<strong>誰跟誰矛盾、哪邊證據更強、為什麼更強</strong>。</p>
+
+<h4>第一道：方向閘（Direction Gate）— 零成本</h4>
+<ul>
+  <li>每個 claim 抽取時推斷方向：bullish / bearish / neutral</li>
+  <li>最長詞優先非重疊匹配（上漲/看多/突破 → bullish；下跌/看空/拋售 → bearish）</li>
+  <li>否定守門：「不會上漲」→ 上漲歸入 negated 集合，不算 bullish</li>
+  <li>用途：<strong>明確看多 vs 明確看空的兩條 claim 不會被誤算為互相佐證</strong></li>
+  <li>純 regex，不花任何 Bedrock 預算</li>
+</ul>
+
+<h4>第二道：Stance Classification（W1.5 語意矛盾分類）— 花 Bedrock 預算</h4>
+<p>方向詞抓不到的語意對立（如 "regulatory clarity drives adoption" vs "regulatory scrutiny threatens operations"），用 Bedrock stance 分類：</p>
+<ul>
+  <li>Input: (Claim A text, Claim B text) → Output: entailment / contradiction / neutral</li>
+  <li>contradiction → 不計入交叉佐證 + 在 Evidence List 明確標示矛盾對</li>
+  <li>預算控制：硬上限 40 次真呼叫、時間預算 25 秒門檻、超出 → fail-safe 降級 neutral</li>
+</ul>
+
+<h4>第三道：Cross-Source Signal Detection（跨源背離偵測）</h4>
+<p>orchestrator 層級——不只看單條 claim 矛盾，看<strong>整個來源類型的系統性背離</strong>：</p>
+<ul>
+  <li>客觀類（price / onchain / regulatory）vs 情緒類（news / social / sentiment）</li>
+  <li>兩類方向相反且各自有足夠樣本 → 標記跨源背離</li>
+  <li>報告中呈現：「⚠️ 跨源背離：客觀數據方向與情緒訊號方向不一致」</li>
+</ul>
+</section>
+
+<section><h3>矛盾資訊的最終呈現</h3>
+<p>矛盾不是被「消除」，是被<strong>結構化呈現</strong>：</p>
+<ol>
+  <li><strong>Supporting 區塊</strong>：高信任、支撐主流方向的證據（附 trust 分數）</li>
+  <li><strong>Contrarian 區塊</strong>：反方證據（不是垃圾，是明確的、有來源的反方觀點）</li>
+  <li><strong>Stance Pairs</strong>：Bedrock 確認為語意矛盾的配對，明確標示哪對哪</li>
+  <li><strong>Cross-Source Signal</strong>：系統性跨源背離旗標</li>
+</ol>
+<p>使用者拿到報告後能清楚看到：哪些證據支持看多？看空？有沒有直接矛盾？客觀數據跟市場情緒是否背離？</p>
+<p><strong>我們不幫使用者做決定。我們幫使用者看清楚所有牌面。</strong></p>
+</section>
+
+<section><h3>設計哲學：三態 Abstain 機制</h3>
+<table>
+<thead><tr><th>校準信心</th><th>行為</th></tr></thead>
+<tbody>
+  <tr><td>&lt; 0.35 或獨立來源 &lt; 2</td><td><strong>Abstain</strong>：不給方向詞，明說「證據不足以形成結論」</td></tr>
+  <tr><td>0.35 ~ 0.50</td><td>給方向但標「低信心」</td></tr>
+  <tr><td>≥ 0.50</td><td>正常輸出</td></tr>
+</tbody>
+</table>
+<p>在金融場景中，誠實說「不確定」比硬掰結論安全得多。這也是比賽評分項目「信心校準」的核心——信心區間有多準確。</p>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-27c</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現","datePublished":"2026-07-27","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Competition Pitch"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

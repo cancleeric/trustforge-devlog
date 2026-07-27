@@ -1,0 +1,409 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-27e · Competition Pitch</p>
+<h1>Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露</h1>
+<p class="summary">向比賽方展示前端 UX 設計：信任概覽卡片、跨源分歧雙欄面板、證據表格逐條展開、四維信任拆解 bar、決策態徽章，附完整視覺化 mockup。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #frontend #ux #visualization</p>
+</header>
+<section>
+  <h3>老闆版摘要</h3>
+  <ul>
+    <li><strong>本日重點：</strong>向比賽方展示前端如何呈現矛盾資訊——五層漸進式揭露的完整 UX 設計。</li>
+    <li><strong>核心設計語言：</strong>配色即語意（紅=操縱/藍=中性/黃=警示/綠=共識）、漸進式揭露、溯源可點擊。</li>
+    <li><strong>前端技術棧：</strong>React + Vite + TypeScript + Tailwind CSS，元件已完整實作。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>前端元件架構總覽</h3>
+  <div class="evidence-grid">
+    <div class="evidence-card">
+      <h4>EvidenceTrailPanel</h4>
+      <p>信任溯源概覽——五張統計卡片一眼掃全局</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>CrossSourceSignalPanel</h4>
+      <p>跨源分歧面板——Bullish vs Bearish 雙欄對比</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>EvidenceTable</h4>
+      <p>逐條展開——每條證據可追溯到原始文件</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>TrustBreakdown</h4>
+      <p>四維信任拆解——每個維度附 WHY 解釋</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>Badges 系列</h4>
+      <p>視覺指標元件庫（紅旗/相似簇/低信任/方向/Tier）</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>AnalysisReportView</h4>
+      <p>主報告頁面組合——統整以上所有子面板</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h3>層次一：信任溯源概覽卡片</h3>
+  <p>進入分析頁面第一眼看到的概覽面板（<code>EvidenceTrailPanel.tsx</code>），五張 stat cards：</p>
+  <div class="stats" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="stat">
+      <div class="n">47</div>
+      <div class="l">證據總筆數</div>
+    </div>
+    <div class="stat">
+      <div class="n">12</div>
+      <div class="l">獨立來源數</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:#f85149">3</div>
+      <div class="l">🚩 操縱紅旗</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:var(--acc)">2</div>
+      <div class="l">ℹ️ 相似簇</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:var(--warn)">背離</div>
+      <div class="l">跨源訊號</div>
+    </div>
+  </div>
+  <div class="doc-callout">
+    <strong>配色設計原則：</strong>操縱紅旗用 <span style="color:#f85149;font-weight:700">tf-bad 紅色</span>（已反映在信任分扣分）；相似簇用 <span
+      style="color:var(--acc);font-weight:700">tf-accent 藍色</span>（中性資訊，提醒但不指控）；跨源訊號：<span
+      style="color:var(--good);font-weight:700">綠=共識</span> / <span
+      style="color:var(--warn);font-weight:700">黃=背離</span> / <span
+      style="color:var(--mut)">灰=未判定</span>。紅旗和相似簇的配色刻意不同——避免使用者把「中性資訊提示」誤讀成「操縱判定」。
+  </div>
+</section>
+
+<section>
+  <h3>層次二：跨源分歧面板</h3>
+  <p><code>CrossSourceSignalPanel.tsx</code> — 偵測到背離時分成左右兩欄，呈現正反雙方對陣：</p>
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:.8rem; margin:1rem 0;">
+    <div style="border:2px solid var(--good); border-radius:12px; padding:.8rem; background:rgba(63,185,80,.06);">
+      <span
+        style="display:inline-block; background:rgba(63,185,80,.15); border:1px solid var(--good); border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:var(--good); margin-bottom:.5rem;">▲
+        BULLISH</span>
+      <div style="margin-bottom:.5rem;">
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">CoinDesk</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">BTC ETF 本週淨流入 $2.1B，連續 5 週正流入</p>
+      </div>
+      <div>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Reuters</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">機構增持加速，灰度 GBTC 流出趨緩</p>
+      </div>
+    </div>
+    <div style="border:2px solid #f85149; border-radius:12px; padding:.8rem; background:rgba(248,81,73,.06);">
+      <span
+        style="display:inline-block; background:rgba(248,81,73,.15); border:1px solid #f85149; border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:#f85149; margin-bottom:.5rem;">▼
+        BEARISH</span>
+      <div style="margin-bottom:.5rem;">
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@whale_alert</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">10,000 BTC 轉入 Binance，鏈上大額流出訊號</p>
+      </div>
+      <div>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@crypto_fear</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">恐慌貪婪指數 28（極度恐慌），30 日新低</p>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:.75rem; color:var(--mut);">佐證
+    claim_ids：coindesk_042#1、reuters_003#2、whale_alert_017#0、fear_index_001#0</p>
+  <div class="doc-callout warn">
+    <strong>⚠️ 跨源背離：</strong>客觀數據（ETF 資金流入、機構增持）方向與情緒訊號（鏈上流出、恐慌指數飆升）方向不一致。建議讀者注意此分歧。
+  </div>
+
+  <h4>設計細節</h4>
+  <ul>
+    <li>Bullish 側：<span style="color:var(--good);">綠色邊框 + 淺綠底</span>；Bearish 側：<span style="color:#f85149;">紅色邊框 +
+        淺紅底</span></li>
+    <li>每個 stance pair 顯示<strong>來源名稱 + 原文摘要</strong></li>
+    <li>底部附 claim_id → 可追溯到 EvidenceTable 完整細節</li>
+    <li>共識時：顯示綠底「共識」徽章，不拆左右欄</li>
+    <li>單源主導時：額外顯示黃色 <code>SingleSourceBadge</code> 警示</li>
+    <li>stance pairs 經 <code>groupByStance()</code> 去重（同一 publisher 多條 claim 不重複列出）</li>
+  </ul>
+</section>
+
+<section>
+  <h3>層次三：證據表格（逐條追溯）</h3>
+  <p><code>EvidenceTable.tsx</code> — 每條證據是一個可展開的列：</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>來源（點展開）</th>
+          <th style="width:100px">信任分</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>E0</code></td>
+          <td>
+            <strong>CoinGecko</strong>
+            <span class="st st-core">即時</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T15:20Z</span>
+          </td>
+          <td><span style="color:var(--good); font-weight:700">0.87</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:87%; background:var(--good); border-radius:3px;"></span></span>
+          </td>
+        </tr>
+        <tr style="background:rgba(248,81,73,.06);">
+          <td><code>E1</code></td>
+          <td>
+            <strong>@pump_master</strong>
+            <span class="st st-excluded">社群</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T14:30Z</span>
+            <span
+              style="display:inline-block; background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:0 .4rem; font-size:.68rem; color:#f85149; font-weight:600; margin-left:.3rem;">🚩
+              暴漲、穩賺</span>
+          </td>
+          <td><span style="color:#f85149; font-weight:700">0.18</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:18%; background:#f85149; border-radius:3px;"></span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><code>E2</code></td>
+          <td>
+            <strong>Reuters</strong>
+            <span class="st st-research">新聞</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T14:00Z</span>
+            <span
+              style="display:inline-block; background:rgba(88,166,255,.12); border:1px solid var(--acc); border-radius:999px; padding:0 .4rem; font-size:.68rem; color:var(--acc); font-weight:600; margin-left:.3rem;">ℹ
+              相似簇</span>
+          </td>
+          <td><span style="color:var(--warn); font-weight:700">0.55</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:55%; background:var(--warn); border-radius:3px;"></span></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>展開後可見（details 區）</h4>
+  <div
+    style="background:var(--card); border:1px solid var(--bd); border-radius:10px; padding:.8rem; margin:.6rem 0; font-size:.85rem;">
+    <p style="margin:0 0 .3rem;"><strong>原文摘要：</strong>BTC ETF 本週淨流入 $2.1B，創下自 3 月以來最高週流入紀錄</p>
+    <p style="margin:0 0 .3rem; color:var(--mut);">關聯主張：ETF 資金持續流入代表機構信心回升</p>
+    <p style="margin:0 0 .3rem; color:var(--mut); font-size:.78rem;">
+      資料血緣：data/btc_daily.csv｜2021-07-01~2026-07-27｜SHA-256 a3f8e2...</p>
+    <p style="margin:0 0 .5rem;"><a href="#" style="color:var(--acc);">來源連結 ↗</a> · <a href="#"
+        style="color:var(--acc);">原始快照 ↗</a></p>
+    <div
+      style="display:grid; grid-template-columns: repeat(3, 1fr); gap:.2rem .8rem; font-size:.72rem; color:var(--mut); font-family:ui-monospace,monospace;">
+      <div style="display:flex; justify-content:space-between;"><span>reputation</span><span>0.65</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>corroboration</span><span>0.75</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>recency</span><span>0.92</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>manipulation</span><span>0.00</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>reputation_prior</span><span>0.65</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>reputation_final</span><span>0.68</span></div>
+    </div>
+  </div>
+
+  <h4>Badge 視覺指標系統</h4>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Badge</th>
+          <th>配色</th>
+          <th>觸發條件</th>
+          <th>語意</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span
+              style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:#f85149; font-weight:600;">🚩
+              暴漲、穩賺</span></td>
+          <td><strong style="color:#f85149">tf-bad 紅</strong></td>
+          <td>操縱關鍵詞命中</td>
+          <td>已扣分，hover 顯示命中哪些詞</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(88,166,255,.12); border:1px solid var(--acc); border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:var(--acc); font-weight:600;">ℹ
+              相似簇</span></td>
+          <td><strong style="color:var(--acc)">tf-accent 藍</strong></td>
+          <td>多源 Jaccard ≥ 0.8 且 ≥3 來源</td>
+          <td>informational，不扣分，中性提示供判讀</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:#f85149; font-weight:600;">⚠️
+              低信任/操縱</span></td>
+          <td><strong style="color:#f85149">tf-bad 紅</strong></td>
+          <td>trust &lt; 0.3</td>
+          <td>整行淺紅背景 + badge</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(210,153,34,.12); border:1px solid var(--warn); border-radius:999px; padding:.1rem .5rem; font-size:.72rem; color:var(--warn); font-weight:600;">單源</span>
+          </td>
+          <td><strong style="color:var(--warn)">tf-warn 黃</strong></td>
+          <td>某維度僅 1 來源支撐</td>
+          <td>缺乏跨源互證，參考性較低</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(163,113,247,.12); border:1px solid #a371f7; border-radius:999px; padding:.1rem .5rem; font-size:.72rem; color:#a371f7; font-weight:600;">即時</span>
+          </td>
+          <td><strong style="color:#a371f7">紫</strong></td>
+          <td>kind = price_live / onchain</td>
+          <td>資料類型層級標記</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h3>層次四：信任拆解（TrustBreakdown）</h3>
+  <p><code>TrustBreakdown.tsx</code> — 四維度 progress bar + WHY 文案：</p>
+  <div style="background:var(--card); border:1px solid var(--bd); border-radius:14px; padding:1rem; margin:.8rem 0;">
+    <p style="margin:0 0 .8rem; font-weight:600; font-size:.9rem;">信任拆解（逐項 WHY）</p>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">信譽</span><span style="color:var(--mut); font-family:monospace;">80%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:80%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">來源過去的可靠表現與跨來源核對結果</p>
+    </div>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">交叉佐證</span><span style="color:var(--mut); font-family:monospace;">100%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:100%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">彼此獨立的來源是否支持同一主張</p>
+    </div>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">資料時效</span><span style="color:var(--mut); font-family:monospace;">45%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:45%; background:var(--warn); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">資料距離現在的時間與更新狀態</p>
+    </div>
+
+    <div>
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">操縱風險</span><span style="color:var(--mut); font-family:monospace;">15%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:15%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">命中操縱訊號的比例，越低越好（反向指標）</p>
+    </div>
+  </div>
+  <div class="doc-callout">
+    <strong>反向配色邏輯：</strong>操縱風險維度的配色與其他三項相反——分數高 = <span style="color:#f85149">壞（紅色）</span>，分數低 = <span
+      style="color:var(--good)">好（綠色）</span>。其他三項：≥60% 綠 / ≥35% 黃 / &lt;35% 紅。如果某維度尚無評分，顯示「暫無評分」灰色文字，<strong>不填 0
+      假裝安全</strong>。
+  </div>
+</section>
+
+<section>
+  <h3>層次五：決策態徽章</h3>
+  <p>報告最頂層方向結論旁，一定附著決策態徽章（<code>DecisionStateBadge</code>）：</p>
+  <div style="display:flex; gap:.8rem; flex-wrap:wrap; margin:.8rem 0;">
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(63,185,80,.12); border:1px solid var(--good); border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:var(--good); font-weight:600;">正常判斷</span>
+      <span style="font-size:.78rem; color:var(--mut);">calibrated ≥ 0.50</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(210,153,34,.12); border:1px solid var(--warn); border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:var(--warn); font-weight:600;">資訊完整度偏低</span>
+      <span style="font-size:.78rem; color:var(--mut);">0.35 ≤ calibrated &lt; 0.50</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:#f85149; font-weight:600;">棄權／資料不足</span>
+      <span style="font-size:.78rem; color:var(--mut);">calibrated &lt; 0.35 或獨立來源 &lt; 2</span>
+    </div>
+  </div>
+  <p>使用者不用看完所有證據細節，光看這個 badge 就知道：<strong>這份報告對自己的結論有多少信心</strong>。</p>
+</section>
+
+<section>
+  <h3>UX 設計哲學</h3>
+  <table class="risk-table">
+    <thead>
+      <tr>
+        <th>原則</th>
+        <th>實作方式</th>
+        <th>對使用者的價值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>漸進式揭露</strong></td>
+        <td>概覽 → 面板 → 逐條展開 → 四維拆解</td>
+        <td>各層深度可停，不強迫資訊過載</td>
+      </tr>
+      <tr>
+        <td><strong>配色即語意</strong></td>
+        <td>紅=操縱已扣分 / 藍=中性提示 / 黃=警示 / 綠=共識</td>
+        <td>不用讀文字就知道嚴重程度</td>
+      </tr>
+      <tr>
+        <td><strong>不造假</strong></td>
+        <td>缺評分顯示「暫無」；未判定顯灰色中性態</td>
+        <td>「未知」和「安全」永遠能區分</td>
+      </tr>
+      <tr>
+        <td><strong>溯源可點擊</strong></td>
+        <td>結論 → claim_id → Evidence 展開 → 原始 URL</td>
+        <td>每個判斷都能驗證</td>
+      </tr>
+      <tr>
+        <td><strong>反方不是垃圾</strong></td>
+        <td>contrarian 與 supporting 同等規格呈現</td>
+        <td>使用者看到完整牌面，不被引導</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h3>核心訊息</h3>
+  <div class="docs-hero">
+    <h2 style="font-size:1.1rem; margin:0 0 .4rem;">前端設計的一句話總結</h2>
+    <p style="margin:0; font-size:1rem; color:var(--fg);">「信任不是一個黑箱判定。每個分數背後的<strong
+        style="color:var(--acc);">為什麼</strong>都看得到、追得到、驗得到。」</p>
+  </div>
+</section>
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-27e</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露","datePublished":"2026-07-27","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Competition Pitch"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

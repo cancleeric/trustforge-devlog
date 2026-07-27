@@ -2,11 +2,807 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-26T00:00:00+08:00</updated>
+  <updated>2026-07-27T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-27e.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-27e.html"/>
+    <updated>2026-07-27T00:00:00+08:00</updated>
+    <published>2026-07-27T00:00:00+08:00</published>
+    <summary>向比賽方展示前端 UX 設計：信任概覽卡片、跨源分歧雙欄面板、證據表格逐條展開、四維信任拆解 bar、決策態徽章，附完整視覺化 mockup。</summary>
+    <category term="Competition Pitch"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-27e · Competition Pitch</p>
+<h1>Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露</h1>
+<p class="summary">向比賽方展示前端 UX 設計：信任概覽卡片、跨源分歧雙欄面板、證據表格逐條展開、四維信任拆解 bar、決策態徽章，附完整視覺化 mockup。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #frontend #ux #visualization</p>
+</header>
+<section>
+  <h3>老闆版摘要</h3>
+  <ul>
+    <li><strong>本日重點：</strong>向比賽方展示前端如何呈現矛盾資訊——五層漸進式揭露的完整 UX 設計。</li>
+    <li><strong>核心設計語言：</strong>配色即語意（紅=操縱/藍=中性/黃=警示/綠=共識）、漸進式揭露、溯源可點擊。</li>
+    <li><strong>前端技術棧：</strong>React + Vite + TypeScript + Tailwind CSS，元件已完整實作。</li>
+  </ul>
+</section>
+
+<section>
+  <h3>前端元件架構總覽</h3>
+  <div class="evidence-grid">
+    <div class="evidence-card">
+      <h4>EvidenceTrailPanel</h4>
+      <p>信任溯源概覽——五張統計卡片一眼掃全局</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>CrossSourceSignalPanel</h4>
+      <p>跨源分歧面板——Bullish vs Bearish 雙欄對比</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>EvidenceTable</h4>
+      <p>逐條展開——每條證據可追溯到原始文件</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>TrustBreakdown</h4>
+      <p>四維信任拆解——每個維度附 WHY 解釋</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>Badges 系列</h4>
+      <p>視覺指標元件庫（紅旗/相似簇/低信任/方向/Tier）</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+    <div class="evidence-card">
+      <h4>AnalysisReportView</h4>
+      <p>主報告頁面組合——統整以上所有子面板</p>
+      <p class="status-ok">✓ 已實作</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h3>層次一：信任溯源概覽卡片</h3>
+  <p>進入分析頁面第一眼看到的概覽面板（<code>EvidenceTrailPanel.tsx</code>），五張 stat cards：</p>
+  <div class="stats" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="stat">
+      <div class="n">47</div>
+      <div class="l">證據總筆數</div>
+    </div>
+    <div class="stat">
+      <div class="n">12</div>
+      <div class="l">獨立來源數</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:#f85149">3</div>
+      <div class="l">🚩 操縱紅旗</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:var(--acc)">2</div>
+      <div class="l">ℹ️ 相似簇</div>
+    </div>
+    <div class="stat">
+      <div class="n" style="color:var(--warn)">背離</div>
+      <div class="l">跨源訊號</div>
+    </div>
+  </div>
+  <div class="doc-callout">
+    <strong>配色設計原則：</strong>操縱紅旗用 <span style="color:#f85149;font-weight:700">tf-bad 紅色</span>（已反映在信任分扣分）；相似簇用 <span
+      style="color:var(--acc);font-weight:700">tf-accent 藍色</span>（中性資訊，提醒但不指控）；跨源訊號：<span
+      style="color:var(--good);font-weight:700">綠=共識</span> / <span
+      style="color:var(--warn);font-weight:700">黃=背離</span> / <span
+      style="color:var(--mut)">灰=未判定</span>。紅旗和相似簇的配色刻意不同——避免使用者把「中性資訊提示」誤讀成「操縱判定」。
+  </div>
+</section>
+
+<section>
+  <h3>層次二：跨源分歧面板</h3>
+  <p><code>CrossSourceSignalPanel.tsx</code> — 偵測到背離時分成左右兩欄，呈現正反雙方對陣：</p>
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:.8rem; margin:1rem 0;">
+    <div style="border:2px solid var(--good); border-radius:12px; padding:.8rem; background:rgba(63,185,80,.06);">
+      <span
+        style="display:inline-block; background:rgba(63,185,80,.15); border:1px solid var(--good); border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:var(--good); margin-bottom:.5rem;">▲
+        BULLISH</span>
+      <div style="margin-bottom:.5rem;">
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">CoinDesk</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">BTC ETF 本週淨流入 $2.1B，連續 5 週正流入</p>
+      </div>
+      <div>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">Reuters</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">機構增持加速，灰度 GBTC 流出趨緩</p>
+      </div>
+    </div>
+    <div style="border:2px solid #f85149; border-radius:12px; padding:.8rem; background:rgba(248,81,73,.06);">
+      <span
+        style="display:inline-block; background:rgba(248,81,73,.15); border:1px solid #f85149; border-radius:999px; padding:.1rem .6rem; font-size:.75rem; font-weight:700; color:#f85149; margin-bottom:.5rem;">▼
+        BEARISH</span>
+      <div style="margin-bottom:.5rem;">
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@whale_alert</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">10,000 BTC 轉入 Binance，鏈上大額流出訊號</p>
+      </div>
+      <div>
+        <p style="margin:0; font-size:.85rem; font-weight:600; color:var(--fg);">@crypto_fear</p>
+        <p style="margin:0; font-size:.78rem; color:var(--mut);">恐慌貪婪指數 28（極度恐慌），30 日新低</p>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:.75rem; color:var(--mut);">佐證
+    claim_ids：coindesk_042#1、reuters_003#2、whale_alert_017#0、fear_index_001#0</p>
+  <div class="doc-callout warn">
+    <strong>⚠️ 跨源背離：</strong>客觀數據（ETF 資金流入、機構增持）方向與情緒訊號（鏈上流出、恐慌指數飆升）方向不一致。建議讀者注意此分歧。
+  </div>
+
+  <h4>設計細節</h4>
+  <ul>
+    <li>Bullish 側：<span style="color:var(--good);">綠色邊框 + 淺綠底</span>；Bearish 側：<span style="color:#f85149;">紅色邊框 +
+        淺紅底</span></li>
+    <li>每個 stance pair 顯示<strong>來源名稱 + 原文摘要</strong></li>
+    <li>底部附 claim_id → 可追溯到 EvidenceTable 完整細節</li>
+    <li>共識時：顯示綠底「共識」徽章，不拆左右欄</li>
+    <li>單源主導時：額外顯示黃色 <code>SingleSourceBadge</code> 警示</li>
+    <li>stance pairs 經 <code>groupByStance()</code> 去重（同一 publisher 多條 claim 不重複列出）</li>
+  </ul>
+</section>
+
+<section>
+  <h3>層次三：證據表格（逐條追溯）</h3>
+  <p><code>EvidenceTable.tsx</code> — 每條證據是一個可展開的列：</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>來源（點展開）</th>
+          <th style="width:100px">信任分</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>E0</code></td>
+          <td>
+            <strong>CoinGecko</strong>
+            <span class="st st-core">即時</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T15:20Z</span>
+          </td>
+          <td><span style="color:var(--good); font-weight:700">0.87</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:87%; background:var(--good); border-radius:3px;"></span></span>
+          </td>
+        </tr>
+        <tr style="background:rgba(248,81,73,.06);">
+          <td><code>E1</code></td>
+          <td>
+            <strong>@pump_master</strong>
+            <span class="st st-excluded">社群</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T14:30Z</span>
+            <span
+              style="display:inline-block; background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:0 .4rem; font-size:.68rem; color:#f85149; font-weight:600; margin-left:.3rem;">🚩
+              暴漲、穩賺</span>
+          </td>
+          <td><span style="color:#f85149; font-weight:700">0.18</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:18%; background:#f85149; border-radius:3px;"></span></span>
+          </td>
+        </tr>
+        <tr>
+          <td><code>E2</code></td>
+          <td>
+            <strong>Reuters</strong>
+            <span class="st st-research">新聞</span>
+            <span style="font-size:.72rem; color:var(--mut)">2026-07-27T14:00Z</span>
+            <span
+              style="display:inline-block; background:rgba(88,166,255,.12); border:1px solid var(--acc); border-radius:999px; padding:0 .4rem; font-size:.68rem; color:var(--acc); font-weight:600; margin-left:.3rem;">ℹ
+              相似簇</span>
+          </td>
+          <td><span style="color:var(--warn); font-weight:700">0.55</span> <span
+              style="display:inline-block; width:50px; height:6px; background:var(--bd); border-radius:3px; vertical-align:middle; position:relative; overflow:hidden;"><span
+                style="position:absolute; top:0; left:0; height:100%; width:55%; background:var(--warn); border-radius:3px;"></span></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>展開後可見（details 區）</h4>
+  <div
+    style="background:var(--card); border:1px solid var(--bd); border-radius:10px; padding:.8rem; margin:.6rem 0; font-size:.85rem;">
+    <p style="margin:0 0 .3rem;"><strong>原文摘要：</strong>BTC ETF 本週淨流入 $2.1B，創下自 3 月以來最高週流入紀錄</p>
+    <p style="margin:0 0 .3rem; color:var(--mut);">關聯主張：ETF 資金持續流入代表機構信心回升</p>
+    <p style="margin:0 0 .3rem; color:var(--mut); font-size:.78rem;">
+      資料血緣：data/btc_daily.csv｜2021-07-01~2026-07-27｜SHA-256 a3f8e2...</p>
+    <p style="margin:0 0 .5rem;"><a href="#" style="color:var(--acc);">來源連結 ↗</a> · <a href="#"
+        style="color:var(--acc);">原始快照 ↗</a></p>
+    <div
+      style="display:grid; grid-template-columns: repeat(3, 1fr); gap:.2rem .8rem; font-size:.72rem; color:var(--mut); font-family:ui-monospace,monospace;">
+      <div style="display:flex; justify-content:space-between;"><span>reputation</span><span>0.65</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>corroboration</span><span>0.75</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>recency</span><span>0.92</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>manipulation</span><span>0.00</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>reputation_prior</span><span>0.65</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>reputation_final</span><span>0.68</span></div>
+    </div>
+  </div>
+
+  <h4>Badge 視覺指標系統</h4>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Badge</th>
+          <th>配色</th>
+          <th>觸發條件</th>
+          <th>語意</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span
+              style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:#f85149; font-weight:600;">🚩
+              暴漲、穩賺</span></td>
+          <td><strong style="color:#f85149">tf-bad 紅</strong></td>
+          <td>操縱關鍵詞命中</td>
+          <td>已扣分，hover 顯示命中哪些詞</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(88,166,255,.12); border:1px solid var(--acc); border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:var(--acc); font-weight:600;">ℹ
+              相似簇</span></td>
+          <td><strong style="color:var(--acc)">tf-accent 藍</strong></td>
+          <td>多源 Jaccard ≥ 0.8 且 ≥3 來源</td>
+          <td>informational，不扣分，中性提示供判讀</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.1rem .5rem; font-size:.75rem; color:#f85149; font-weight:600;">⚠️
+              低信任/操縱</span></td>
+          <td><strong style="color:#f85149">tf-bad 紅</strong></td>
+          <td>trust &lt; 0.3</td>
+          <td>整行淺紅背景 + badge</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(210,153,34,.12); border:1px solid var(--warn); border-radius:999px; padding:.1rem .5rem; font-size:.72rem; color:var(--warn); font-weight:600;">單源</span>
+          </td>
+          <td><strong style="color:var(--warn)">tf-warn 黃</strong></td>
+          <td>某維度僅 1 來源支撐</td>
+          <td>缺乏跨源互證，參考性較低</td>
+        </tr>
+        <tr>
+          <td><span
+              style="background:rgba(163,113,247,.12); border:1px solid #a371f7; border-radius:999px; padding:.1rem .5rem; font-size:.72rem; color:#a371f7; font-weight:600;">即時</span>
+          </td>
+          <td><strong style="color:#a371f7">紫</strong></td>
+          <td>kind = price_live / onchain</td>
+          <td>資料類型層級標記</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h3>層次四：信任拆解（TrustBreakdown）</h3>
+  <p><code>TrustBreakdown.tsx</code> — 四維度 progress bar + WHY 文案：</p>
+  <div style="background:var(--card); border:1px solid var(--bd); border-radius:14px; padding:1rem; margin:.8rem 0;">
+    <p style="margin:0 0 .8rem; font-weight:600; font-size:.9rem;">信任拆解（逐項 WHY）</p>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">信譽</span><span style="color:var(--mut); font-family:monospace;">80%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:80%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">來源過去的可靠表現與跨來源核對結果</p>
+    </div>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">交叉佐證</span><span style="color:var(--mut); font-family:monospace;">100%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:100%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">彼此獨立的來源是否支持同一主張</p>
+    </div>
+
+    <div style="margin-bottom:.7rem;">
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">資料時效</span><span style="color:var(--mut); font-family:monospace;">45%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:45%; background:var(--warn); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">資料距離現在的時間與更新狀態</p>
+    </div>
+
+    <div>
+      <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:.25rem;">
+        <span style="color:var(--acc);">操縱風險</span><span style="color:var(--mut); font-family:monospace;">15%</span>
+      </div>
+      <div style="height:6px; background:var(--bd); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:15%; background:var(--good); border-radius:3px;"></div>
+      </div>
+      <p style="margin:.2rem 0 0; font-size:.72rem; color:var(--mut);">命中操縱訊號的比例，越低越好（反向指標）</p>
+    </div>
+  </div>
+  <div class="doc-callout">
+    <strong>反向配色邏輯：</strong>操縱風險維度的配色與其他三項相反——分數高 = <span style="color:#f85149">壞（紅色）</span>，分數低 = <span
+      style="color:var(--good)">好（綠色）</span>。其他三項：≥60% 綠 / ≥35% 黃 / &lt;35% 紅。如果某維度尚無評分，顯示「暫無評分」灰色文字，<strong>不填 0
+      假裝安全</strong>。
+  </div>
+</section>
+
+<section>
+  <h3>層次五：決策態徽章</h3>
+  <p>報告最頂層方向結論旁，一定附著決策態徽章（<code>DecisionStateBadge</code>）：</p>
+  <div style="display:flex; gap:.8rem; flex-wrap:wrap; margin:.8rem 0;">
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(63,185,80,.12); border:1px solid var(--good); border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:var(--good); font-weight:600;">正常判斷</span>
+      <span style="font-size:.78rem; color:var(--mut);">calibrated ≥ 0.50</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(210,153,34,.12); border:1px solid var(--warn); border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:var(--warn); font-weight:600;">資訊完整度偏低</span>
+      <span style="font-size:.78rem; color:var(--mut);">0.35 ≤ calibrated &lt; 0.50</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:.5rem;">
+      <span
+        style="background:rgba(248,81,73,.12); border:1px solid #f85149; border-radius:999px; padding:.2rem .7rem; font-size:.82rem; color:#f85149; font-weight:600;">棄權／資料不足</span>
+      <span style="font-size:.78rem; color:var(--mut);">calibrated &lt; 0.35 或獨立來源 &lt; 2</span>
+    </div>
+  </div>
+  <p>使用者不用看完所有證據細節，光看這個 badge 就知道：<strong>這份報告對自己的結論有多少信心</strong>。</p>
+</section>
+
+<section>
+  <h3>UX 設計哲學</h3>
+  <table class="risk-table">
+    <thead>
+      <tr>
+        <th>原則</th>
+        <th>實作方式</th>
+        <th>對使用者的價值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>漸進式揭露</strong></td>
+        <td>概覽 → 面板 → 逐條展開 → 四維拆解</td>
+        <td>各層深度可停，不強迫資訊過載</td>
+      </tr>
+      <tr>
+        <td><strong>配色即語意</strong></td>
+        <td>紅=操縱已扣分 / 藍=中性提示 / 黃=警示 / 綠=共識</td>
+        <td>不用讀文字就知道嚴重程度</td>
+      </tr>
+      <tr>
+        <td><strong>不造假</strong></td>
+        <td>缺評分顯示「暫無」；未判定顯灰色中性態</td>
+        <td>「未知」和「安全」永遠能區分</td>
+      </tr>
+      <tr>
+        <td><strong>溯源可點擊</strong></td>
+        <td>結論 → claim_id → Evidence 展開 → 原始 URL</td>
+        <td>每個判斷都能驗證</td>
+      </tr>
+      <tr>
+        <td><strong>反方不是垃圾</strong></td>
+        <td>contrarian 與 supporting 同等規格呈現</td>
+        <td>使用者看到完整牌面，不被引導</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h3>核心訊息</h3>
+  <div class="docs-hero">
+    <h2 style="font-size:1.1rem; margin:0 0 .4rem;">前端設計的一句話總結</h2>
+    <p style="margin:0; font-size:1rem; color:var(--fg);">「信任不是一個黑箱判定。每個分數背後的<strong
+        style="color:var(--acc);">為什麼</strong>都看得到、追得到、驗得到。」</p>
+  </div>
+</section>]]></content>
+  </entry>
+  <entry>
+    <title>Day 28 · 深入說明：Live Demo 完整流程與評分對照</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-27d.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-27d.html"/>
+    <updated>2026-07-27T00:00:00+08:00</updated>
+    <published>2026-07-27T00:00:00+08:00</published>
+    <summary>向比賽方走一遍 Live Demo 流程——一鍵啟動、四階段 pipeline、交付物結構、逐項對照比賽六項評分權重的 demo 亮點。</summary>
+    <category term="Competition Pitch"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-27d · Competition Pitch</p>
+<h1>Day 28 · 深入說明：Live Demo 完整流程與評分對照</h1>
+<p class="summary">向比賽方走一遍 Live Demo 流程——一鍵啟動、四階段 pipeline、交付物結構、逐項對照比賽六項評分權重的 demo 亮點。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #demo #pipeline</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向比賽方走一遍 Live Demo 完整流程——從一鍵啟動到四件交付物產出。</li>
+  <li><strong>核心展示：</strong>pipeline 全自動 8~12 分鐘跑完、report.md 帶溯源鏈結構、evidence.json 每條可追溯。</li>
+  <li><strong>對應評分：</strong>逐項對照比賽六項評分權重，說明 demo 各環節如何命中得分點。</li>
+</ul>
+</section>
+
+<section><h3>Live Demo 流程</h3>
+
+<h4>一鍵啟動</h4>
+<pre><code>python -m trustforge --coin BTC</code></pre>
+<p>輸入幣種代碼，pipeline 全自動跑完，15 分鐘內產出完整四件交付物。</p>
+
+<h4>完整執行流程（以 BTC 為例）</h4>
+<pre><code>[00:00] Phase 1: Ingestion（多源平行抓取）
+  ├── prices.py     → HOYA BIT 5年 BTC Daily OHLCV
+  ├── coingecko.py  → 即時價格、市值、24h 變化
+  ├── news.py       → RSS 抓取近期 BTC 相關新聞
+  ├── social.py     → 社群情緒快照
+  ├── onchain.py    → 鏈上活躍地址/大額轉帳
+  └── regulatory.py → 監管動態
+  → 輸出：50~200 條 Document
+
+[01:00] Phase 2: Trust Layer
+  Step 1: Claim 抽取（Bedrock #1）→ 100~400 條 Claim
+  Step 2: 信任評分（確定性公式 + W1.5 Stance + W2 動態信譽 + W3 協同偵測）
+  Step 3: 聚合 → TrustedBrief（supporting/contrarian/校準信心/三態判定）
+
+[05:00] Phase 3: Agent（行文 + 複審）
+  Step 3: Bedrock #2 — 帶溯源行文（強制引用 claim_id）
+  Step 4: Bedrock #3 — 限制複審（審查合規）
+
+[08:00] Phase 4: 輸出
+  out/BTC/
+  ├── report.md          ← 帶溯源鏈分析報告
+  ├── evidence.json      ← 結構化證據清單
+  └── execution_log.jsonl ← 完整執行紀錄
+
+[08:30] Pipeline Complete（實際 8~12 分鐘，&lt; 15 分鐘硬限）</code></pre>
+
+<h4>報告結構（report.md）</h4>
+<ul>
+  <li>摘要：帶溯源的結論（每個判斷標記 [claim_id]）</li>
+  <li>支撐證據表：來源 / 信任分 / 摘要</li>
+  <li>反方證據表：明確的反方觀點（不是垃圾）</li>
+  <li>跨源訊號：客觀數據 vs 情緒訊號背離警示</li>
+  <li>限制聲明：不構成投資建議 + 校準信心說明</li>
+</ul>
+
+<h4>證據清單結構（evidence.json）</h4>
+<p>每條包含：claim_id / source / kind / trust / trust_components（四分項細分）/ source_url / fetched_at / flags / info_flags。完整可溯源、可審計。</p>
+
+<h4>Demo 亮點對應評分項目</h4>
+<table>
+<thead><tr><th>評分項目</th><th>權重</th><th>Demo 展示重點</th></tr></thead>
+<tbody>
+  <tr><td>主題切合度</td><td>30%</td><td>7 種連接器多源整合 / claim_id 證據回溯 / stance pairs 矛盾處理 / 三態信心校準</td></tr>
+  <tr><td>技術可行性</td><td>25%</td><td>一鍵跑完 / 15 分鐘內出結果 / AWS Bedrock 唯一入口 / 預算護欄不崩</td></tr>
+  <tr><td>商業應用性</td><td>20%</td><td>報告可讀性高 / 不提供投資建議（合規）/ 前端儀表板互動探索</td></tr>
+  <tr><td>創意度</td><td>15%</td><td>Trust Layer 原創方法——可解釋的信任加權推理，非表面摘要</td></tr>
+  <tr><td>完成度</td><td>10%</td><td>輸入幣種即跑完整流程 / 四件交付物齊全</td></tr>
+  <tr><td>Kiro 加分</td><td>+10%</td><td>全程 Kiro 開發 / Steering 管理規範 / Hooks 自動化品質控管</td></tr>
+</tbody>
+</table>
+</section>
+
+<section><h3>Demo 核心訊息</h3>
+<blockquote>
+  <p>「不是把 Bedrock 當成答題機器，而是把它當成行文工具——判斷邏輯是我們自己的 pipeline 做的，LLM 只是幫我們把結果說得更好讀。」</p>
+</blockquote>
+<p>這是 TrustForge 跟「直接問 ChatGPT/Claude 幫我分析 BTC」最本質的差異。</p>
+</section>]]></content>
+  </entry>
+  <entry>
+    <title>Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-27c.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-27c.html"/>
+    <updated>2026-07-27T00:00:00+08:00</updated>
+    <published>2026-07-27T00:00:00+08:00</published>
+    <summary>向比賽方說明矛盾偵測三道防線（方向閘/Stance Classification/跨源背離偵測）、最終結構化呈現、三態 abstain 設計哲學。</summary>
+    <category term="Competition Pitch"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-27c · Competition Pitch</p>
+<h1>Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現</h1>
+<p class="summary">向比賽方說明矛盾偵測三道防線（方向閘/Stance Classification/跨源背離偵測）、最終結構化呈現、三態 abstain 設計哲學。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #contradiction #stance</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向比賽方深入說明「如何處理矛盾資訊」——三道防線機制與最終呈現方式。</li>
+  <li><strong>核心訊息：</strong>矛盾不是被消除的，是被結構化呈現的。使用者看到的是完整牌面，不是和稀泥的摘要。</li>
+  <li><strong>設計哲學：</strong>三態 abstain 機制——誠實說「不確定」比硬掰結論安全。</li>
+</ul>
+</section>
+
+<section><h3>矛盾資訊處理：三道防線</h3>
+
+<h4>問題場景</h4>
+<p>加密市場矛盾是常態——同一時刻可能出現：新聞說「ETF 資金大幅流入」、社群說「鯨魚在拋」、監管說「SEC 加強審查」。大多數 AI 摘要工具只能和稀泥「市場觀點分歧」。TrustForge 要做的是：<strong>誰跟誰矛盾、哪邊證據更強、為什麼更強</strong>。</p>
+
+<h4>第一道：方向閘（Direction Gate）— 零成本</h4>
+<ul>
+  <li>每個 claim 抽取時推斷方向：bullish / bearish / neutral</li>
+  <li>最長詞優先非重疊匹配（上漲/看多/突破 → bullish；下跌/看空/拋售 → bearish）</li>
+  <li>否定守門：「不會上漲」→ 上漲歸入 negated 集合，不算 bullish</li>
+  <li>用途：<strong>明確看多 vs 明確看空的兩條 claim 不會被誤算為互相佐證</strong></li>
+  <li>純 regex，不花任何 Bedrock 預算</li>
+</ul>
+
+<h4>第二道：Stance Classification（W1.5 語意矛盾分類）— 花 Bedrock 預算</h4>
+<p>方向詞抓不到的語意對立（如 "regulatory clarity drives adoption" vs "regulatory scrutiny threatens operations"），用 Bedrock stance 分類：</p>
+<ul>
+  <li>Input: (Claim A text, Claim B text) → Output: entailment / contradiction / neutral</li>
+  <li>contradiction → 不計入交叉佐證 + 在 Evidence List 明確標示矛盾對</li>
+  <li>預算控制：硬上限 40 次真呼叫、時間預算 25 秒門檻、超出 → fail-safe 降級 neutral</li>
+</ul>
+
+<h4>第三道：Cross-Source Signal Detection（跨源背離偵測）</h4>
+<p>orchestrator 層級——不只看單條 claim 矛盾，看<strong>整個來源類型的系統性背離</strong>：</p>
+<ul>
+  <li>客觀類（price / onchain / regulatory）vs 情緒類（news / social / sentiment）</li>
+  <li>兩類方向相反且各自有足夠樣本 → 標記跨源背離</li>
+  <li>報告中呈現：「⚠️ 跨源背離：客觀數據方向與情緒訊號方向不一致」</li>
+</ul>
+</section>
+
+<section><h3>矛盾資訊的最終呈現</h3>
+<p>矛盾不是被「消除」，是被<strong>結構化呈現</strong>：</p>
+<ol>
+  <li><strong>Supporting 區塊</strong>：高信任、支撐主流方向的證據（附 trust 分數）</li>
+  <li><strong>Contrarian 區塊</strong>：反方證據（不是垃圾，是明確的、有來源的反方觀點）</li>
+  <li><strong>Stance Pairs</strong>：Bedrock 確認為語意矛盾的配對，明確標示哪對哪</li>
+  <li><strong>Cross-Source Signal</strong>：系統性跨源背離旗標</li>
+</ol>
+<p>使用者拿到報告後能清楚看到：哪些證據支持看多？看空？有沒有直接矛盾？客觀數據跟市場情緒是否背離？</p>
+<p><strong>我們不幫使用者做決定。我們幫使用者看清楚所有牌面。</strong></p>
+</section>
+
+<section><h3>設計哲學：三態 Abstain 機制</h3>
+<table>
+<thead><tr><th>校準信心</th><th>行為</th></tr></thead>
+<tbody>
+  <tr><td>&lt; 0.35 或獨立來源 &lt; 2</td><td><strong>Abstain</strong>：不給方向詞，明說「證據不足以形成結論」</td></tr>
+  <tr><td>0.35 ~ 0.50</td><td>給方向但標「低信心」</td></tr>
+  <tr><td>≥ 0.50</td><td>正常輸出</td></tr>
+</tbody>
+</table>
+<p>在金融場景中，誠實說「不確定」比硬掰結論安全得多。這也是比賽評分項目「信心校準」的核心——信心區間有多準確。</p>
+</section>]]></content>
+  </entry>
+  <entry>
+    <title>Day 28 · 深入說明：信任評分細節與架構技術實作</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-27b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-27b.html"/>
+    <updated>2026-07-27T00:00:00+08:00</updated>
+    <published>2026-07-27T00:00:00+08:00</published>
+    <summary>向比賽方展開 TrustScore 四分項公式（信譽/佐證/時效/操縱）完整算法，以及三層 pipeline 架構的技術選型與關鍵設計決策。</summary>
+    <category term="Competition Pitch"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-27b · Competition Pitch</p>
+<h1>Day 28 · 深入說明：信任評分細節與架構技術實作</h1>
+<p class="summary">向比賽方展開 TrustScore 四分項公式（信譽/佐證/時效/操縱）完整算法，以及三層 pipeline 架構的技術選型與關鍵設計決策。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #trust-scoring #architecture</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向比賽方深入說明「信任評分細節」與「架構技術實作」兩大主題。</li>
+  <li><strong>信任評分：</strong>完整展開四分項公式（信譽/佐證/時效/操縱）的計算邏輯、設計決策、邊界情境處理。</li>
+  <li><strong>架構實作：</strong>說明三層 pipeline 完整流程、Bedrock 集中管理、預算護欄、反作弊設計、溯源鏈完整性、純 stdlib 原則。</li>
+</ul>
+</section>
+
+<section><h3>信任評分細節</h3>
+
+<h4>公式</h4>
+<pre><code>TrustScore = 信譽 × 0.50
+           + 交叉佐證 × 0.25
+           + 時效衰減 × 0.15
+           − 操縱懲罰 × 0.40</code></pre>
+<p>操縱懲罰是<strong>減法</strong>，權重(0.40)故意比其他正項都高。設計決策：操縱偵測的「漏抓」比「誤判」風險低，但為保守，偵測本身只用啟發式關鍵詞、命中門檻刻意拉高。</p>
+
+<h4>分項 1：來源信譽（Source Reputation）— 權重 0.50</h4>
+<p><strong>靜態先驗：</strong>每種來源類型有基礎信譽分，反映「客觀程度」：</p>
+<table>
+<thead><tr><th>來源類型</th><th>基礎信譽</th><th>理由</th></tr></thead>
+<tbody>
+  <tr><td>price / onchain</td><td>0.95</td><td>鏈上事實、價格數據最客觀</td></tr>
+  <tr><td>regulatory</td><td>0.90</td><td>官方監管公告</td></tr>
+  <tr><td>hoyabit</td><td>0.85</td><td>HOYA BIT 企業級交易所數據</td></tr>
+  <tr><td>price_live (CoinGecko)</td><td>0.90</td><td>即時市價</td></tr>
+  <tr><td>news</td><td>0.65</td><td>新聞媒體</td></tr>
+  <tr><td>sentiment / dev_activity</td><td>0.50</td><td>輔助訊號</td></tr>
+  <tr><td>social</td><td>0.35</td><td>匿名社群（最低）</td></tr>
+</tbody>
+</table>
+<p><strong>動態信譽（W2 進階）：</strong>truth-discovery 迭代——長期被其他獨立來源佐證的來源信譽上調，被矛盾得多的下修。bounded 迭代（最多 5 輪）+ 收斂門檻 + 下限 clamp。離線有 Dawid-Skene EM 統計共識 fallback。</p>
+
+<h4>分項 2：交叉佐證（Cross-Source Corroboration）— 權重 0.25</h4>
+<p>同一主張有多少「獨立」來源也在說類似的事？</p>
+<ul>
+  <li>Token overlap 前置閘（Jaccard ≥ 0.4 才算「相似主題」）</li>
+  <li>方向閘（明確看多 vs 看空不算佐證）</li>
+  <li>可選 W1.5 Bedrock stance 語意分類（偵測「表面相似但實質矛盾」）</li>
+  <li>同源排除：同一 publisher 正規化為同一源，同源不算獨立佐證</li>
+</ul>
+<p>算法：<code>1 - 0.5^n</code>（n = 獨立佐證來源數）。1 源佐證 → 0.5，2 源 → 0.75，飽和 → 1.0。回音室（同源灌水）完全無效。</p>
+
+<h4>分項 3：時效衰減（Recency Decay）— 權重 0.15</h4>
+<p>指數衰減：<code>decay = 0.5 ^ (age_hours / half_life_hours)</code></p>
+<ul>
+  <li>鯨魚/名人交易信號：半衰期 2 小時（市場秒級反應）</li>
+  <li>其他來源：半衰期 12 小時</li>
+  <li>未來時間戳（壞資料）或 NaN → 保守回 0.5（中性）</li>
+</ul>
+
+<h4>分項 4：操縱懲罰（Manipulation Penalty）— 權重 0.40</h4>
+<p>兩層偵測：</p>
+<ul>
+  <li><strong>關鍵詞啟發式</strong>：泵/倒詞命中。否定守門：「不會暴漲」不算命中。可疑用語回填到 Evidence 供人工查看。</li>
+  <li><strong>確定性協同偵測（informational-only）</strong>：多源文字高度相似（Jaccard ≥ 0.8、≥3 來源）標記為「可能協同或聯播，供判讀」。CEO 定案：不自動扣分——分不清協同操縱 vs 合法聯播，自動扣分必然誤傷。</li>
+</ul>
+
+<h4>聚合：ScoredClaim → TrustedBrief</h4>
+<ul>
+  <li>trust ≥ 0.50 → 歸入「支撐證據 supporting」</li>
+  <li>trust &lt; 0.50 → 歸入「反方證據 contrarian」</li>
+  <li>整體信心 = evidence_strength 綜合指標（獨立來源數 × kind 多元度 × 佐證比例 × 裸信心）→ 校準表映射</li>
+  <li>低校準信心（&lt; 0.35）或獨立來源數不足（&lt; 2）→ abstain，不硬給方向結論</li>
+</ul>
+</section>
+
+<section><h3>架構技術實作</h3>
+
+<h4>三層 Pipeline 完整流程</h4>
+<pre><code>Layer 1 — Ingestion（多源輸入）
+  connectors: prices / news / social / onchain / coingecko / regulatory / hoyabit
+  統一輸出：list[Document] (id, kind, source, text, timestamp, url, meta)
+
+Layer 2 — Trust（信任提煉）
+  Step 1: extract_claims(docs) → list[Claim]（句級切分 / 可選 LLM 抽取）
+  Step 2: score(claims, now) → list[ScoredClaim]（確定性公式）
+  Step 3: aggregate(scored, query, coin) → TrustedBrief
+
+Layer 3 — Agent（編排 + 溯源生成）
+  orchestrator.py 4 步推理鏈：
+    Step 1: Bedrock #1 — Claim 抽取（LLM 輔助結構化）
+    Step 2: 判斷形成（純 pipeline，不用 LLM）
+    Step 3: Bedrock #2 — 帶溯源行文（強制引用 claim_id）
+    Step 4: Bedrock #3 — 限制複審（選用，預算允許才執行）
+  輸出：Report + Evidence List + Execution Log</code></pre>
+
+<h4>關鍵技術決策</h4>
+
+<h5>1. Bedrock 集中管理（bedrock.py）</h5>
+<ul>
+  <li>所有 LLM 呼叫唯一入口</li>
+  <li>集中 token 計量、成本追蹤</li>
+  <li>統一 timeout/retry 策略</li>
+  <li>單點切換模型（Claude 3 Sonnet / Haiku）</li>
+  <li>離線/線上模式切換一個 flag</li>
+</ul>
+
+<h5>2. 預算護欄（budget_guard.py）</h5>
+<ul>
+  <li>ExecutionLog 追蹤即時剩餘時間</li>
+  <li>Stance 呼叫預留 25 秒（connect 3s + read 8s + report 裕量 14s）</li>
+  <li>Stance 配對硬上限 40 次（防 O(n²) 爆 Bedrock）</li>
+  <li>預算不足時 fail-safe 降級，不 crash</li>
+</ul>
+
+<h5>3. 反作弊設計</h5>
+<p>判斷結構、證據整合、信任評分由本 pipeline 產生。Bedrock 只負責行文。Bedrock 角色嚴格限定：幫切分 claim（Step 1）、寫成可讀 narrative（Step 3）、審查報告（Step 4）。<strong>判斷本身——哪些值得信、信多少、正反方怎麼分——完全是確定性公式算的，不是 LLM 說了算。</strong></p>
+
+<h5>4. 溯源鏈完整性</h5>
+<pre><code>報告段落 → claim_id → ScoredClaim.components（四個分項）
+         → Document（原始文件）→ source URL + timestamp</code></pre>
+<p>Evidence List（JSON）包含完整 trust breakdown、命中的操縱關鍵詞、reputation trace。</p>
+
+<h5>5. 純 stdlib + boto3 原則</h5>
+<ul>
+  <li>整個後端零第三方 runtime 依賴</li>
+  <li>部署極簡（任何 Python 3.11 + boto3 環境都能跑）</li>
+  <li>沒有 supply chain 風險</li>
+  <li>容器映像極小</li>
+</ul>
+</section>]]></content>
+  </entry>
+  <entry>
+    <title>Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-27.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-27.html"/>
+    <updated>2026-07-27T00:00:00+08:00</updated>
+    <published>2026-07-27T00:00:00+08:00</published>
+    <summary>以開發團隊身份向黑客松比賽方完整介紹 TrustForge Hermes 系統——問題定義、Trust Layer 核心機制、三層架構、技術選型與交付物。</summary>
+    <category term="Competition Pitch"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-27 · Competition Pitch</p>
+<h1>Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明</h1>
+<p class="summary">以開發團隊身份向黑客松比賽方完整介紹 TrustForge Hermes 系統——問題定義、Trust Layer 核心機制、三層架構、技術選型與交付物。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Competition Pitch ｜ 標籤：#trustforge #competition #pitch #hackathon</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>本日重點：</strong>向「2026 雲湧智生 台灣生成式 AI 應用黑客松」比賽方進行系統介紹 pitch。</li>
+  <li><strong>對話情境：</strong>比賽方扮演不了解系統的評審，團隊需從零說明 TrustForge 是什麼、解決什麼問題、如何做到。</li>
+  <li><strong>核心訊息傳達：</strong>成功闡述「信任提煉層」為核心差異化——不是又一個摘要工具，而是有判斷力、能溯源的分析 Agent。</li>
+</ul>
+</section>
+
+<section><h3>Pitch 內容紀錄</h3>
+
+<h4>問題定義</h4>
+<p>加密市場資訊環境混亂：Twitter KOL 喊單、新聞標題黨、鏈上鯨魚異動、監管公告散落各處，品質參差不齊。核心困難不是「缺資訊」，而是<strong>哪些資訊值得信、哪些是噪音甚至操縱</strong>。現有 AI 摘要工具僅拼湊多源內容，不做可信度判斷，不提供證據溯源，不呈現反方觀點——在高風險金融決策場景中不夠用。</p>
+
+<h4>核心差異化：Trust Layer（信任提煉層）</h4>
+<p>在資訊匯聚和 AI 行文之間插入信任提煉層，四大機制：</p>
+<ol>
+  <li><strong>逐條評分</strong> — TrustScore = 信譽×0.5 + 交叉佐證×0.25 + 時效性×0.15 − 操縱指標×0.40</li>
+  <li><strong>交叉佐證</strong> — 同一 claim 若被多個獨立來源支持則信心上升；互相矛盾則明確標示衝突</li>
+  <li><strong>完整溯源</strong> — 每個結論 → claim_id → 原始文件 → source URL/timestamp</li>
+  <li><strong>反方證據主動呈現</strong> — 正反兩面都攤出來，不只給支撐方</li>
+</ol>
+
+<h4>三層架構</h4>
+<table>
+<thead><tr><th>層級</th><th>職責</th><th>關鍵模組</th></tr></thead>
+<tbody>
+  <tr><td>Layer 1 — Ingestion</td><td>多源資料輸入</td><td>prices / news / social / onchain / hoyabit / regulatory / coingecko</td></tr>
+  <tr><td>Layer 2 — Trust ★</td><td>信任提煉（核心）</td><td>Claim 抽取 → 信譽評估 → 交叉佐證 → 操縱偵測 → 信任加權</td></tr>
+  <tr><td>Layer 3 — Agent</td><td>編排 + 溯源生成</td><td>4步推理：Claim 抽取 → 信任評分 → 帶溯源行文 → 限制複審</td></tr>
+</tbody>
+</table>
+
+<h4>技術選型</h4>
+<ul>
+  <li><strong>LLM：</strong>100% AWS Bedrock，單一入口集中管理（符合競賽規則）</li>
+  <li><strong>後端：</strong>Python 3.11+，零第三方 runtime 依賴（僅 boto3），高可攜性</li>
+  <li><strong>前端：</strong>React + Vite + TypeScript + Tailwind CSS 互動式儀表板</li>
+  <li><strong>部署：</strong>AWS App Runner / Lambda，完整雲原生</li>
+  <li><strong>護欄：</strong>內建執行時間與 token 成本控管，15 分鐘內完成全流程</li>
+</ul>
+
+<h4>交付物（四件齊全）</h4>
+<table>
+<thead><tr><th>項目</th><th>格式</th><th>說明</th></tr></thead>
+<tbody>
+  <tr><td>分析報告</td><td>Markdown</td><td>帶溯源鏈的完整市場分析</td></tr>
+  <tr><td>證據清單</td><td>JSON</td><td>結構化 evidence，每條 claim 可追溯</td></tr>
+  <tr><td>執行紀錄</td><td>JSONL</td><td>完整重現決策過程</td></tr>
+  <tr><td>程式碼與配置</td><td>—</td><td>完整可運行的系統</td></tr>
+</tbody>
+</table>
+
+<h4>設計原則（不做的事）</h4>
+<ul>
+  <li>不提供投資建議（HOYA BIT 合規要求）</li>
+  <li>不硬給結論——資訊完整度優先於結論果斷性</li>
+  <li>不用第三方現成結論當主要結果——Bedrock 只負責行文，判斷由 pipeline 產生</li>
+</ul>
+
+<h4>涵蓋幣種</h4>
+<p>BTC / ETH / SOL / BNB / XRP（使用 HOYA BIT 提供的企業級 5 年 Daily OHLCV 數據）</p>
+
+</section>
+
+<section><h3>Pitch 核心一句話</h3>
+<blockquote>
+  <p>TrustForge Hermes 把「我看到一堆加密資訊」變成「我知道哪些資訊可信、為什麼可信、證據在哪」——不是又一個摘要工具，而是一個有判斷力、能溯源的分析 Agent。</p>
+</blockquote>
+</section>
+
+<section><h3>下一步</h3>
+<ul>
+  <li>根據比賽方回饋深入展開特定主題（信任評分細節、技術實作 demo、矛盾處理機制等）</li>
+  <li>準備 live demo 展示完整 pipeline 運行流程</li>
+</ul>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 27 · devlog 運維與高標升級：封存髒 repo、重新 clone、isabella 7 點固化進 cron、修復 push 斷層</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-26b.html</id>

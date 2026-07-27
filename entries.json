@@ -2,11 +2,12 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-26",
-    "total": 43,
+    "generated": "2026-07-27",
+    "total": 48,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-26",
+    "last_date": "2026-07-27",
     "categories": [
+      "Competition Pitch",
       "Continuous Analysis",
       "Hermes",
       "Release Engineering",
@@ -17,12 +18,13 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 43,
+    "count": 48,
     "tags": [
       "agentcore",
       "ai-friendly",
       "algorithm",
       "api",
+      "architecture",
       "asset-context",
       "audit",
       "backfill",
@@ -32,14 +34,17 @@
       "calibration",
       "ceo-lanes",
       "certifi",
+      "competition",
       "completeness",
       "connectors",
       "continuous-analysis",
       "continuous-intelligence",
+      "contradiction",
       "cost",
       "counting",
       "dashboard",
       "data-integrity",
+      "demo",
       "deploy",
       "deployment",
       "design",
@@ -55,6 +60,7 @@
       "frontend",
       "github",
       "glossary",
+      "hackathon",
       "handoff",
       "hermes",
       "historical-backfill",
@@ -73,7 +79,9 @@
       "openapi",
       "overview",
       "peer-metrics",
+      "pipeline",
       "pit",
+      "pitch",
       "platform-contracts",
       "policy",
       "portable-scheduler",
@@ -103,6 +111,7 @@
       "sources",
       "sqlite",
       "ssrf",
+      "stance",
       "systemd",
       "telemetry",
       "testing",
@@ -111,15 +120,102 @@
       "trust",
       "trust-architecture",
       "trust-kernel",
+      "trust-scoring",
       "trustforge",
       "ui",
       "upgrade-governance",
       "ux",
+      "visualization",
       "whale-trades",
       "worker"
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-27e",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 深入說明：前端如何呈現矛盾資訊——五層漸進式揭露",
+      "summary": "向比賽方展示前端 UX 設計：信任概覽卡片、跨源分歧雙欄面板、證據表格逐條展開、四維信任拆解 bar、決策態徽章，附完整視覺化 mockup。",
+      "category": "Competition Pitch",
+      "tags": [
+        "trustforge",
+        "competition",
+        "pitch",
+        "frontend",
+        "ux",
+        "visualization"
+      ],
+      "file": "2026-07-27e.html",
+      "created_at": "2026-07-27 09:25:41"
+    },
+    {
+      "id": "2026-07-27d",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 深入說明：Live Demo 完整流程與評分對照",
+      "summary": "向比賽方走一遍 Live Demo 流程——一鍵啟動、四階段 pipeline、交付物結構、逐項對照比賽六項評分權重的 demo 亮點。",
+      "category": "Competition Pitch",
+      "tags": [
+        "trustforge",
+        "competition",
+        "pitch",
+        "demo",
+        "pipeline"
+      ],
+      "file": "2026-07-27d.html",
+      "created_at": "2026-07-27 09:18:37"
+    },
+    {
+      "id": "2026-07-27c",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 深入說明：如何處理矛盾資訊——三道防線與結構化呈現",
+      "summary": "向比賽方說明矛盾偵測三道防線（方向閘/Stance Classification/跨源背離偵測）、最終結構化呈現、三態 abstain 設計哲學。",
+      "category": "Competition Pitch",
+      "tags": [
+        "trustforge",
+        "competition",
+        "pitch",
+        "contradiction",
+        "stance"
+      ],
+      "file": "2026-07-27c.html",
+      "created_at": "2026-07-27 09:15:25"
+    },
+    {
+      "id": "2026-07-27b",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 深入說明：信任評分細節與架構技術實作",
+      "summary": "向比賽方展開 TrustScore 四分項公式（信譽/佐證/時效/操縱）完整算法，以及三層 pipeline 架構的技術選型與關鍵設計決策。",
+      "category": "Competition Pitch",
+      "tags": [
+        "trustforge",
+        "competition",
+        "pitch",
+        "trust-scoring",
+        "architecture"
+      ],
+      "file": "2026-07-27b.html",
+      "created_at": "2026-07-27 09:10:05"
+    },
+    {
+      "id": "2026-07-27",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 向比賽方 Pitch TrustForge Hermes：系統介紹與核心差異化說明",
+      "summary": "以開發團隊身份向黑客松比賽方完整介紹 TrustForge Hermes 系統——問題定義、Trust Layer 核心機制、三層架構、技術選型與交付物。",
+      "category": "Competition Pitch",
+      "tags": [
+        "trustforge",
+        "competition",
+        "pitch",
+        "hackathon"
+      ],
+      "file": "2026-07-27.html",
+      "created_at": "2026-07-27 09:06:04"
+    },
     {
       "id": "2026-07-26b",
       "day": 27,
