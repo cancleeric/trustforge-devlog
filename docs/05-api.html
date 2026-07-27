@@ -36,6 +36,7 @@
   <li><a href="#envelope">統一信封格式 {ok, data, error}</a></li>
   <li><a href="#invariants">誠實設計鐵律（必讀）</a></li>
   <li><a href="#endpoints">端點清單</a></li>
+  <li><a href="#outer-upgrade-api">Hermes 外框升級 API</a></li>
   <li><a href="#rate-limit">速率限制分組</a></li>
   <li><a href="#analyze">/api/analyze 詳解</a></li>
   <li><a href="#status">/api/status 詳解</a></li>
@@ -146,7 +147,19 @@
 <code>/api/asset-context</code>、<code>/api/peer-metrics</code>、<code>/api/eco-link</code>、<code>/api/module-telemetry</code>、<code>/api/training-status</code>。本輪 live smoke 對這些 public GET 端點回 404；交付時只能說 repo 最新規格支援，不能說 production 已可用。<code>/api/admin/backend-providers</code> live 會因缺 Admin Token 回 401，屬管理面保護端點，不列入匿名 production smoke。
 </div>
 
-<h3 id="rate-limit">4. 速率限制分組</h3>
+
+<h3 id="outer-upgrade-api">4. Hermes 外框升級 API</h3>
+<p>外框升級 API 分成公開唯讀與 Admin 決策面。公開端點只能看狀態；sandbox 與 decision 一律需要 Admin Token。</p>
+<table>
+<tr><th>端點</th><th>用途</th><th>安全邊界</th></tr>
+<tr><td><code>GET /api/hermes-upgrades</code></td><td>回傳外框模組、proposal、stage 與升級控制面摘要。</td><td>唯讀；不得建立 proposal、不得啟用 candidate。</td></tr>
+<tr><td><code>GET /api/admin/hermes-upgrades</code></td><td>管理端查看 proposal、sandbox、decision、activation 狀態。</td><td>需 Admin Token。</td></tr>
+<tr><td><code>POST /api/admin/hermes-upgrade-sandbox</code></td><td>對候選 artifact 執行 sandbox / replay。</td><td>需 Admin Token；不切換 active pointer。</td></tr>
+<tr><td><code>POST /api/admin/hermes-upgrade-decision</code></td><td>核准或拒絕候選升級。</td><td>需 Admin Token；核准後才允許受控 activation。</td></tr>
+</table>
+<div class="warn-box"><strong>不可誤用：</strong>這些 API 不是「AI 自己部署」。完整流程與 artifact pointer 機制見 <a href="17-outer-framework-upgrade-governance.html">17 — 外框模組與升級治理</a>。</div>
+
+<h3 id="rate-limit">5. 速率限制分組</h3>
 
 <p>三組獨立 per-IP 滑動視窗 bucket，超過門檻回 <code>429 {code: "rate_limited"}</code>：</p>
 
@@ -186,7 +199,7 @@
 <strong>重要：</strong>observability 四個端點共用同一個 per-IP bucket，key 是 IP 不分端點。agent 若同時輪詢多個端點，配額是互相扣抵的。429 回應的訊息文字內含建議等待秒數，但 <strong>不含 <code>Retry-After</code> header</strong>。
 </div>
 
-<h3 id="analyze">5. /api/analyze 詳解</h3>
+<h3 id="analyze">6. /api/analyze 詳解</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
 <b>Request:</b>
@@ -228,7 +241,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 }
 </pre>
 
-<h3 id="status">6. /api/status 詳解</h3>
+<h3 id="status">7. /api/status 詳解</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
 <b>Response:</b>
@@ -268,7 +281,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
   <li><strong>長期低頻非零也該告警</strong>：<code>alert_threshold=5</code> 是「突波」設計，但穩定 4 次/5min 不歸零 <strong>不會</strong> 觸發 degraded——需另建「<code>recent_failures</code> 是否長期非零」監控</li>
 </ul>
 
-<h3 id="overview">7. /api/overview 詳解</h3>
+<h3 id="overview">8. /api/overview 詳解</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
 <b>Response:</b>
@@ -298,7 +311,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 <strong>缺鍵語意：</strong><code>manip_score</code> / <code>manip_score_mean</code> / <code>reputation_trace</code> 在沒有可用操縱訊號或動態信譽 trace 時，該鍵<strong>完全不回傳</strong>——UI 應顯示「未評估」，不可預設為 0 或安全。
 </div>
 
-<h3 id="admin">8. Admin API 端點</h3>
+<h3 id="admin">9. Admin API 端點</h3>
 
 <table>
 <tr><th>端點</th><th>說明</th><th>認證</th></tr>
@@ -310,7 +323,7 @@ GET /api/analyze?coin=BTC&type=multi_source&q=BTC 現在適合進場嗎
 <tr><td><code>POST /api/admin/hermes-upgrade-decision</code></td><td>核准／拒絕 proposal</td><td>Admin Token</td></tr>
 </table>
 
-<h3 id="openapi">9. OpenAPI Spec</h3>
+<h3 id="openapi">10. OpenAPI Spec</h3>
 
 <p>完整機器可讀 API 規格位於 <code>docs/api/openapi.yaml</code>。本輪取證結果：TrustForge <code>origin/main</code> spec 為 2976 行；production live <code>GET /api/openapi.yaml</code> 為 2560 行。兩者不同時，以 production live spec 作為客戶驗收依據，origin/main 多出的端點標為「repo 支援／待部署驗證」。</p>
 <p>該規格是 <code>src/trustforge/web.py</code> 內 <code>_handle_api_*</code> series handler 的<strong>逐一對照</strong>——每個欄位都對照過真實回應，不是從手寫 docs 轉寫。</p>

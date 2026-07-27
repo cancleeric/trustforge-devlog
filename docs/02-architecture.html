@@ -36,6 +36,7 @@
 <ol>
   <li><a href="#overview">專案定位與設計原則</a></li>
   <li><a href="#layers">三層管線（Layer 1–3）</a></li>
+  <li><a href="#outer-framework">外框治理層（Hermes Outer Framework）</a></li>
   <li><a href="#aws-topology">AWS 部署拓樸</a></li>
   <li><a href="#components">核心元件對照表</a></li>
   <li><a href="#data-flow">端到端資料流</a></li>
@@ -120,7 +121,23 @@ TrustScore = w_src · SourceReputation
 <tr><td>Step 4</td><td>限制複審（可選，預算 >60s 才執行）</td><td>是（可選）</td></tr>
 </table>
 
-<h3 id="aws-topology">3. AWS 部署拓樸</h3>
+
+<h3 id="outer-framework">3. 外框治理層（Hermes Outer Framework）</h3>
+
+<p>核心 Trust Kernel 負責信任評分與 Evidence binding；Hermes 外框層負責持續分析、觀測、改善提案與升級治理。外框可改善工作方式，但不得自行修改 TrustScore 權重、時間邊界、Evidence 綁定、成本護欄、production code 或部署。</p>
+
+<table>
+<tr><th>治理單位</th><th>目前數量</th><th>說明</th></tr>
+<tr><td>控制面模組</td><td>31</td><td>Data / Intelligence / Delivery / Operations 四個 plane 的治理顆粒度。</td></tr>
+<tr><td>可獨立升級 family</td><td>5</td><td><code>source</code>、<code>analysis</code>、<code>report</code>、<code>evaluation</code>、<code>improvement</code>。</td></tr>
+<tr><td>安全流程</td><td>approval-gated</td><td>Observe → Measure → Propose → LLM Review → Sandbox Replay → Human Approval → Activate Pointer → Rollback。</td></tr>
+</table>
+
+<div class="warn-box">
+<strong>架構邊界：</strong>外框支援自動觀測與候選提案；啟用 production policy 必須經 sandbox / replay 證據與人類核准。完整說明見 <a href="17-outer-framework-upgrade-governance.html">17 — 外框模組與升級治理</a>。
+</div>
+
+<h3 id="aws-topology">4. AWS 部署拓樸</h3>
 
 <div class="diagram">
 <span class="box">使用者 / 評審</span>
@@ -147,7 +164,7 @@ TrustScore = w_src · SourceReputation
 <tr><td>Lambda Function URL</td><td><code>lambda_handler.py</code>、<code>deploy/deploy_lambda.sh</code></td><td><span class="status-warn">備援路徑</span>：文件只能寫支援／gated，不能寫成公開 production 入口。</td></tr>
 </table></div>
 
-<h3 id="components">4. 核心元件對照表</h3>
+<h3 id="components">5. 核心元件對照表</h3>
 
 <table class="comp-table">
 <tr><th>元件</th><th>職責</th><th>檔案</th><th>行數</th></tr>
@@ -166,7 +183,7 @@ TrustScore = w_src · SourceReputation
 <tr><td>Hermes Manifest</td><td>工具定義（14 tools）、技能契約、自主邊界</td><td><code>hermes.py</code></td><td>~400</td></tr>
 </table>
 
-<h3 id="data-flow">5. 端到端資料流</h3>
+<h3 id="data-flow">6. 端到端資料流</h3>
 
 <pre class="diagram">
 使用者 Query（coin, question_type, question）
@@ -213,7 +230,7 @@ Report + List[Evidence] + ExecutionLog
      或 Web UI：HTML（SSR）或 JSON（/api/analyze）
 </pre>
 
-<h3 id="security">6. 安全設計總覽</h3>
+<h3 id="security">7. 安全設計總覽</h3>
 
 <table>
 <tr><th>面向</th><th>實作</th></tr>
@@ -228,7 +245,7 @@ Report + List[Evidence] + ExecutionLog
 <tr><td>Rate Limit</td><td>依端點分三組獨立 per-IP 滑動視窗 bucket，超過回 <code>429</code></td></tr>
 </table>
 
-<h3 id="modes">7. 三種運作模式</h3>
+<h3 id="modes">8. 三種運作模式</h3>
 
 <table>
 <tr><th>模式</th><th>觸發條件</th><th>資料來源</th><th>Bedrock</th><th>成本</th></tr>
@@ -237,7 +254,7 @@ Report + List[Evidence] + ExecutionLog
 <tr><td><strong>Live Bedrock</strong></td><td><code>?live=1</code> + <code>X-Live-Token</code> header</td><td>Live connectors + cache reads</td><td>程式支援；本輪線上 <code>bedrock_capable=false</code></td><td>啟用後依 token 計費</td></tr>
 </table>
 
-<h3 id="deliverables">8. 每輪分析交付物</h3>
+<h3 id="deliverables">9. 每輪分析交付物</h3>
 
 <p>無論 CLI 或 Web，每輪分析固定產出三份文件：</p>
 
@@ -254,7 +271,7 @@ Report + List[Evidence] + ExecutionLog
   <a class="back" href="index.html">← 文件首頁</a>
   <span style="float:right"><a href="03-deployment.html">03 部署指南 →</a></span>
   <div style="clear:both;margin-top:1rem;color:var(--mut);font-size:.8rem">
-    TrustForge 技術文件 · 01 系統架構總覽 · v0.18.5
+    TrustForge 技術文件 · 02 系統架構總覽 · v0.18.5
   </div>
 </footer>
 

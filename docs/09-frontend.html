@@ -41,6 +41,7 @@
   <li><a href="#security">前端安全策略</a></li>
   <li><a href="#dev">開發設定</a></li>
   <li><a href="#hermes-ui">Hermes UI 模組</a></li>
+  <li><a href="#upgrade-ui">外框升級 UI 邊界</a></li>
   <li><a href="#testing">前端測試</a></li>
 </ol>
 </details>
@@ -339,7 +340,18 @@ npm run lint
 <tr><td><code>hermesI18n</code></td><td>多語言文案（zh-TW / en）</td></tr>
 </table>
 
-<h3 id="testing">11. 前端測試</h3>
+
+<h3 id="upgrade-ui">11. 外框升級 UI 邊界</h3>
+<p><code>HermesUpgradeShip</code> 與 Hermes Dashboard 是外框升級控制面的呈現與人審入口，不是 analysis execution owner。UI 可以輪詢 <code>/api/hermes-upgrades</code>、呈現 proposal / sandbox / decision 狀態，管理端操作需走 Admin API。</p>
+<table>
+<tr><th>UI 元件</th><th>責任</th><th>不得做的事</th></tr>
+<tr><td><code>HermesUpgradeShip</code></td><td>顯示候選升級、sandbox 狀態、人審決策。</td><td>不得未經 API / Admin gate 直接改 active pointer。</td></tr>
+<tr><td><code>StageBar</code> / <code>StageDrilldown</code></td><td>顯示 source、claim、trust、Evidence、report 階段。</td><td>不得因 polling 建立新 analysis job。</td></tr>
+<tr><td><code>HermesLeftRail</code> / <code>HermesRightRail</code></td><td>呈現 active question、歷史脈絡、trust decomposition 與 divergence。</td><td>不得把歷史 RAG 結論當成目前 Evidence。</td></tr>
+</table>
+<p>完整治理流程見 <a href="17-outer-framework-upgrade-governance.html">17 — 外框模組與升級治理</a>。</p>
+
+<h3 id="testing">12. 前端測試</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
 npm run test          # vitest（23+ test files）

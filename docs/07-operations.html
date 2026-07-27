@@ -37,6 +37,7 @@
   <li><a href="#admin-config">執行期配置管理（Admin API）</a></li>
   <li><a href="#monitoring">監控與告警</a></li>
   <li><a href="#schedulers">排程器（Hermes / Fetch）</a></li>
+  <li><a href="#outer-upgrades">外框升級治理操作</a></li>
   <li><a href="#rollback">緊急回滾</a></li>
   <li><a href="#logs">日誌查詢</a></li>
   <li><a href="#deploy-update">部署更新流程</a></li>
@@ -196,9 +197,26 @@
 這是 fail-closed 設計——需要「刻意」啟用才會有自主排程。
 </div>
 
-<h3 id="rollback">6. 緊急回滾</h3>
 
-<h4>6.1 前端回滾（React → SSR Legacy）</h4>
+<h3 id="outer-upgrades">6. 外框升級治理操作</h3>
+<p>Hermes 外框可以自動觀測與提出改善候選，但正式啟用必須經過 sandbox / replay 與人類核准。操作前先讀 <a href="17-outer-framework-upgrade-governance.html">17 — 外框模組與升級治理</a>，確認 proposal 未越過 Trust Kernel、安全、成本或部署邊界。</p>
+<div class="cmd">
+<code># 查看公開升級控制面</code>
+<code>curl https://trustforge.hurricanesoft.com.tw/api/hermes-upgrades</code>
+<code></code>
+<code># 管理端查看升級資料（需 Admin Token）</code>
+<code>curl https://trustforge.hurricanesoft.com.tw/api/admin/hermes-upgrades</code>
+<code></code>
+<code># 對候選 proposal 跑 sandbox；不會切換 production active pointer</code>
+<code>curl -X POST https://trustforge.hurricanesoft.com.tw/api/admin/hermes-upgrade-sandbox \</code>
+<code>  -H "Content-Type: application/json" \</code>
+<code>  -d '{"proposal_id":"..."}'</code>
+</div>
+<div class="warn-box"><strong>人審 gate：</strong>核准前必須確認 candidate artifact hash、sandbox attestation、runner version、details checksum 與 proposal id 一致。不得略過 sandbox 直接啟用。</div>
+
+<h3 id="rollback">7. 緊急回滾</h3>
+
+<h4>7.1 前端回滾（React → SSR Legacy）</h4>
 <div class="cmd">
 <code># 切回舊版 SSR 前後端一體（nginx symlink 原子替換）</code>
 <code>./deploy/cutover_switch.sh legacy</code>
@@ -207,7 +225,7 @@
 <code>./deploy/cutover_switch.sh react</code>
 </div>
 
-<h4>6.2 後端回滾</h4>
+<h4>7.2 後端回滾</h4>
 <div class="cmd">
 <code># 從 S3 拉取舊版 deploy zip</code>
 <code>aws s3 cp s3://trustforge-deploy-{acct}/trustforge_app_v0.17.0.zip /tmp/</code>
@@ -216,7 +234,7 @@
 <code># 或手動 scp + unzip + systemctl restart</code>
 </div>
 
-<h4>6.3 緊急關閉 Bedrock（不重啟）</h4>
+<h4>7.3 緊急關閉 Bedrock（不重啟）</h4>
 <div class="cmd">
 <code># 透過 Admin API 關閉 Bedrock（立即生效，不重啟服務）</code>
 <code>curl -X PUT https://trustforge.hurricanesoft.com.tw/api/admin/config \</code>
@@ -225,7 +243,7 @@
 <code>  -d '{"bedrock_enabled": false}'</code>
 </div>
 
-<h3 id="logs">7. 日誌查詢</h3>
+<h3 id="logs">8. 日誌查詢</h3>
 
 <table>
 <tr><th>日誌來源</th><th>查詢方式</th><th>內容</th></tr>
@@ -238,7 +256,7 @@
 <tr><td>Scheduler Log</td><td><code>out/scheduler_log.jsonl</code></td><td>排程器執行記錄</td></tr>
 </table>
 
-<h3 id="deploy-update">8. 部署更新流程</h3>
+<h3 id="deploy-update">9. 部署更新流程</h3>
 
 <pre style="background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;overflow:auto">
 EC2 更新完整流程（依主 repo docs/governance/PRE_PUSH_RELEASE_GATES.md）：
@@ -275,7 +293,7 @@ EC2 更新完整流程（依主 repo docs/governance/PRE_PUSH_RELEASE_GATES.md�
    curl https://trustforge.hurricanesoft.com.tw/api/openapi.yaml
 </pre>
 
-<h3 id="troubleshooting">9. 常見問題排錯</h3>
+<h3 id="troubleshooting">10. 常見問題排錯</h3>
 
 <table>
 <tr><th>問題</th><th>症狀</th><th>診斷步驟</th><th>解決方案</th></tr>
