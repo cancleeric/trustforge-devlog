@@ -1,0 +1,73 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>主線經歷一個高速開發日——12 小時內 55 個 commit 上了 main，包含九條分支一次整併、比賽用 UI 改版（官方三題型升為主選單）、兩項研究線（#195 來源可靠度、#197 異質多源 Conformal）誠實回報負結果入庫。devlog 側由 isabella 補強了五篇比賽稿的「展示資料邊界」聲明，並在獨立分支新增兩份治理文件。</li>
+  <li><strong>最大風險：</strong>主線今日出現一次 <strong>force-push 覆蓋 origin/develop</strong> 的事故，已由 merge 併回救回被覆蓋的內容，但根因與分支保護缺口尚未說明——這是治理層級的警訊，不是普通 bug。</li>
+  <li><strong>下一步：</strong>查明 force-push 根因並確認分支保護；對大批整併實跑本地 pre-push 閘道留證；比賽 UI 改版需做桌機/行動 eye scan。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. force-push 事故併回，救回被覆蓋的 develop 內容</h4>
+<p><strong>完成：</strong>origin/develop 曾被 force-push 覆蓋，主線以 merge 將被蓋掉的內容（含 vitest 併發 flaky 修復）併回，main 收尾於此。</p>
+<p><strong>價值：</strong>已完成的修復工作沒有遺失，歷史連續性保住。</p>
+<p><strong>風險：</strong>commit 訊息未說明 force-push 發生原因；若 develop 缺乏分支保護或有人習慣性 force-push，同類事故會再發生。</p>
+<p><strong>待驗證：</strong>事故根因、分支保護設定是否已補上。</p>
+
+<h4>2. 九分支一次整併上主線</h4>
+<p><strong>完成：</strong>透過 integration/consolidate-20260727 將九條分支（UI 觸控目標、#732 shadow parity、#197 backtest、#722 PIT collector 路徑、比賽 UI 計畫、審閱報告匯入、AI agent context gap audit、#723 優化計畫、23 個過期 xfail 標記清理）整併進 develop 後上 main。</p>
+<p><strong>價值：</strong>收斂長期散落的分支，主線回到單一事實來源。</p>
+<p><strong>風險：</strong>大批一次合併，回歸面集中；本班未見任何測試通過證據隨附。</p>
+<p><strong>待驗證：</strong>本地 pre-push 閘道對合併後主線的綠燈紀錄。</p>
+
+<h4>3. #195 / #197 研究線：誠實負結果入庫</h4>
+<p><strong>完成：</strong>#195 離線來源可靠度訓練器與 #197 真實樣本 JSONL 上的 Conformal backtest，均以「Honest negative result」標註入庫；#195 並修正一處架構邊界違規（trust/ 不得 import ingestion/）。共享的 evidence/outcome 樣本契約與產生管線同步建立。</p>
+<p><strong>價值：</strong>負結果誠實記錄而非隱匿，避免對外虛報信任評分的 ground-truth 能力。</p>
+<p><strong>風險：</strong>代表信任評分的實證校準路線目前尚未達標，屬能力缺口而非工程缺陷。</p>
+<p><strong>待驗證：</strong>樣本規模擴大後重跑，確認是資料量問題還是方法問題。</p>
+
+<h4>4. 比賽 UI 方案 B 落地與可見性修復</h4>
+<p><strong>完成：</strong>官方三題型升為主選單、五種分析角度降為選填第二層（PLAN 方案 B）；版號回報路徑不再誤報為 dev；修復暗底暗字（黑畫面/版號看不見）與亮 accent 白字。</p>
+<p><strong>價值：</strong>介面直接對齊比賽官方題型，評審動線更短；版號與對比度問題影響第一印象，屬必修。</p>
+<p><strong>風險：</strong>UI 結構調整未見 eye scan 證據；深色主題修復需在實機驗證。</p>
+<p><strong>待驗證：</strong>桌機與行動版 eye scan（版面、溢出、狀態轉換、錯誤態）。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+
+<h4>5. isabella 三筆文件變更 + 本班本地同步</h4>
+<p><strong>完成：</strong>isabella 於 main 上為五篇比賽稿（Day 28 系列）補上「展示資料邊界」聲明，明確標示 mockup 與展示用 sample 不代表真實輸出；另在獨立分支新增「外部框架升級治理」（docs/17）與「第一性原理審視」（docs/18）兩份文件。本班發稿前已將本地 devlog 同步至遠端最新，無衝突。</p>
+<p><strong>價值：</strong>比賽稿的誠實邊界從口頭約定變成頁面上的白紙黑字，符合稽核連續性定位。</p>
+<p><strong>風險：</strong>docs/17、docs/18 仍停在分支，尚未併入 main，網站上目前看不到。</p>
+<p><strong>待驗證：</strong>該分支經 review 後併入 main 並確認頁面上線。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>force-push 覆蓋 origin/develop</strong></td><td>高</td><td>分支歷史遭覆蓋須靠 merge 手動救回，顯示分支保護或操作紀律存在缺口，且根因未見說明。</td><td>查明事故根因；確認 develop 分支保護規則；必要時明文禁止 force-push。</td></tr>
+  <tr><td><strong>55 commit 大批上主線，無隨附測試證據</strong></td><td>中</td><td>本班僅 diff-level review；九分支整併的回歸面集中，未見 pre-push 閘道綠燈紀錄。</td><td>對合併後主線實跑本地 pre-push 閘道並留存證據。</td></tr>
+  <tr><td><strong>#195/#197 誠實負結果</strong></td><td>中</td><td>信任評分的 ground-truth 校準路線尚未達標，屬對外宣稱能力的邊界。</td><td>擴大樣本後重跑；對外文案維持誠實表述。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支未上線</strong></td><td>低</td><td>docs/17、docs/18 未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo git fetch 皆成功；devlog 本地已同步至遠端最新後才發稿；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道。commit 訊息中出現的任何審核狀態，本班僅以「commit message 標註」轉述，不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 查明 force-push 事故根因並確認分支保護<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：能說清楚誰在何時 force-push、保護規則已阻止再犯。</label></li>
+  <li><label><input type="checkbox" disabled> 對合併後主線實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git pull --ff-only && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過，留存輸出。</label></li>
+  <li><label><input type="checkbox" disabled> 比賽 UI 方案 B 做桌機/行動 eye scan<br><code>npm run dev 後以實機檢查主選單三題型、第二層分析角度、深色主題對比度</code>；通過標準：無遮擋、無溢出、版號可見、無暗底暗字。</label></li>
+  <li><label><input type="checkbox" disabled> 將 devlog 治理文件分支併入 main<br><code>review docs/outer-framework-upgrade-governance-20260727 分支後 merge 進 main</code>；通過標準：docs/17、docs/18 在網站可見。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-27 台灣時間約 11:00–23:00（本班 12 小時）。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 於觀測窗內新增 55 個 commit，收尾於 7ad966a（force-push 併回，內含 b3d2335）。關鍵 hash：d80330f（UI 方案 B）、9e18dae（版號修復）、aad86ef（暗底暗字）、f564d1b / fb23563 等（九分支整併，integration/consolidate-20260727）、ffb3e44（#195 誠實負結果）、9c112f9（#197 誠實負結果）、1c51027（架構邊界修正）、12594b3（AUC/Brier 報告）、e8817ad + 6484529（樣本契約與管線）、aecbf20（xfail 清理）。自本地上次同步基準 de5c4fe 至 7ad966a 合計 89 個 commit、141 檔變動（+20396 / −1445 行，另含測試檔汰換）。</p>
+<p><strong>devlog repo：</strong>origin/main 由 978ab80 前進至 8c26530（isabella，「clarify competition pitch devlog boundaries」，修 days/2026-07-27 至 27e 共五檔）；新分支 docs/outer-framework-upgrade-governance-20260727 含 10bc7bd（docs/17，+235 行新檔）與 0a4c1e1（docs/18，+202 行新檔），尚未併入 main。本班以 git pull --rebase 快轉本地至 8c26530 後發稿。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>

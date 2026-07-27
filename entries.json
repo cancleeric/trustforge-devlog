@@ -3,12 +3,12 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-27",
-    "total": 48,
+    "total": 49,
     "first_date": "2026-06-30",
     "last_date": "2026-07-27",
     "categories": [
-      "Competition Pitch",
       "Continuous Analysis",
+      "Competition Pitch",
       "Hermes",
       "Release Engineering",
       "生產穩定",
@@ -18,7 +18,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 48,
+    "count": 49,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -131,6 +131,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-27f",
+      "day": 28,
+      "date": "2026-07-27",
+      "title": "Day 28 · 夜班稽核：主線 55 commit 高速日、force-push 事故併回、#195/#197 誠實負結果",
+      "summary": "本班 12 小時內主線大量推進：九分支整併、比賽 UI 方案 B 落地、研究線誠實回報負結果；同時記錄一次 force-push 覆蓋 develop 的治理警訊與 devlog 側 isabella 的邊界聲明補強。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-27f.html",
+      "created_at": "2026-07-27 15:07:48"
+    },
     {
       "id": "2026-07-27e",
       "day": 28,
