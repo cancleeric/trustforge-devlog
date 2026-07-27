@@ -1,233 +1,248 @@
-<!doctype html><html lang="zh-Hant"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TrustForge — 開發記錄</title>
-<meta name="description" content="TrustForge 開發記錄：加密市場分析 AI Agent（HOYA BIT 黑客松）的多源信任提煉開發歷程、方法論與參考資料。">
-<meta property="og:title" content="TrustForge — 開發記錄">
-<meta property="og:description" content="加密市場分析 AI Agent 的多源信任提煉開發歷程、方法論與參考資料。">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://cancleeric.github.io/trustforge-devlog/">
-<link rel="stylesheet" href="style.css?v=20260718-format-fix">
-<script type="application/ld+json">
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TrustForge — 開發記錄</title>
+  <meta name="description" content="TrustForge 開發記錄：加密市場分析 AI Agent（HOYA BIT 黑客松）的多源信任提煉開發歷程、方法論與參考資料。">
+  <meta property="og:title" content="TrustForge — 開發記錄">
+  <meta property="og:description" content="加密市場分析 AI Agent 的多源信任提煉開發歷程、方法論與參考資料。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cancleeric.github.io/trustforge-devlog/">
+  <link rel="stylesheet" href="style.css?v=20260718-format-fix">
+  <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Blog","name":"TrustForge 開發記錄","url":"https://cancleeric.github.io/trustforge-devlog/","publisher":{"@type":"Organization","name":"HurricaneSoft"}}
 </script>
-<link rel="alternate" type="application/atom+xml" title="TrustForge 開發記錄" href="feed.xml">
-</head><body><div class="wrap">
-<header>
-  <h1><span class="tf">TrustForge</span> 開發記錄 <span style="font-size:.5em;vertical-align:middle;padding:.15em .55em;border:1px solid var(--mut,#888);border-radius:.5em;color:var(--mut,#888);font-weight:normal;letter-spacing:.03em" id="ver">…</span></h1>
-  <p class="sub">加密市場分析 AI Agent — 多源資訊的信任提煉｜2026 雲湧智生黑客松 · HOYA BIT 命題</p>
-  <div class="cta">
-    <a class="primary" href="https://trustforge.hurricanesoft.com.tw/" target="_blank" rel="noopener">▶ Live Demo（HTTPS）</a>
-    <a href="docs/15-user-manual.html">📘 使用者手冊</a>
-    <a href="docs/16-competition-submission.html">🏆 競賽交付</a>
-    <a href="docs/">📖 技術文件（交接）</a>
-    <a href="references.html">📚 參考資料 / 技術堆疊</a>
-    <a href="https://github.com/cancleeric/trustforge" target="_blank" rel="noopener">⌥ 原始碼（私有）</a>
-    <a href="feed.xml">⊕ RSS (Atom)</a>
+  <link rel="alternate" type="application/atom+xml" title="TrustForge 開發記錄" href="feed.xml">
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1><span class="tf">TrustForge</span> 開發記錄 <span
+          style="font-size:.5em;vertical-align:middle;padding:.15em .55em;border:1px solid var(--mut,#888);border-radius:.5em;color:var(--mut,#888);font-weight:normal;letter-spacing:.03em"
+          id="ver">…</span></h1>
+      <p class="sub">加密市場分析 AI Agent — 多源資訊的信任提煉｜2026 雲湧智生黑客松 · HOYA BIT 命題</p>
+      <div class="cta">
+        <a class="primary" href="https://trustforge.hurricanesoft.com.tw/" target="_blank" rel="noopener">▶ Live
+          Demo（HTTPS）</a>
+        <a href="docs/15-user-manual.html">📘 使用者手冊</a>
+        <a href="docs/16-competition-submission.html">🏆 競賽交付</a>
+        <a href="docs/">📖 技術文件（交接）</a>
+        <a href="references.html">📚 參考資料 / 技術堆疊</a>
+        <a href="https://github.com/cancleeric/trustforge" target="_blank" rel="noopener">⌥ 原始碼（私有）</a>
+        <a href="feed.xml">⊕ RSS (Atom)</a>
+      </div>
+      <p class="badges">
+        <span>AWS Bedrock (Claude Sonnet 4.6)</span><span>Python stdlib</span>
+        <span>多源整合 + 信任評分 + 溯源</span><span>HurricaneSoft</span>
+      </p>
+    </header>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="controls">
+      <input class="search" id="search" type="search" placeholder="搜尋開發記錄（標題 / 摘要 / 標籤）…" autocomplete="off">
+      <div class="chips" id="cats"></div>
+      <div class="chips" id="months"></div>
+      <div class="active-tags" id="activeTags"></div>
+    </div>
+
+    <h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄（時間軸）</h3>
+    <details class="toc" id="cloudWrap">
+      <summary>🏷️ 標籤雲（點擊展開篩選）</summary>
+      <div class="cloud" id="cloud" style="margin-top:.6rem"></div>
+    </details>
+    <div class="entries" id="entries">載入中…</div>
+    <div class="pager" id="pager"></div>
+
+    <footer>
+      TrustForge by HurricaneSoft（颶風軟體）· 本站僅記錄開發歷程,原始碼為私有 repo。<br>
+      命題:加密市場分析 AI Agent — 多源資訊的信任提煉。資料層 <code>entries.json</code> 為可查詢結構化資料集(支援分頁/搜尋/篩選)。
+    </footer>
   </div>
-  <p class="badges">
-    <span>AWS Bedrock (Claude Sonnet 4.6)</span><span>Python stdlib</span>
-    <span>多源整合 + 信任評分 + 溯源</span><span>HurricaneSoft</span>
-  </p>
-</header>
 
-<div class="stats" id="stats"></div>
+  <script>
+    const PAGE_SIZE = 10;
+    const state = { q: "", cat: "全部", month: "全部", tags: new Set(), page: 1 };
 
-<div class="controls">
-  <input class="search" id="search" type="search" placeholder="搜尋開發記錄（標題 / 摘要 / 標籤）…" autocomplete="off">
-  <div class="chips" id="cats"></div>
-  <div class="chips" id="months"></div>
-  <div class="active-tags" id="activeTags"></div>
-</div>
+    fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
+      const meta = data.meta || {};
+      const list = (data.entries || []).slice();
+      document.getElementById('ver').textContent = meta.version || "";
 
-<h3 style="color:var(--mut);font-size:.85rem;letter-spacing:.05em">每日開發記錄（時間軸）</h3>
-<div class="cloud" id="cloud"></div>
-<div class="entries" id="entries">載入中…</div>
-<div class="pager" id="pager"></div>
+      // stats
+      const days = new Set(list.map(e => e.date)).size;
+      const span = meta.first_date && meta.last_date
+        ? Math.round((new Date(meta.last_date) - new Date(meta.first_date)) / 864e5) + 1 : "—";
+      document.getElementById('stats').innerHTML = [
+        ["篇", list.length], ["開發天", days], ["版本", (meta.version || "—").replace(/^v/, "")],
+        ["跨度(天)", span]
+      ].map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 
-<footer>
-  TrustForge by HurricaneSoft（颶風軟體）· 本站僅記錄開發歷程,原始碼為私有 repo。<br>
-  命題:加密市場分析 AI Agent — 多源資訊的信任提煉。資料層 <code>entries.json</code> 為可查詢結構化資料集(支援分頁/搜尋/篩選)。
-</footer>
-</div>
+      // tag cloud (frequency based)
+      const freq = {};
+      list.forEach(e => (e.tags || []).forEach(t => freq[t] = (freq[t] || 0) + 1));
+      const maxF = Math.max(1, ...Object.values(freq));
+      const cloudEl = document.getElementById('cloud');
+      cloudEl.innerHTML = Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([t, c]) => {
+        const sz = 0.72 + 0.5 * (c / maxF);
+        const on = state.tags.has(t);
+        return `<span class="cloud-tag${on ? ' on' : ''}" data-tag="${t}" style="font-size:${sz.toFixed(2)}rem">#${t}</span>`;
+      }).join('');
+      cloudEl.querySelectorAll('.cloud-tag').forEach(x => x.onclick = () => {
+        const t = x.dataset.tag;
+        state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t);
+        state.page = 1; render();
+      });
 
-<script>
-const PAGE_SIZE = 10;
-const state = { q: "", cat: "全部", month: "全部", tags: new Set(), page: 1 };
+      // category chips
+      const cats = ["全部", ...(meta.categories || [...new Set(list.map(e => e.category))])];
+      const catEl = document.getElementById('cats');
+      catEl.innerHTML = cats.map(c =>
+        `<span class="chip${c === state.cat ? ' active' : ''}" data-cat="${c}">${c}</span>`).join('');
+      catEl.addEventListener('click', e => {
+        const c = e.target.dataset.cat; if (!c) return;
+        state.cat = c; state.page = 1;
+        [...catEl.children].forEach(x => x.classList.toggle('active', x.dataset.cat === c));
+        render();
+      });
 
-fetch('entries.json?_=' + Date.now()).then(r => r.json()).then(data => {
-  const meta = data.meta || {};
-  const list = (data.entries || []).slice();
-  document.getElementById('ver').textContent = meta.version || "";
+      // month chips (derived from data)
+      const monthSet = [...new Set(list.map(e => e.date.slice(0, 7)))].sort().reverse();
+      const months = ["全部", ...monthSet];
+      const monEl = document.getElementById('months');
+      monEl.innerHTML = months.map(m =>
+        `<span class="chip${m === state.month ? ' active' : ''}" data-mon="${m}">${m === '全部' ? '全部月份' : m}</span>`).join('');
+      monEl.addEventListener('click', e => {
+        const m = e.target.dataset.mon; if (!m) return;
+        state.month = m; state.page = 1;
+        [...monEl.children].forEach(x => x.classList.toggle('active', x.dataset.mon === m));
+        render();
+      });
 
-  // stats
-  const days = new Set(list.map(e => e.date)).size;
-  const span = meta.first_date && meta.last_date
-    ? Math.round((new Date(meta.last_date) - new Date(meta.first_date)) / 864e5) + 1 : "—";
-  document.getElementById('stats').innerHTML = [
-    ["篇", list.length], ["開發天", days], ["版本", (meta.version || "—").replace(/^v/, "")],
-    ["跨度(天)", span]
-  ].map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
-
-  // tag cloud (frequency based)
-  const freq = {};
-  list.forEach(e => (e.tags || []).forEach(t => freq[t] = (freq[t] || 0) + 1));
-  const maxF = Math.max(1, ...Object.values(freq));
-  const cloudEl = document.getElementById('cloud');
-  cloudEl.innerHTML = Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([t, c]) => {
-    const sz = 0.72 + 0.5 * (c / maxF);
-    const on = state.tags.has(t);
-    return `<span class="cloud-tag${on ? ' on' : ''}" data-tag="${t}" style="font-size:${sz.toFixed(2)}rem">#${t}</span>`;
-  }).join('');
-  cloudEl.querySelectorAll('.cloud-tag').forEach(x => x.onclick = () => {
-    const t = x.dataset.tag;
-    state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t);
-    state.page = 1; render();
-  });
-
-  // category chips
-  const cats = ["全部", ...(meta.categories || [...new Set(list.map(e => e.category))])];
-  const catEl = document.getElementById('cats');
-  catEl.innerHTML = cats.map(c =>
-    `<span class="chip${c === state.cat ? ' active' : ''}" data-cat="${c}">${c}</span>`).join('');
-  catEl.addEventListener('click', e => {
-    const c = e.target.dataset.cat; if (!c) return;
-    state.cat = c; state.page = 1;
-    [...catEl.children].forEach(x => x.classList.toggle('active', x.dataset.cat === c));
-    render();
-  });
-
-  // month chips (derived from data)
-  const monthSet = [...new Set(list.map(e => e.date.slice(0, 7)))].sort().reverse();
-  const months = ["全部", ...monthSet];
-  const monEl = document.getElementById('months');
-  monEl.innerHTML = months.map(m =>
-    `<span class="chip${m === state.month ? ' active' : ''}" data-mon="${m}">${m === '全部' ? '全部月份' : m}</span>`).join('');
-  monEl.addEventListener('click', e => {
-    const m = e.target.dataset.mon; if (!m) return;
-    state.month = m; state.page = 1;
-    [...monEl.children].forEach(x => x.classList.toggle('active', x.dataset.mon === m));
-    render();
-  });
-
-  function renderTags() {
-    const el = document.getElementById('activeTags');
-    el.innerHTML = state.tags.size
-      ? '已選標籤: ' + [...state.tags].map(t => `<span class="t">#${t}</span>`).join(' ') + '（點下方標籤或此處文字清除）'
-      : '';
-    el.onclick = () => { state.tags.clear(); state.page = 1; render(); };
-  }
-
-  function filtered() {
-    const q = state.q.trim().toLowerCase();
-    return list.filter(e => {
-      if (state.cat !== "全部" && e.category !== state.cat) return false;
-      if (state.month !== "全部" && !e.date.startsWith(state.month)) return false;
-      if (state.tags.size && !(e.tags || []).some(t => state.tags.has(t))) return false;
-      if (q) {
-        const hay = (e.title + ' ' + e.summary + ' ' + (e.tags || []).join(' ')).toLowerCase();
-        if (!hay.includes(q)) return false;
+      function renderTags() {
+        const el = document.getElementById('activeTags');
+        el.innerHTML = state.tags.size
+          ? '已選標籤: ' + [...state.tags].map(t => `<span class="t">#${t}</span>`).join(' ') + '（點下方標籤或此處文字清除）'
+          : '';
+        el.onclick = () => { state.tags.clear(); state.page = 1; render(); };
       }
-      return true;
-    });
-  }
 
-  function hl(s) {
-    s = String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-    const q = state.q.trim();
-    if (q) {
-      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-      s = s.replace(re, m => `<mark>${m}</mark>`);
-    }
-    return s;
-  }
+      function filtered() {
+        const q = state.q.trim().toLowerCase();
+        return list.filter(e => {
+          if (state.cat !== "全部" && e.category !== state.cat) return false;
+          if (state.month !== "全部" && !e.date.startsWith(state.month)) return false;
+          if (state.tags.size && !(e.tags || []).some(t => state.tags.has(t))) return false;
+          if (q) {
+            const hay = (e.title + ' ' + e.summary + ' ' + (e.tags || []).join(' ')).toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
 
-  function render() {
-    selIdx = 0;
-    renderTags();
-    const out = filtered();
-    const totalPages = Math.max(1, Math.ceil(out.length / PAGE_SIZE));
-    if (state.page > totalPages) state.page = totalPages;
-    const start = (state.page - 1) * PAGE_SIZE;
-    const pageItems = out.slice(start, start + PAGE_SIZE);
+      function hl(s) {
+        s = String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+        const q = state.q.trim();
+        if (q) {
+          const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+          s = s.replace(re, m => `<mark>${m}</mark>`);
+        }
+        return s;
+      }
 
-    const box = document.getElementById('entries');
-    if (!out.length) { box.innerHTML = '<div class="empty">沒有符合的開發記錄。</div>'; }
-    else {
-      box.innerHTML = pageItems.map(e => {
-        const dn = e.day != null ? `Day ${e.day}` : '';
-        const published = (e.created_at && e.created_at.slice(0, 10) === e.date) ? e.created_at.slice(0, 16) : e.date;
-        const allTags = e.tags || [];
-        const shown = allTags.slice(0, 3);
-        const tags = shown.map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('')
-          + (allTags.length > shown.length ? `<span class="tag more">+${allTags.length - shown.length}</span>` : '');
-        const cat = e.category ? `<span class="cat">${e.category}</span>` : '';
-        return `<a class="entry" href="days/${e.file}" data-href="days/${e.file}">
+      function render() {
+        selIdx = 0;
+        renderTags();
+        const out = filtered();
+        const totalPages = Math.max(1, Math.ceil(out.length / PAGE_SIZE));
+        if (state.page > totalPages) state.page = totalPages;
+        const start = (state.page - 1) * PAGE_SIZE;
+        const pageItems = out.slice(start, start + PAGE_SIZE);
+
+        const box = document.getElementById('entries');
+        if (!out.length) { box.innerHTML = '<div class="empty">沒有符合的開發記錄。</div>'; }
+        else {
+          box.innerHTML = pageItems.map(e => {
+            const dn = e.day != null ? `Day ${e.day}` : '';
+            const published = (e.created_at && e.created_at.slice(0, 10) === e.date) ? e.created_at.slice(0, 16) : e.date;
+            const allTags = e.tags || [];
+            const shown = allTags.slice(0, 3);
+            const tags = shown.map(t => `<span class="tag" data-tag="${t}">#${t}</span>`).join('')
+              + (allTags.length > shown.length ? `<span class="tag more">+${allTags.length - shown.length}</span>` : '');
+            const cat = e.category ? `<span class="cat">${e.category}</span>` : '';
+            return `<a class="entry" href="days/${e.file}" data-href="days/${e.file}">
           <div class="day"><div class="dn">${dn.replace('Day ', '')}</div><div class="dl">DAY</div></div>
           <h3 class="title">${hl(e.title)}</h3>
           <div class="meta">${cat}<span class="date">${published}</span></div>
           <p class="summary">${hl(e.summary)}</p>
           <div class="tags">${tags}</div>
         </a>`;
-      }).join('');
-      box.querySelectorAll('.tag').forEach(t => t.onclick = ev => {
-        ev.preventDefault(); ev.stopPropagation();
-        const tg = t.dataset.tag;
-        state.tags.has(tg) ? state.tags.delete(tg) : state.tags.add(tg);
-        state.page = 1; render();
-      });
-    }
+          }).join('');
+          box.querySelectorAll('.tag').forEach(t => t.onclick = ev => {
+            ev.preventDefault(); ev.stopPropagation();
+            const tg = t.dataset.tag;
+            state.tags.has(tg) ? state.tags.delete(tg) : state.tags.add(tg);
+            state.page = 1; render();
+          });
+        }
 
-    // pager
-    const pg = document.getElementById('pager');
-    if (out.length <= PAGE_SIZE) { pg.innerHTML = ''; }
-    else {
-      let html = `<button class="pg" data-p="prev" ${state.page === 1 ? 'disabled' : ''}>‹ 上一頁</button>`;
-      const win = [];
-      for (let p = 1; p <= totalPages; p++) {
-        if (p === 1 || p === totalPages || Math.abs(p - state.page) <= 2) win.push(p);
-        else if (win[win.length - 1] !== '…') win.push('…');
+        // pager
+        const pg = document.getElementById('pager');
+        if (out.length <= PAGE_SIZE) { pg.innerHTML = ''; }
+        else {
+          let html = `<button class="pg" data-p="prev" ${state.page === 1 ? 'disabled' : ''}>‹ 上一頁</button>`;
+          const win = [];
+          for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || Math.abs(p - state.page) <= 2) win.push(p);
+            else if (win[win.length - 1] !== '…') win.push('…');
+          }
+          win.forEach(p => {
+            if (p === '…') html += `<span class="pg ell">…</span>`;
+            else html += `<button class="pg${p === state.page ? ' active' : ''}" data-p="${p}">${p}</button>`;
+          });
+          html += `<button class="pg" data-p="next" ${state.page === totalPages ? 'disabled' : ''}>下一頁 ›</button>`;
+          html += `<span class="pg-info">第 ${state.page} / ${totalPages} 頁 · 共 ${out.length} 筆</span>`;
+          pg.innerHTML = html;
+          pg.querySelectorAll('button.pg').forEach(b => b.onclick = () => {
+            const v = b.dataset.p;
+            if (v === 'prev') state.page = Math.max(1, state.page - 1);
+            else if (v === 'next') state.page = Math.min(totalPages, state.page + 1);
+            else state.page = +v;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
+        markSel(false);
       }
-      win.forEach(p => {
-        if (p === '…') html += `<span class="pg ell">…</span>`;
-        else html += `<button class="pg${p === state.page ? ' active' : ''}" data-p="${p}">${p}</button>`;
+
+      document.getElementById('search').addEventListener('input', e => { state.q = e.target.value; state.page = 1; render(); });
+
+      // keyboard shortcuts: / focus search, j/k move, Enter open
+      let selIdx = 0;
+      function markSel(scroll) {
+        const cards = [...document.querySelectorAll('#entries .entry')];
+        cards.forEach((c, i) => c.classList.toggle('sel', i === selIdx));
+        if (scroll !== false && cards[selIdx]) cards[selIdx].scrollIntoView({ block: 'nearest' });
+      }
+      document.addEventListener('keydown', e => {
+        const inSearch = document.activeElement === document.getElementById('search');
+        if (e.key === '/' && !inSearch) { e.preventDefault(); document.getElementById('search').focus(); return; }
+        if (e.key === 'Escape' && inSearch) { document.getElementById('search').blur(); state.q = ''; state.page = 1; render(); return; }
+        if (inSearch) return;
+        const cards = [...document.querySelectorAll('#entries .entry')];
+        if (!cards.length) return;
+        if (e.key === 'j') { selIdx = Math.min(cards.length - 1, selIdx + 1); markSel(); e.preventDefault(); }
+        else if (e.key === 'k') { selIdx = Math.max(0, selIdx - 1); markSel(); e.preventDefault(); }
+        else if (e.key === 'Enter') { const a = cards[selIdx]; if (a) location.href = a.getAttribute('href'); }
       });
-      html += `<button class="pg" data-p="next" ${state.page === totalPages ? 'disabled' : ''}>下一頁 ›</button>`;
-      html += `<span class="pg-info">第 ${state.page} / ${totalPages} 頁 · 共 ${out.length} 筆</span>`;
-      pg.innerHTML = html;
-      pg.querySelectorAll('button.pg').forEach(b => b.onclick = () => {
-        const v = b.dataset.p;
-        if (v === 'prev') state.page = Math.max(1, state.page - 1);
-        else if (v === 'next') state.page = Math.min(totalPages, state.page + 1);
-        else state.page = +v;
-        render();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
-    markSel(false);
-  }
 
-  document.getElementById('search').addEventListener('input', e => { state.q = e.target.value; state.page = 1; render(); });
+      render();
+    }).catch(() => { document.getElementById('entries').textContent = '無法載入記錄'; });
+  </script>
+</body>
 
-  // keyboard shortcuts: / focus search, j/k move, Enter open
-  let selIdx = 0;
-  function markSel(scroll) {
-    const cards = [...document.querySelectorAll('#entries .entry')];
-    cards.forEach((c, i) => c.classList.toggle('sel', i === selIdx));
-    if (scroll !== false && cards[selIdx]) cards[selIdx].scrollIntoView({ block: 'nearest' });
-  }
-  document.addEventListener('keydown', e => {
-    const inSearch = document.activeElement === document.getElementById('search');
-    if (e.key === '/' && !inSearch) { e.preventDefault(); document.getElementById('search').focus(); return; }
-    if (e.key === 'Escape' && inSearch) { document.getElementById('search').blur(); state.q = ''; state.page = 1; render(); return; }
-    if (inSearch) return;
-    const cards = [...document.querySelectorAll('#entries .entry')];
-    if (!cards.length) return;
-    if (e.key === 'j') { selIdx = Math.min(cards.length - 1, selIdx + 1); markSel(); e.preventDefault(); }
-    else if (e.key === 'k') { selIdx = Math.max(0, selIdx - 1); markSel(); e.preventDefault(); }
-    else if (e.key === 'Enter') { const a = cards[selIdx]; if (a) location.href = a.getAttribute('href'); }
-  });
-
-  render();
-}).catch(() => { document.getElementById('entries').textContent = '無法載入記錄'; });
-</script>
-</body></html>
+</html>
