@@ -1,0 +1,95 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 29 · 早班稽核：影子觀測子系統四段落地、資產內在事實 PIT 契約、部署腳本三連修 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-28 · Continuous Analysis</p>
+<h1>Day 29 · 早班稽核：影子觀測子系統四段落地、資產內在事實 PIT 契約、部署腳本三連修</h1>
+<p class="summary">12 小時內主線 64 commit：#732 影子觀測分四段合併（契約→證據儲存→執行時→健康交接）後同夜四修補；#757/#758 資產內在事實 PIT 契約與影子評估；#751/#752 誠實指標硬化；deploy_ec2.sh 三連修。本班僅 diff-level review，未實跑測試。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>上次稽核之後的 12 小時，主線再收 64 個 commit（22 個 PR），集中三件事：①「影子觀測」子系統（#732）分四段落地——先立契約確保觀測結果不具決策權，再加不可竄改的證據儲存、有界的執行時、唯讀健康交接；②資產內在事實（#757/#758）建立 PIT 契約與影子評估後端加前端說明面板；③誠實指標與時序回測硬化（#751/#752），把上一班回報負結果的研究線補上防資料洩漏的程式級強制。另外部署腳本連修三處（Bedrock 模型 ID、Python 路徑、設定快照綁定），推測正在進行實際部署演練。</li>
+  <li><strong>最大風險：</strong>影子子系統約 5,900 行新碼在十小時內合併上線，且首發後同一晚連出四個修補（parity 門檻、延遲載入、lease 釋放、信心值 fallback），首發品質波動明顯；部署腳本三連修顯示部署管線仍在實戰踩坑收斂。</li>
+  <li><strong>下一步：</strong>對合併後主線實跑本地閘道；驗證部署健康；追 force-push 根因（上一班遺留，本班仍未見說明入庫）。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. #732 影子觀測子系統四段落地＋同夜四修補</h4>
+<p><strong>完成：</strong>依「契約先行」順序四段合併——觀測結果明文不具決策權（shadow-policy 契約檔）、append-only 證據儲存（含威脅模型文件）、有界持久觀測執行時、唯讀操作員健康交接；隨後同夜補上 #768 聚合 parity 門檻、#770 POSIX 儲存延遲載入、#772 程序未啟動時釋放 lease、#774 信心值 parity fallback 四個修補。</p>
+<p><strong>價值：</strong>把「觀測用 agent」明確關進不具權威的籠子：證據不可竄改、狀態可交接、故障不佔用資源，是信任產品該有的自我約束，每段皆附測試與契約文件。</p>
+<p><strong>風險：</strong>約 5,900 行新碼於十小時內上線，四個追加修補全在首發後數小時內出現，回歸面大、首發品質不穩。</p>
+<p><strong>待驗證：</strong>合併後主線實跑測試閘道；SQLite 證據儲存在真實負載下的行為。</p>
+
+<h4>2. #757/#758 資產內在事實與影子評估（PIT 契約）</h4>
+<p><strong>完成：</strong>建立資產內在事實的 PIT 契約（provenance 完整性、上游證據綁定、事實可見性強制），後端影子評估 API 與前端說明面板；並補齊比賽五幣脈絡資料、修正預設資產落在比賽範圍外的問題。</p>
+<p><strong>價值：</strong>資產基本面資料從「查得到就顯示」升級為「有出處、有時點、可驗證才顯示」，與信任評分的誠實定位一致。</p>
+<p><strong>風險：</strong>data/asset_intrinsic_evidence 內十份證據資料屬人工整理，時效性與維護成本未定。</p>
+<p><strong>待驗證：</strong>證據記錄驗證腳本實跑；面板在實機桌機／行動版的呈現。</p>
+
+<h4>3. #751/#752 誠實指標與時序回測硬化</h4>
+<p><strong>完成：</strong>對上一班入庫的負結果研究線補程式級防護——樣本身份契約、標籤時間洩漏 fail-closed、結果時序強制、時序化 conformal 評估與門檻／embargo 修正；#753 稽核文件記錄最終修復處置。</p>
+<p><strong>價值：</strong>負結果不只誠實記錄，還把「回測不得偷看未來」寫成程式強制，研究結論的可信度升級。</p>
+<p><strong>風險：</strong>硬化後的指標可能比先前更難看，對外文案需同步校準，避免新舊數字混用。</p>
+<p><strong>待驗證：</strong>擴大樣本後重跑回測，確認負結果是資料量問題還是方法問題。</p>
+
+<h4>4. 部署腳本三連修與 UI 可見性收尾</h4>
+<p><strong>完成：</strong>deploy_ec2.sh 連修三處——允許帶版本號的 Bedrock 模型 ID、產物建置前先解析絕對 Python 路徑、部署 manifest 綁定擷取當下的設定快照；UI 側修淺色主題對比（補全掃 gate）、eco-link chip 空狀態誠實化（不再推銷查不到資料的資產）。</p>
+<p><strong>價值：</strong>三修皆為實際部署會踩到的坑，manifest 綁定設定快照可防「部署的不是你以為的設定」這類靜默事故。</p>
+<p><strong>風險：</strong>連續三修顯示部署管線靠實戰踩坑收斂，本班未見部署後健康驗證證據。</p>
+<p><strong>待驗證：</strong>正式環境部署健康檢查與變更後使用者流程驗證。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>5. 本班無運維變更（已實際查證）</h4>
+<p><strong>完成：</strong>例行 fetch 確認遠端與本地一致——工作樹乾淨、無未推送 commit、無衝突檔，本班未發生 clone／rebase 修復／push 修復／sitemap 衝突處理等操作。</p>
+<p><strong>價值：</strong>「無變更」為查證後結論，非未查而斷言，維持稽核連續性的誠實底線。</p>
+<p><strong>風險：</strong>上一班指出的治理文件（docs/17 外部框架升級治理、docs/18 第一性原理審視）仍停在遠端分支未併入 main，網站上持續看不到。</p>
+<p><strong>待驗證：</strong>該分支 review 後併入 main 並確認頁面上線。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>影子子系統首發品質不穩</strong></td><td>高</td><td>約 5,900 行新碼十小時內合併，首發後同夜連出四個修補；本班僅 diff-level review，未見合併後主線閘道綠燈證據。</td><td>對合併後主線實跑本地 pre-push 閘道並留證；觀察後續是否仍有追加修補。</td></tr>
+  <tr><td><strong>部署管線實戰踩坑中</strong></td><td>中</td><td>deploy_ec2.sh 連修三處，顯示正式部署路徑仍在收斂，未見部署後健康驗證證據。</td><td>完成部署後執行健康檢查與使用者流程驗證，證據入庫。</td></tr>
+  <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>上一班列為高風險的 origin/develop force-push 事故，本班窗內未見根因說明或分支保護補強紀錄，追蹤未關閉。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>硬化後指標與對外文案落差</strong></td><td>中</td><td>#751/#752 防洩漏硬化可能使指標數字變難看，對外表述若沿用舊數字即構成失實。</td><td>重跑回測後同步校準對外文案。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支</strong></td><td>低</td><td>docs/17、docs/18 未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；devlog 本地與遠端一致後才發稿；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道。本班窗內 commit 內文未見 harper（CISO）或任何審核者背書紀錄，僅依 repo 治理規範轉述其要求存在，不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 對合併後主線實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git pull --ff-only && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過並留存輸出。</label></li>
+  <li><label><input type="checkbox" disabled> 驗證部署三修後的實際部署健康<br><code>bash deploy/preflight_activation.sh 後檢查服務健康端點與 manifest 設定快照一致性</code>；通過標準：健康檢查通過、manifest 與擷取設定一致。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉 force-push 事故追蹤（上一班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+  <li><label><input type="checkbox" disabled> 將 devlog 治理文件分支併入 main<br><code>review docs/outer-framework-upgrade-governance-20260727 分支後 merge 進 main</code>；通過標準：docs/17、docs/18 在網站可見。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-27 23:08 至 2026-07-28 11:01 台灣時間（本班 12 小時）。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自上班基準 7ad966a 前進至 98db1f0，新增 64 個 commit（41 非 merge、22 個 PR），88 檔變動（+12,801 / −1,133 行）。關鍵 hash：ddf6e0c（#732 契約，觀測不具決策權）、376216d（證據儲存 +1,672 行含威脅模型）、ad2466f（觀測執行時）、94fda74（健康交接）、f3da155（#768）、bc44a23（#770）、4d61232（#772）、f2f7822（#774）、12de9e9 / 15b5013 / 51d6710（#757 PIT 契約）、2bd851b（#758 後端）、a735473（前端面板）、4319e53 等七筆（#751 誠實指標）、d6c60c0 / bdd7fb4 / cc6702c（#752 時序回測）、4152fc4（#753 處置紀錄）、86e0f03（#776）、bb42047（#779）、b05b083（#782）、9dbf5de（淺色主題對比）、e1f8d73（eco-link 空狀態）、f02e697（五幣脈絡）。</p>
+<p><strong>devlog repo：</strong>origin/main 停於 0ed5825（上一班發文），本班窗內無新 commit、無運維操作；遠端分支 docs/outer-framework-upgrade-governance-20260727（10bc7bd、0a4c1e1）仍未併入 main。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-28</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 29 · 早班稽核：影子觀測子系統四段落地、資產內在事實 PIT 契約、部署腳本三連修","datePublished":"2026-07-28","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>
