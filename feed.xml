@@ -8,6 +8,95 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 30 · 夜班稽核：每小時發布列車啟動、v0.27.x 十三連鑄、影子晉升管線成形</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-29b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-29b.html"/>
+    <updated>2026-07-29T00:00:00+08:00</updated>
+    <published>2026-07-29T00:00:00+08:00</published>
+    <summary>本班主線收 137 commit：#1000 每小時 OIDC 正式環境發布列車上線並連鑄 v0.27.5 至 v0.27.17；#875 至 #879 影子晉升安全網（非劣性閘道、回滾演習、限量 canary）整鏈落地；原子多角度批次與 preview 管線成鏈；#749 修復 epic 收官。最大風險：18 個版號遠端 tag 仍為零，且列車每小時持續出貨。devlog 端完成接寫規範制度化。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-29b · Continuous Analysis</p>
+<h1>Day 30 · 夜班稽核：每小時發布列車啟動、v0.27.x 十三連鑄、影子晉升管線成形</h1>
+<p class="summary">本班主線收 137 commit：#1000 每小時 OIDC 正式環境發布列車上線並連鑄 v0.27.5 至 v0.27.17；#875 至 #879 影子晉升安全網（非劣性閘道、回滾演習、限量 canary）整鏈落地；原子多角度批次與 preview 管線成鏈；#749 修復 epic 收官。最大風險：18 個版號遠端 tag 仍為零，且列車每小時持續出貨。devlog 端完成接寫規範制度化。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（12 小時）主線收 137 個 commit（79 非 merge、31 個 PR），發布列車火力全開——版本自 v0.27.4 連鑄 13 版至 v0.27.17，並以 #1000 建立「每小時自動正式環境發布列車」（OIDC 認證、專用 runner、釘定工具鏈）。功能面三條主軸：①影子→正式晉升管線成形（#875 至 #879）——非劣性晉升閘道、canonical scorer 位元組級對齊、回滾演習、限量 canary 控制器全部落地；②原子多角度與 preview 管線（#883 至 #896、#967 至 #999）——批次儲存、成本對帳、可信時鐘、admission plan 編譯與執行整鏈上線；③研究可信度修復 epic（#749 至 #753）正式標記完成，五維方法論（#870 至 #874）由規格轉為實作。</li>
+  <li><strong>devlog 端重要事件：</strong>觀測窗內完成接寫規範制度化——新增 CONTRIBUTING.md 文案規範與 AGENTS.md 注入機制（每班自動必讀），並補記前班 push 憑證根因修復；本班無其他運維事故。</li>
+  <li><strong>最大風險：</strong>版本譜系缺口持續擴大——v0.27.0 至 v0.27.17 共 18 個版號，遠端 tag 至今為零（本班 ls-remote 再次查證）；同時每小時自動發布列車已開始對正式環境連續出貨，等於「不可稽核的版號」正以每小時一班的速度堆積。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道；本班窗內 +36,254 行變動的品質證據均僅見於 commit 紀錄與文件宣稱。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. #1000 每小時正式環境發布列車＋ v0.27.5 至 v0.27.17 十三連鑄</h4>
+<p><strong>完成：</strong>新增 OIDC 認證的每小時正式環境發布列車，改跑專用 self-hosted runner 並釘定工具鏈版本；本班列車連鑄 v0.27.5 至 v0.27.17 共 13 版；配套部署強固——sandbox 允許釘定 uv runtime（#987）、前端部署後驗證（#897）、回滾就緒強化（#911）、發布前端漂移 fail-closed 與 TLS 收斂窗四連修（#978）。</p>
+<p><strong>價值：</strong>發布從人工觸發升級為固定節奏的工業化出貨，漂移偵測 fail-closed 讓「部署了但沒生效」這類靜默失敗會直接擋下列車。</p>
+<p><strong>風險：</strong>每小時對正式環境自動出貨，而版本譜系（遠端 tag）完全未閉合、閘道與列車本身也在同窗邊跑邊修（#978 一晚四修）；13 版中任何一版出問題，回溯只能靠 commit 紀錄。</p>
+<p><strong>待驗證：</strong>列車的煞車機制（失敗即停、人工核可點）實際演練；v0.27.17 正式環境健康與版號一致性。</p>
+
+<h4>2. #875 至 #879 影子→正式晉升管線成形</h4>
+<p><strong>完成：</strong>非劣性晉升閘道與停止條件（#875）、canonical scorer 候選路徑＋旗標關閉時位元組級輸出對齊（#876）、發布 A/B 回滾演習腳本（#877，非 production 演習）、影子→正式解釋狀態與使用者文案（#878）、限量 canary 控制器與監測器（#879，含 harper WARN 後補的 receipt_id 一致性強制），#748 就此收尾。</p>
+<p><strong>價值：</strong>這是「新評分演算法如何安全取代舊的」完整安全網：先證明不劣於現況、可位元組級驗證無副作用、可演練回滾、可小流量試水——對決策者而言是演算法升級不賭運氣的制度保證。</p>
+<p><strong>風險：</strong>整鏈皆新碼（canary 控制器 +963 行、晉升模組 +1,069 行），僅 commit 內附測試背書，未經獨立實跑。</p>
+<p><strong>待驗證：</strong>回滾演習腳本在非 production 實跑一次留證；canary 小流量首跑的監測數據。</p>
+
+<h4>3. 原子多角度批次與 preview 管線整鏈上線</h4>
+<p><strong>完成：</strong>多角度批次儲存 spike 與 sandbox 佐證（#896）、runtime 接線（#884）、成本對帳（#885）、成本安全發布閘道（#886）、提交冪等強化（#883）與驗收缺口修復（#809/#810）；preview 側新增 fail-closed 可信時鐘（#967）、circuit store 原語（#972）、admission plan 編譯（#973）→執行（#983/#988）→保留額度原子對帳（#991/#999）全鏈。</p>
+<p><strong>價值：</strong>多角度分析從單發呼叫升級為有成本上限、可對帳、可冪等重試的批次系統——直接控住 Bedrock 費用失控風險；preview 管線的原子 admission 杜絕「超賣」配額。</p>
+<p><strong>風險：</strong>批次儲存單檔 +1,957 行，是本班最大單點；成本閘道與批次邏輯同窗落地，閘道對閘道的保護尚無實戰紀錄。</p>
+<p><strong>待驗證：</strong>成本安全閘道以真實批次觸發一次上限擋停；離線決定性測試（#990）在 CI 實跑穩定性。</p>
+
+<h4>4. 研究可信度修復收官與五維方法論落地</h4>
+<p><strong>完成：</strong>#749 至 #753 修復 epic 正式標記完成——evidence_grouper production 缺陷修復與 claim 方向/無單位值隔離（#862）、驗證腳本 fail-closed 與引文對 claim 核驗（#863）、跨源分歧偵測經 API envelope 端到端驗證（#864）；五維方法論由規格轉實作——控制權分散/治理捕獲（#870）、影子觀測事件與 provenance 消毒（#871）、holder 集中度實體解析可行性閘道（#872/#994 供應商成本評估）、issuance/supply 通用來源擴充（#873）、多資產 PIT replay 與 symbol-blind 基準（#874，含 #1001 衝突事實改走 canonical PIT 重放）。</p>
+<p><strong>價值：</strong>前班列為關鍵議題的研究可信度缺陷至此有正式收口；symbol-blind 基準與 provenance 消毒是「不看資產名字給分、每筆主張可回查」兩大公正性主張的實作面兌現。</p>
+<p><strong>風險：</strong>#872/#994 可行性評估結論若為「資料成本過高」，holder 集中度維度可能降級；epic 標記完成是自我宣告，未經第三方驗收。</p>
+<p><strong>待驗證：</strong>symbol-blind 基準對正式資料實跑一次；#994 成本結論與決策。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>5. 接寫規範制度化（本班觀測窗內運維變更）</h4>
+<p><strong>完成：</strong>觀測窗內 devlog repo 收 3 筆 commit：①前篇（07-29 早班）補記 push 憑證輔助設定根因修復至運維段；②依三篇人工文案 review 結論新增 CONTRIBUTING.md——禁用推送全部 tag 的危險指令、「版本譜系未閉合」須補白話、「無運維變更」與「補發滯留稿」不矛盾須註明；③新增 AGENTS.md 使每班接寫自動必讀上述規範。本篇即為新規範生效後第一篇。</p>
+<p><strong>價值：</strong>文案品質要求從「口頭傳承」變成「入庫規範＋自動注入」，換班不再依賴記憶；憑證根因補記讓前班遺留問題有完整收口紀錄。</p>
+<p><strong>風險：</strong>規範依賴接寫流程確實讀取，尚無違規自動攔截；規範本身首次實戰，可能有未覆蓋情境。</p>
+<p><strong>待驗證：</strong>後續班次持續合規；評估在 validate_devlog.py 加規範自動檢查。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>版本譜系缺口持續擴大</strong></td><td>高</td><td>v0.27.0 至 v0.27.17 共 18 個版號，遠端 tag 為零（本班 ls-remote 查證），且每小時列車仍在以每班十餘版的速度堆積新版號。目前 v0.27.x 仍只是主線 commit／VERSION 檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點。</td><td>為各 release bump commit 補打 tag 並逐一明列推送；在列車流程內建自動打 tag＋推 tag，杜絕缺口再擴大。</td></tr>
+  <tr><td><strong>每小時自動正式環境出貨</strong></td><td>中</td><td>#1000 列車每小時對 production 自動發布，本班 13 版中含四筆 #978 對列車自身的修補——閘道與被閘道的系統在同窗共演化，煞車機制未經演練。</td><td>演練一次「閘道失敗→列車停止→回滾」全流程並留證；未演練前將列車節奏視為風險敞口。</td></tr>
+  <tr><td><strong>+36,254 行品質證據未經獨立驗證</strong></td><td>中</td><td>本班窗內 207 檔、+36,254 行變動，測試通過與 codex-review 狀態均僅見於 commit 紀錄，本班未實跑任何閘道。</td><td>對 d9ca0f7 實跑本地 pre-push 閘道，數據對上前不引用任何測試宣稱。</td></tr>
+  <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的 origin/develop force-push 事故，連續第四班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支</strong></td><td>低</td><td>docs/17、docs/18 連續第五班未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；遠端 tag 以 ls-remote 實際查證；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道 / 發布列車演練。各 PR 的測試與 codex-review 狀態均僅以 commit 紀錄轉述，本班不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 為 v0.27.x 各 release bump commit 補打並推送遠端 tag，閉合版本譜系<br><code>git tag v0.27.17 882b528 &amp;&amp; git push origin v0.27.5 v0.27.6 v0.27.7 v0.27.8 v0.27.9 v0.27.10 v0.27.11 v0.27.12 v0.27.13 v0.27.14 v0.27.15 v0.27.16 v0.27.17</code>（v0.27.0 至 v0.27.4 依前篇清單一併補推；禁止 `git push origin --tags`，避免誤推本地所有 tag）；通過標準：ls-remote 可見 v0.27.0 至 v0.27.17 全數 tag 且各指向對應 release commit。</label></li>
+  <li><label><input type="checkbox" disabled> 在每小時列車流程內建自動打 tag＋推 tag<br><code>檢視 .github/workflows 內 #1000 列車定義，於 bump 步驟後加 tag 建立與明列推送</code>；通過標準：下一班窗內新版號自動附帶遠端 tag，缺口不再擴大。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge &amp;&amp; git checkout d9ca0f7 &amp;&amp; .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 全數通過。</label></li>
+  <li><label><input type="checkbox" disabled> 演練發布列車煞車與回滾全流程<br><code>python3 scripts/run_rollback_drill.py（非 production 演習模式）</code>；通過標準：閘道失敗可停列車、回滾後健康檢查通過，演練紀錄入庫。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉 force-push 事故追蹤（連續四班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-29 11:26 至 23:28 台灣時間（本班 12 小時）；主 repo 基準取前篇日誌終點 afcc727，故本篇涵蓋其後全部主線提交，與前篇無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自 afcc727 前進至 d9ca0f7，新增 137 個 commit（79 非 merge、31 個 PR、13 筆 release bump），207 檔變動（+36,254 / −683 行）。關鍵 hash：a3f03f3 / 3de4400 / eeecd20（#1000 每小時列車、專用 runner、釘定工具鏈）、3df71ac 至 882b528（v0.27.5 至 v0.27.17 各 bump）、af39997（#875）、466c2ec（#876）、5b29179（#877）、b007bed（#878）、e43f976 / 5e30c18（#879）、2b0be89 / c6bd356 / f398dbd / d6e0391（#896/#884/#885/#886）、3208d89（#967）、fd8719e（#972）、5d428e2 / 9928859 / 733b9d1（#973/#983-#988/#991-#999）、1e97121 / 9680a7a / bd55a70（#862/#863/#864）、c0ffa19 / 868c601（#749 epic 標記完成）、70ac94b（#870）、7db7ebe（#871）、9262678 / 7e9cadf（#872/#994）、39623c9（#873）、7b310ce / 1cf46ca（#874/#1001）、ea24904（#897）、b281126（#911）、77cda10 / d036830 / a0353da / 6967ec6（#978 四連修）、8edac43（#987）、ef0261a（#927 uv lock）。最大新檔：multi_angle_batch_store.py（+1,957）、analysis_flow.py（+1,414）、asset_intrinsic_promotion.py（+1,069）、canary_control.py（+963）。遠端 tag 查證：ls-remote 顯示 v0.27.* 為零。</p>
+<p><strong>devlog repo：</strong>觀測窗內收 3 commit——5116385（07-29 篇補記憑證根因）、72d4ce5（文案 review 修正＋CONTRIBUTING.md）、9fae4c8（AGENTS.md）；工作樹乾淨、無滯留未發稿；遠端分支 docs/outer-framework-upgrade-governance-20260727 仍未併入 main。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 30 · 早班稽核：版本主權統一躍升 v0.27.0、官方雙幣比較 CA 系列全鏈上線、前班滯留稿補發</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-29.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-29.html"/>

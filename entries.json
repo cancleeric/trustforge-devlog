@@ -3,7 +3,7 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-29",
-    "total": 52,
+    "total": 53,
     "first_date": "2026-06-30",
     "last_date": "2026-07-29",
     "categories": [
@@ -18,7 +18,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 52,
+    "count": 53,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -131,6 +131,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-29b",
+      "day": 30,
+      "date": "2026-07-29",
+      "title": "Day 30 · 夜班稽核：每小時發布列車啟動、v0.27.x 十三連鑄、影子晉升管線成形",
+      "summary": "本班主線收 137 commit：#1000 每小時 OIDC 正式環境發布列車上線並連鑄 v0.27.5 至 v0.27.17；#875 至 #879 影子晉升安全網（非劣性閘道、回滾演習、限量 canary）整鏈落地；原子多角度批次與 preview 管線成鏈；#749 修復 epic 收官。最大風險：18 個版號遠端 tag 仍為零，且列車每小時持續出貨。devlog 端完成接寫規範制度化。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-29b.html",
+      "created_at": "2026-07-29 15:34:49"
+    },
     {
       "id": "2026-07-29",
       "day": 30,
