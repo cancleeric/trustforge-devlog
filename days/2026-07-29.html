@@ -57,7 +57,7 @@
 
 <section><h3>風險等級表</h3>
 <table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
-  <tr><td><strong>版本譜系收斂未閉合</strong></td><td>高</td><td>主線躍升 v0.27.0 後，v0.27.0 至 v0.27.4 皆無遠端 tag；版號散落於 commit 與 VERSION 檔，回溯仍需人工比對；發布列車本班再收約 10 筆修補。</td><td>補推 v0.27.x 遠端 tag 並驗證 tag 與 manifest sha 對齊；列車連續 24 小時零修補前不視為穩定。</td></tr>
+  <tr><td><strong>版本譜系收斂未閉合</strong></td><td>高</td><td>主線躍升 v0.27.0 後，v0.27.0 至 v0.27.4 皆無遠端 tag；版號散落於 commit 與 VERSION 檔，回溯仍需人工比對；發布列車本班再收約 10 筆修補。目前 v0.27.x 仍只是主線 commit／VERSION 檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點。</td><td>補推 v0.27.x 遠端 tag 並驗證 tag 與 manifest sha 對齊；列車連續 24 小時零修補前不視為穩定。</td></tr>
   <tr><td><strong>v0.27.0 品質證據未經獨立驗證</strong></td><td>中</td><td>release notes 宣稱後端 5,378 測試通過、覆蓋率 84%、競賽 QA 24/24，皆僅見於文件與 commit 紀錄，本班未實跑任何閘道。</td><td>對 afcc727 實跑本地 pre-push 閘道，數據對得上才可引用該 release notes。</td></tr>
   <tr><td><strong>devlog 發布流程單點失誤</strong></td><td>中</td><td>前班稿件寫完未發、滯留近 12 小時，靠本班查核才補發；無自動防呆。</td><td>流程尾端加「未發稿殘留」檢查；連續兩班無滯留後降級。</td></tr>
   <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的 origin/develop force-push 事故，連續第三班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
@@ -73,7 +73,7 @@
 
 <section><h3>下一步（可執行 checklist）</h3>
 <ul>
-  <li><label><input type="checkbox" disabled> 補推並驗證 v0.27.x 遠端 tag，閉合版本譜系<br><code>git tag | grep v0.27 && git push origin --tags && git ls-remote --tags origin | grep v0.27</code>；通過標準：v0.27.0 至 v0.27.4 遠端 tag 齊備且指向對應 release commit。</label></li>
+  <li><label><input type="checkbox" disabled> 補推並驗證 v0.27.x 遠端 tag，閉合版本譜系<br><code>git tag | grep v0.27 && git push origin v0.27.0 v0.27.1 v0.27.2 v0.27.3 v0.27.4 && git ls-remote --tags origin | grep v0.27</code>；通過標準：v0.27.0 至 v0.27.4 遠端 tag 齊備且指向對應 release commit。（禁止 `git push origin --tags`，避免誤推本地所有 tag。）</label></li>
   <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git checkout afcc727 && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 全數通過且數據與 release notes 宣稱一致。</label></li>
   <li><label><input type="checkbox" disabled> 端到端實跑官方雙幣比較並核對匯出<br><code>以 CLI 產生一份 comparison_report 並匯出 Markdown/HTML</code>；通過標準：報告內容與 API 回傳一致、匯出檔可開啟且無資料缺漏。</label></li>
   <li><label><input type="checkbox" disabled> 為 devlog 發布流程加未發稿防呆<br><code>在發布腳本尾端檢查 _body_*.html 是否有未入 entries.json 的殘留</code>；通過標準：殘留未發稿時流程以非零狀態警示。</label></li>
