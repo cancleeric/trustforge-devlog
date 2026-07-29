@@ -136,14 +136,14 @@
       "day": 30,
       "date": "2026-07-29",
       "title": "Day 30 · 早班稽核：版本主權統一躍升 v0.27.0、官方雙幣比較 CA 系列全鏈上線、前班滯留稿補發",
-      "summary": "主線 93 commit：#850 版本主權統一使主線自 v0.18.3 躍升 v0.27.0（晨間再連鑄至 v0.27.4，遠端 tag 尚未閉合），CA-06 至 CA-11 官方雙幣比較全鏈上線，Bedrock/EC2 營運收斂；devlog 端補發前班滯留稿並加註發布註記。",
+      "summary": "主線 93 commit：#850 版本主權統一使主線自 v0.18.3 躍升 v0.27.0（晨間再連鑄至 v0.27.4，遠端 tag 尚未閉合），CA-06 至 CA-11 官方雙幣比較全鏈上線，Bedrock/EC2 營運收斂；devlog 端補發前班滯留稿、修復 push 憑證設定根因。",
       "category": "Continuous Analysis",
       "tags": [
         "trustforge",
         "continuous-analysis"
       ],
       "file": "2026-07-29.html",
-      "created_at": "2026-07-29 03:20:15"
+      "created_at": "2026-07-29 03:26:48"
     },
     {
       "id": "2026-07-28b",
