@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-28",
-    "total": 50,
+    "generated": "2026-07-29",
+    "total": 52,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-28",
+    "last_date": "2026-07-29",
     "categories": [
       "Continuous Analysis",
       "Competition Pitch",
@@ -18,7 +18,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 50,
+    "count": 52,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -131,6 +131,34 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-29",
+      "day": 30,
+      "date": "2026-07-29",
+      "title": "Day 30 · 早班稽核：版本主權統一躍升 v0.27.0、官方雙幣比較 CA 系列全鏈上線、前班滯留稿補發",
+      "summary": "主線 93 commit：#850 版本主權統一使主線自 v0.18.3 躍升 v0.27.0（晨間再連鑄至 v0.27.4，遠端 tag 尚未閉合），CA-06 至 CA-11 官方雙幣比較全鏈上線，Bedrock/EC2 營運收斂；devlog 端補發前班滯留稿並加註發布註記。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-29.html",
+      "created_at": "2026-07-29 03:20:15"
+    },
+    {
+      "id": "2026-07-28b",
+      "day": 29,
+      "date": "2026-07-28",
+      "title": "Day 29 · 夜班稽核：每小時自動發布列車 19 連修、多角度協調器四段上線、核心判斷權威化",
+      "summary": "主線 121 commit：#802/#805 自動發布列車上線當日 19 連修並鑄出 v0.18.2/v0.18.3，#808–#811 多角度協調器規格到上線僅數小時，#734 核心判斷權威化合併；本篇為前班滯留稿，由 07-29 早班查證後補發。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-28b.html",
+      "created_at": "2026-07-29 03:20:14"
+    },
     {
       "id": "2026-07-28",
       "day": 29,

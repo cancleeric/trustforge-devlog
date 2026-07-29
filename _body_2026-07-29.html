@@ -1,0 +1,74 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（12 小時）主線收 93 個 commit（64 非 merge、13 個 PR），三條主軸：①版本主權統一（#850/#837）——修復先前分裂的版本譜系，主線自 v0.18.3 一次躍升至 v0.27.0，改為「執行期版本單一事實來源＋自遠端 tag 推導版號」，晨間列車再連鑄 v0.27.1 至 v0.27.4 四版；②官方雙幣比較 CA 系列（#845–#849、#881）全鏈上線——API/CLI/Lambda 輸出、統一報告頁與匯出、免資料庫快照合成、E2E 測試與驗收閘道修復；③ Bedrock／EC2 營運收斂（#776/#867/#890/#863/#893）——模型設定交易化、每小時列車模型持久化、claim_id 溯源驗證腳本。另有 #862 非破壞式事實聚合、#869 五維方法論規格、N80 前端截斷修復。</li>
+  <li><strong>devlog 端重要事件：</strong>前班（07-28 夜班）日誌稿件已完成撰寫與自檢，但滯留本地未發布；本班查證稿內數據與 git 證據一致後補發上線，並在該篇加註發布註記，稽核連續性未中斷。</li>
+  <li><strong>最大風險：</strong>版本自 v0.18.3 跳號至 v0.27.0 是為收斂先前分岔的 tag 譜系（v0.19 至 v0.26 系列 tag 早於 07-26 已存在於遠端），但本班窗內 v0.27.x 四個版本皆未見對應遠端 tag，版本譜系仍未完全閉合；發布列車本班再收約 10 筆修補，仍處邊跑邊修狀態。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道；v0.27.0 release notes 內的測試數據僅屬文件宣稱，本班未驗證。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. #850/#837 版本主權統一與 v0.27.0 躍升</h4>
+<p><strong>完成：</strong>執行期版本改為單一事實來源、發布版號改由遠端 tag 推導、自動化版本遞增入庫；主線自 v0.18.3 直接躍升 v0.27.0（收斂與 07-26 既存 v0.19 至 v0.26 系列 tag 分岔的譜系），main 與 develop 完成三向 reconcile（#855–#859）；隨後修補約 10 筆——隔離 worktree 的版本解析器載入、受限 umask 下的閘道權限、sandbox 閘道封閉性等；晨間列車於約兩小時內連鑄 v0.27.1 至 v0.27.4。</p>
+<p><strong>價值：</strong>先前「tag 譜系與主線版號各走各的」是稽核上的重大隱患（部署者無法確定 v0.20.0 與主線 v0.18.x 誰新誰舊），統一後版本可比較、可回溯。</p>
+<p><strong>風險：</strong>v0.27.0 至 v0.27.4 皆未見遠端 tag（本班以 ls-remote 查證為零），版號僅存在於 commit 與 VERSION 檔，譜系收斂只完成一半；列車修補仍在湧現。</p>
+<p><strong>待驗證：</strong>v0.27.x 遠端 tag 補推；v0.27.4 正式環境健康與 manifest sha 一致性。</p>
+
+<h4>2. #845–#849/#881 官方雙幣比較 CA 系列全鏈上線</h4>
+<p><strong>完成：</strong>comparison_report 進 API/CLI/Lambda/OpenAPI（CA-06）、統一比較報告頁與 Markdown/HTML 匯出（CA-07/08）、免資料庫比較快照合成（CA-09）、E2E 測試與 durable workflow ADR（CA-10/11），另以 #881 修復 CA-03 至 CA-10 驗收閘道。</p>
+<p><strong>價值：</strong>雙資產官方比較從內部能力升級為對外可交付的完整鏈路（型別化契約、可匯出報告），是競賽題目的直接交付面。</p>
+<p><strong>風險：</strong>CA 系列在單一夜間窗內密集合併，驗收閘道本身也在同窗修復，成熟度依賴後續實跑。</p>
+<p><strong>待驗證：</strong>比較報告端到端實跑一次並核對匯出內容；Lambda 路徑實測。</p>
+
+<h4>3. Bedrock／EC2 營運收斂與溯源驗證</h4>
+<p><strong>完成：</strong>Bedrock 模型設定改交易式 reconcile（#867/#776）、每小時列車模型設定持久化（#890）、新增 Bedrock 推理與 claim_id 溯源驗證腳本（#863）、離線環境下 Bedrock 閘道測試隔離（#893/#894）、Tier-2 官方歷史閘道語意釘定與穩定（#888/#889）。</p>
+<p><strong>價值：</strong>模型設定交易化杜絕「改到一半的設定被部署」；claim_id 溯源腳本讓每筆評分主張可回查推理來源，直接支撐產品的可稽核性主張。</p>
+<p><strong>風險：</strong>營運修正多為實戰踩坑後補強，顯示 EC2 環境仍在磨合期。</p>
+<p><strong>待驗證：</strong>溯源驗證腳本對正式環境資料實跑一次並留證。</p>
+
+<h4>4. 事實聚合、方法論規格與前端細修</h4>
+<p><strong>完成：</strong>#862 非破壞式事實聚合與介面呈現上線（含 codex-review 後的 facts 歸屬修正與前端 bounds check）；#869 五維方法論、來源資格與 asset-identity-blind 評分規格入庫（規格層，未實作）；N80 修復三處文字截斷與窄螢幕頂欄擠壓；另一筆 412 行的記憶能力缺口分析報告以文件形式直接入主線。</p>
+<p><strong>價值：</strong>事實聚合「非破壞式」設計保留原始證據不被覆寫；asset-identity-blind 規格若落地，可阻斷「看資產名字給分」的偏誤，是信任演算法公正性的關鍵一步。</p>
+<p><strong>風險：</strong>#869 目前僅規格；文件類直接入主線未走 PR 流程（依 repo 治理規範，文件變更風險低但流程一致性略有出入）。</p>
+<p><strong>待驗證：</strong>#869 實作排程與驗收條件；事實聚合前端呈現實機眼掃。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>5. 前班滯留稿補發（本班運維操作）</h4>
+<p><strong>完成：</strong>本班例行查核時發現前班（07-28 夜班）日誌稿件已於 07-28 23:06 台灣時間完成撰寫與自檢，但未執行發布流程、未 commit，滯留本地近 12 小時；本班逐項核對稿內 commit 數、hash 與行數統計皆與 git 證據一致後，加註發布註記並補發上線，隨後發布本篇。</p>
+<p><strong>價值：</strong>稽核連續性未斷班——決策者看到的仍是完整逐班紀錄，且補發稿明確標示「發布時間晚於觀測窗」，不掩飾時序。</p>
+<p><strong>風險：</strong>「寫完未發」是發布流程的單點失誤模式，這是首次發生，若無防呆可能再犯。</p>
+<p><strong>待驗證：</strong>後續班次確認兩篇皆在網站可見；評估在流程尾端加一道「本地是否殘留未發稿」檢查。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>版本譜系收斂未閉合</strong></td><td>高</td><td>主線躍升 v0.27.0 後，v0.27.0 至 v0.27.4 皆無遠端 tag；版號散落於 commit 與 VERSION 檔，回溯仍需人工比對；發布列車本班再收約 10 筆修補。</td><td>補推 v0.27.x 遠端 tag 並驗證 tag 與 manifest sha 對齊；列車連續 24 小時零修補前不視為穩定。</td></tr>
+  <tr><td><strong>v0.27.0 品質證據未經獨立驗證</strong></td><td>中</td><td>release notes 宣稱後端 5,378 測試通過、覆蓋率 84%、競賽 QA 24/24，皆僅見於文件與 commit 紀錄，本班未實跑任何閘道。</td><td>對 afcc727 實跑本地 pre-push 閘道，數據對得上才可引用該 release notes。</td></tr>
+  <tr><td><strong>devlog 發布流程單點失誤</strong></td><td>中</td><td>前班稿件寫完未發、滯留近 12 小時，靠本班查核才補發；無自動防呆。</td><td>流程尾端加「未發稿殘留」檢查；連續兩班無滯留後降級。</td></tr>
+  <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的 origin/develop force-push 事故，連續第三班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支</strong></td><td>低</td><td>docs/17、docs/18 連續第四班未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；前班滯留稿數據逐項核對後補發；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道。v0.27.0 release notes 的測試與覆蓋率數據、以及各 PR 的 codex-review 狀態均僅以文件與 commit 紀錄轉述，本班不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 補推並驗證 v0.27.x 遠端 tag，閉合版本譜系<br><code>git tag | grep v0.27 && git push origin --tags && git ls-remote --tags origin | grep v0.27</code>；通過標準：v0.27.0 至 v0.27.4 遠端 tag 齊備且指向對應 release commit。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git checkout afcc727 && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 全數通過且數據與 release notes 宣稱一致。</label></li>
+  <li><label><input type="checkbox" disabled> 端到端實跑官方雙幣比較並核對匯出<br><code>以 CLI 產生一份 comparison_report 並匯出 Markdown/HTML</code>；通過標準：報告內容與 API 回傳一致、匯出檔可開啟且無資料缺漏。</label></li>
+  <li><label><input type="checkbox" disabled> 為 devlog 發布流程加未發稿防呆<br><code>在發布腳本尾端檢查 _body_*.html 是否有未入 entries.json 的殘留</code>；通過標準：殘留未發稿時流程以非零狀態警示。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉 force-push 事故追蹤（連續三班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-28 23:02 至 2026-07-29 11:02 台灣時間（本班 12 小時）；主 repo 基準取前篇日誌終點 b13b7e5（07-28 18:05 台灣時間），故本篇涵蓋 18:05 之後全部主線提交，與前篇無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自 b13b7e5 前進至 afcc727，新增 93 個 commit（64 非 merge、13 個 PR），170 檔變動（+18,171 / −727 行）。關鍵 hash：f2ed0cf（v0.27.0 準備）、a146c49 / a8ba9c9 / 3af366c / a533d7a（#850 版本主權與 tag 推導）、d108d4e / a3ef19b（#837 umask 閘道）、c0ff885 / e334cfe / 944bc6b / 5dc9293 / dc5a7dd（#855–#859 reconcile）、6acce04 / 242a44f / 0d049d8（版本解析器修補）、7aec878 / de3d77a / 8f265c9 / 4e91340（v0.27.1 至 v0.27.4）、8d1ec75（CA-06）、bcda66d（CA-07/08）、710ede8（CA-09）、df0aab6（CA-10/11）、baf1a69（#881）、cc365a9 / 5575403（#862）、17a9bd9（#869 規格）、630c8b8 / 56720e2（#867/#776）、8832617（#890）、42bffc7（#863）、0f68c6b / 2a58bff（#893/#894）、8f47335 / e899353（#888/#889）、d04ab34（N80）、afcc727（記憶能力缺口報告）。遠端 tag 查證：v0.19.2 至 v0.26.0 存在（07-26 既存），v0.27.x 為零。</p>
+<p><strong>devlog repo：</strong>本班補發前班滯留稿 2026-07-28b（稿檔完成於 07-28 23:06 台灣時間，滯留未發），加註發布註記後與本篇一同入庫；origin/main 補發前停於 c29497e；遠端分支 docs/outer-framework-upgrade-governance-20260727（10bc7bd、0a4c1e1）仍未併入 main。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>

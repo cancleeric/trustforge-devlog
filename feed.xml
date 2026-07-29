@@ -2,11 +2,190 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>TrustForge 開發記錄</title>
   <id>https://cancleeric.github.io/trustforge-devlog/</id>
-  <updated>2026-07-28T00:00:00+08:00</updated>
+  <updated>2026-07-29T00:00:00+08:00</updated>
   <author><name>HurricaneSoft（颶風軟體）</name></author>
   <link rel="self" href="https://cancleeric.github.io/trustforge-devlog/feed.xml"/>
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
+  <entry>
+    <title>Day 30 · 早班稽核：版本主權統一躍升 v0.27.0、官方雙幣比較 CA 系列全鏈上線、前班滯留稿補發</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-29.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-29.html"/>
+    <updated>2026-07-29T00:00:00+08:00</updated>
+    <published>2026-07-29T00:00:00+08:00</published>
+    <summary>主線 93 commit：#850 版本主權統一使主線自 v0.18.3 躍升 v0.27.0（晨間再連鑄至 v0.27.4，遠端 tag 尚未閉合），CA-06 至 CA-11 官方雙幣比較全鏈上線，Bedrock/EC2 營運收斂；devlog 端補發前班滯留稿並加註發布註記。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-29 · Continuous Analysis</p>
+<h1>Day 30 · 早班稽核：版本主權統一躍升 v0.27.0、官方雙幣比較 CA 系列全鏈上線、前班滯留稿補發</h1>
+<p class="summary">主線 93 commit：#850 版本主權統一使主線自 v0.18.3 躍升 v0.27.0（晨間再連鑄至 v0.27.4，遠端 tag 尚未閉合），CA-06 至 CA-11 官方雙幣比較全鏈上線，Bedrock/EC2 營運收斂；devlog 端補發前班滯留稿並加註發布註記。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（12 小時）主線收 93 個 commit（64 非 merge、13 個 PR），三條主軸：①版本主權統一（#850/#837）——修復先前分裂的版本譜系，主線自 v0.18.3 一次躍升至 v0.27.0，改為「執行期版本單一事實來源＋自遠端 tag 推導版號」，晨間列車再連鑄 v0.27.1 至 v0.27.4 四版；②官方雙幣比較 CA 系列（#845–#849、#881）全鏈上線——API/CLI/Lambda 輸出、統一報告頁與匯出、免資料庫快照合成、E2E 測試與驗收閘道修復；③ Bedrock／EC2 營運收斂（#776/#867/#890/#863/#893）——模型設定交易化、每小時列車模型持久化、claim_id 溯源驗證腳本。另有 #862 非破壞式事實聚合、#869 五維方法論規格、N80 前端截斷修復。</li>
+  <li><strong>devlog 端重要事件：</strong>前班（07-28 夜班）日誌稿件已完成撰寫與自檢，但滯留本地未發布；本班查證稿內數據與 git 證據一致後補發上線，並在該篇加註發布註記，稽核連續性未中斷。</li>
+  <li><strong>最大風險：</strong>版本自 v0.18.3 跳號至 v0.27.0 是為收斂先前分岔的 tag 譜系（v0.19 至 v0.26 系列 tag 早於 07-26 已存在於遠端），但本班窗內 v0.27.x 四個版本皆未見對應遠端 tag，版本譜系仍未完全閉合；發布列車本班再收約 10 筆修補，仍處邊跑邊修狀態。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道；v0.27.0 release notes 內的測試數據僅屬文件宣稱，本班未驗證。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. #850/#837 版本主權統一與 v0.27.0 躍升</h4>
+<p><strong>完成：</strong>執行期版本改為單一事實來源、發布版號改由遠端 tag 推導、自動化版本遞增入庫；主線自 v0.18.3 直接躍升 v0.27.0（收斂與 07-26 既存 v0.19 至 v0.26 系列 tag 分岔的譜系），main 與 develop 完成三向 reconcile（#855–#859）；隨後修補約 10 筆——隔離 worktree 的版本解析器載入、受限 umask 下的閘道權限、sandbox 閘道封閉性等；晨間列車於約兩小時內連鑄 v0.27.1 至 v0.27.4。</p>
+<p><strong>價值：</strong>先前「tag 譜系與主線版號各走各的」是稽核上的重大隱患（部署者無法確定 v0.20.0 與主線 v0.18.x 誰新誰舊），統一後版本可比較、可回溯。</p>
+<p><strong>風險：</strong>v0.27.0 至 v0.27.4 皆未見遠端 tag（本班以 ls-remote 查證為零），版號僅存在於 commit 與 VERSION 檔，譜系收斂只完成一半；列車修補仍在湧現。</p>
+<p><strong>待驗證：</strong>v0.27.x 遠端 tag 補推；v0.27.4 正式環境健康與 manifest sha 一致性。</p>
+
+<h4>2. #845–#849/#881 官方雙幣比較 CA 系列全鏈上線</h4>
+<p><strong>完成：</strong>comparison_report 進 API/CLI/Lambda/OpenAPI（CA-06）、統一比較報告頁與 Markdown/HTML 匯出（CA-07/08）、免資料庫比較快照合成（CA-09）、E2E 測試與 durable workflow ADR（CA-10/11），另以 #881 修復 CA-03 至 CA-10 驗收閘道。</p>
+<p><strong>價值：</strong>雙資產官方比較從內部能力升級為對外可交付的完整鏈路（型別化契約、可匯出報告），是競賽題目的直接交付面。</p>
+<p><strong>風險：</strong>CA 系列在單一夜間窗內密集合併，驗收閘道本身也在同窗修復，成熟度依賴後續實跑。</p>
+<p><strong>待驗證：</strong>比較報告端到端實跑一次並核對匯出內容；Lambda 路徑實測。</p>
+
+<h4>3. Bedrock／EC2 營運收斂與溯源驗證</h4>
+<p><strong>完成：</strong>Bedrock 模型設定改交易式 reconcile（#867/#776）、每小時列車模型設定持久化（#890）、新增 Bedrock 推理與 claim_id 溯源驗證腳本（#863）、離線環境下 Bedrock 閘道測試隔離（#893/#894）、Tier-2 官方歷史閘道語意釘定與穩定（#888/#889）。</p>
+<p><strong>價值：</strong>模型設定交易化杜絕「改到一半的設定被部署」；claim_id 溯源腳本讓每筆評分主張可回查推理來源，直接支撐產品的可稽核性主張。</p>
+<p><strong>風險：</strong>營運修正多為實戰踩坑後補強，顯示 EC2 環境仍在磨合期。</p>
+<p><strong>待驗證：</strong>溯源驗證腳本對正式環境資料實跑一次並留證。</p>
+
+<h4>4. 事實聚合、方法論規格與前端細修</h4>
+<p><strong>完成：</strong>#862 非破壞式事實聚合與介面呈現上線（含 codex-review 後的 facts 歸屬修正與前端 bounds check）；#869 五維方法論、來源資格與 asset-identity-blind 評分規格入庫（規格層，未實作）；N80 修復三處文字截斷與窄螢幕頂欄擠壓；另一筆 412 行的記憶能力缺口分析報告以文件形式直接入主線。</p>
+<p><strong>價值：</strong>事實聚合「非破壞式」設計保留原始證據不被覆寫；asset-identity-blind 規格若落地，可阻斷「看資產名字給分」的偏誤，是信任演算法公正性的關鍵一步。</p>
+<p><strong>風險：</strong>#869 目前僅規格；文件類直接入主線未走 PR 流程（依 repo 治理規範，文件變更風險低但流程一致性略有出入）。</p>
+<p><strong>待驗證：</strong>#869 實作排程與驗收條件；事實聚合前端呈現實機眼掃。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>5. 前班滯留稿補發（本班運維操作）</h4>
+<p><strong>完成：</strong>本班例行查核時發現前班（07-28 夜班）日誌稿件已於 07-28 23:06 台灣時間完成撰寫與自檢，但未執行發布流程、未 commit，滯留本地近 12 小時；本班逐項核對稿內 commit 數、hash 與行數統計皆與 git 證據一致後，加註發布註記並補發上線，隨後發布本篇。</p>
+<p><strong>價值：</strong>稽核連續性未斷班——決策者看到的仍是完整逐班紀錄，且補發稿明確標示「發布時間晚於觀測窗」，不掩飾時序。</p>
+<p><strong>風險：</strong>「寫完未發」是發布流程的單點失誤模式，這是首次發生，若無防呆可能再犯。</p>
+<p><strong>待驗證：</strong>後續班次確認兩篇皆在網站可見；評估在流程尾端加一道「本地是否殘留未發稿」檢查。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>版本譜系收斂未閉合</strong></td><td>高</td><td>主線躍升 v0.27.0 後，v0.27.0 至 v0.27.4 皆無遠端 tag；版號散落於 commit 與 VERSION 檔，回溯仍需人工比對；發布列車本班再收約 10 筆修補。</td><td>補推 v0.27.x 遠端 tag 並驗證 tag 與 manifest sha 對齊；列車連續 24 小時零修補前不視為穩定。</td></tr>
+  <tr><td><strong>v0.27.0 品質證據未經獨立驗證</strong></td><td>中</td><td>release notes 宣稱後端 5,378 測試通過、覆蓋率 84%、競賽 QA 24/24，皆僅見於文件與 commit 紀錄，本班未實跑任何閘道。</td><td>對 afcc727 實跑本地 pre-push 閘道，數據對得上才可引用該 release notes。</td></tr>
+  <tr><td><strong>devlog 發布流程單點失誤</strong></td><td>中</td><td>前班稿件寫完未發、滯留近 12 小時，靠本班查核才補發；無自動防呆。</td><td>流程尾端加「未發稿殘留」檢查；連續兩班無滯留後降級。</td></tr>
+  <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的 origin/develop force-push 事故，連續第三班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支</strong></td><td>低</td><td>docs/17、docs/18 連續第四班未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；前班滯留稿數據逐項核對後補發；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道。v0.27.0 release notes 的測試與覆蓋率數據、以及各 PR 的 codex-review 狀態均僅以文件與 commit 紀錄轉述，本班不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 補推並驗證 v0.27.x 遠端 tag，閉合版本譜系<br><code>git tag | grep v0.27 && git push origin --tags && git ls-remote --tags origin | grep v0.27</code>；通過標準：v0.27.0 至 v0.27.4 遠端 tag 齊備且指向對應 release commit。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git checkout afcc727 && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 全數通過且數據與 release notes 宣稱一致。</label></li>
+  <li><label><input type="checkbox" disabled> 端到端實跑官方雙幣比較並核對匯出<br><code>以 CLI 產生一份 comparison_report 並匯出 Markdown/HTML</code>；通過標準：報告內容與 API 回傳一致、匯出檔可開啟且無資料缺漏。</label></li>
+  <li><label><input type="checkbox" disabled> 為 devlog 發布流程加未發稿防呆<br><code>在發布腳本尾端檢查 _body_*.html 是否有未入 entries.json 的殘留</code>；通過標準：殘留未發稿時流程以非零狀態警示。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉 force-push 事故追蹤（連續三班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-28 23:02 至 2026-07-29 11:02 台灣時間（本班 12 小時）；主 repo 基準取前篇日誌終點 b13b7e5（07-28 18:05 台灣時間），故本篇涵蓋 18:05 之後全部主線提交，與前篇無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自 b13b7e5 前進至 afcc727，新增 93 個 commit（64 非 merge、13 個 PR），170 檔變動（+18,171 / −727 行）。關鍵 hash：f2ed0cf（v0.27.0 準備）、a146c49 / a8ba9c9 / 3af366c / a533d7a（#850 版本主權與 tag 推導）、d108d4e / a3ef19b（#837 umask 閘道）、c0ff885 / e334cfe / 944bc6b / 5dc9293 / dc5a7dd（#855–#859 reconcile）、6acce04 / 242a44f / 0d049d8（版本解析器修補）、7aec878 / de3d77a / 8f265c9 / 4e91340（v0.27.1 至 v0.27.4）、8d1ec75（CA-06）、bcda66d（CA-07/08）、710ede8（CA-09）、df0aab6（CA-10/11）、baf1a69（#881）、cc365a9 / 5575403（#862）、17a9bd9（#869 規格）、630c8b8 / 56720e2（#867/#776）、8832617（#890）、42bffc7（#863）、0f68c6b / 2a58bff（#893/#894）、8f47335 / e899353（#888/#889）、d04ab34（N80）、afcc727（記憶能力缺口報告）。遠端 tag 查證：v0.19.2 至 v0.26.0 存在（07-26 既存），v0.27.x 為零。</p>
+<p><strong>devlog repo：</strong>本班補發前班滯留稿 2026-07-28b（稿檔完成於 07-28 23:06 台灣時間，滯留未發），加註發布註記後與本篇一同入庫；origin/main 補發前停於 c29497e；遠端分支 docs/outer-framework-upgrade-governance-20260727（10bc7bd、0a4c1e1）仍未併入 main。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>]]></content>
+  </entry>
+  <entry>
+    <title>Day 29 · 夜班稽核：每小時自動發布列車 19 連修、多角度協調器四段上線、核心判斷權威化</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-28b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-28b.html"/>
+    <updated>2026-07-28T00:00:00+08:00</updated>
+    <published>2026-07-28T00:00:00+08:00</published>
+    <summary>主線 121 commit：#802/#805 自動發布列車上線當日 19 連修並鑄出 v0.18.2/v0.18.3，#808–#811 多角度協調器規格到上線僅數小時，#734 核心判斷權威化合併；本篇為前班滯留稿，由 07-29 早班查證後補發。</summary>
+    <category term="Continuous Analysis"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-28b · Continuous Analysis</p>
+<h1>Day 29 · 夜班稽核：每小時自動發布列車 19 連修、多角度協調器四段上線、核心判斷權威化</h1>
+<p class="summary">主線 121 commit：#802/#805 自動發布列車上線當日 19 連修並鑄出 v0.18.2/v0.18.3，#808–#811 多角度協調器規格到上線僅數小時，#734 核心判斷權威化合併；本篇為前班滯留稿，由 07-29 早班查證後補發。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（12 小時）主線再收 121 個 commit（88 非 merge、16 個 PR），四條主軸：①「每小時自動發布列車」（#802/#805）上線——develop 通過閘道後每小時自動推進正式環境，但同一下午連出 19 個修補，且自動列車已實際鑄出 v0.18.2、v0.18.3 兩個版本；②「多角度分析協調器」（#808–#811）當日寫規格、當日四段全上——資料契約、後端 API、前端五角度總覽與衝突標示、選填 LLM 敘事；③核心判斷權威化（#734/#820）——把最終評分決策權收攏到核心 kernel，並列出橋接層退場清單；④ EC2 部署持續踩坑收斂（Python 3.11 執行環境、產物打包、加密相依、canary 單元），加上前端 N70 介面重構與「信心」改為「資訊完整度」的誠實措辭修正。</li>
+  <li><strong>最大風險：</strong>每小時自動發布列車是「無人值守直通正式環境」的高風險自動化，19 連修顯示它是在實戰中邊跑邊修才收斂的；多角度協調器規格到上線僅數小時，審核深度存疑。</li>
+  <li><strong>下一步：</strong>對 v0.18.3 主線實跑本地閘道；驗證自動列車鑄出的版本在正式環境的健康狀態；追 force-push 根因（連續兩班未見說明入庫）。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，未實跑 pytest / build / 任何閘道。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. #802/#805 每小時自動發布列車＋19 連修</h4>
+<p><strong>完成：</strong>新增 fail-closed 的每小時 develop → 正式環境發布列車（腳本、安裝器、備份、manifest 綁定精確 git sha），隨後同一下午連修 19 處——完整 refspec、重複 push hook、bootstrap 跳過、閘道執行目錄隔離、git 設定隔離、loopback 測試放行、canary 暫時單元唯一化、加密相依安裝等；列車已實際鑄出 v0.18.2 與 v0.18.3（相隔 13 分鐘），並加入前後端版本號自動遞增。</p>
+<p><strong>價值：</strong>發布從人工推進改為契約化自動列車，manifest 綁死 git sha 可杜絕「部署的不是你以為的版本」；備份與 fail-closed 設計方向正確。</p>
+<p><strong>風險：</strong>無人值守直通正式環境的自動化，且 19 個修補全在上線當日湧現，代表列車是在真實環境邊跑邊修；本班窗內未見列車鑄出版本的部署後健康驗證證據。</p>
+<p><strong>待驗證：</strong>v0.18.3 在正式環境的健康檢查與使用者流程；列車失敗路徑（fail-closed）是否真的擋得住壞版本。</p>
+
+<h4>2. #808–#811 多角度分析協調器四段上線</h4>
+<p><strong>完成：</strong>規格與可行性報告入庫後同日四段合併——多角度綜合的資料契約與確定性演算法、後端入口與 synthesis 觸發 API、前端五角度總覽與衝突標示（typed API）、選填的 LLM 敘事加值；規格檔已以 done-- 前綴封存，相關測試斷言同步修正。</p>
+<p><strong>價值：</strong>單一評分升級為五角度並陳且明示衝突，衝突標示與確定性演算法（LLM 敘事僅為選填）符合信任產品「可重現、不靠模型即興」的定位。</p>
+<p><strong>風險：</strong>規格到上線僅數小時，週期極短；上線後即出現兩筆測試斷言相容性修正，顯示與既有三軌流程的整合面仍在磨合。</p>
+<p><strong>待驗證：</strong>五角度結果與原單軌評分的一致性抽查；前端桌機／行動版實機呈現。</p>
+
+<h4>3. #734 核心判斷權威化（PR #820）</h4>
+<p><strong>完成：</strong>核心 kernel 成為最終評分的唯一權威來源，新增權威邊界測試與 spy 測試，入庫橋接層退場清單；經兩輪 codex-review 修正（rate limit、證據獨立性、polling 清理）後合併。</p>
+<p><strong>價值：</strong>決策權從散落各層收攏到單一權威點，權責清晰、可稽核，並為舊橋接層退場鋪路。</p>
+<p><strong>風險：</strong>這是評分決策權的架構級變更，屬安全敏感範疇；本班窗內僅見 codex-review 修正紀錄，未見 CISO 層級審核入庫，僅依 repo 治理規範轉述其要求存在，不代為背書。</p>
+<p><strong>待驗證：</strong>橋接層退場清單逐項執行時的回歸；權威化後評分與歷史結果的一致性。</p>
+
+<h4>4. EC2 部署收斂與前端誠實化收尾</h4>
+<p><strong>完成：</strong>EC2 執行環境固定 Python 3.11、正式產物補齊 trustforge core 打包、agentcore 封存整合安全移植並收斂記憶體上限（#793，commit message 標註 security and cost review findings 已關閉）；前端 N70 介面重構（控制項移左欄、頂欄純顯示）、「信心」全面改為「資訊完整度／信賴度」；測試效能優化 137 秒降至 18 秒（#800）、影子測試修至 overload-safe（#794/#798）、動畫自適應品質（#796）。</p>
+<p><strong>價值：</strong>部署三個實戰坑補齊後產物才真正可獨立部署；「信心」改「資訊完整度」是對使用者措辭的誠實化，與產品定位一致；測試提速 7.6 倍直接改善每小時列車的閘道成本。</p>
+<p><strong>風險：</strong>#793 的安全與成本審核狀態僅見於 commit message，未見獨立審核紀錄；N70 介面重構的實機眼掃證據未見入庫。</p>
+<p><strong>待驗證：</strong>N70 桌機／行動版實機眼掃；agentcore 記憶體上限在真實負載下的行為。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>5. 本班無運維變更（已實際查證）</h4>
+<p><strong>完成：</strong>例行 fetch 確認遠端與本地一致——工作樹乾淨、無未推送 commit、無衝突檔，本班未發生 clone／rebase 修復／push 修復／sitemap 衝突處理等操作。</p>
+<p><strong>價值：</strong>「無變更」為查證後結論，非未查而斷言，維持稽核連續性的誠實底線。</p>
+<p><strong>風險：</strong>治理文件分支（docs/17 外部框架升級治理、docs/18 第一性原理審視）連續第三班停在遠端分支未併入 main，網站上持續看不到。</p>
+<p><strong>待驗證：</strong>該分支 review 後併入 main 並確認頁面上線。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>每小時自動發布列車實戰踩坑中</strong></td><td>高</td><td>無人值守直通正式環境，上線當日 19 連修、13 分鐘內連鑄兩版；未見鑄出版本的部署後健康驗證證據。</td><td>對 v0.18.3 實跑健康檢查與使用者流程驗證並留證；演練一次 fail-closed 失敗路徑確認壞版本會被擋下。</td></tr>
+  <tr><td><strong>核心判斷權威化屬安全敏感變更</strong></td><td>中</td><td>評分決策權架構級收攏，僅見 codex-review 紀錄與 commit message 標註，未見 CISO 層級審核入庫。</td><td>補齊安全審核紀錄；橋接層退場逐項附回歸證據。</td></tr>
+  <tr><td><strong>多角度協調器極短週期上線</strong></td><td>中</td><td>規格到四段合併僅數小時，上線後即現測試斷言相容修正，整合面仍在磨合。</td><td>抽查五角度與單軌評分一致性；實機眼掃前端呈現。</td></tr>
+  <tr><td><strong>force-push 根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的 origin/develop force-push 事故，連續兩班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認 develop 分支保護，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>devlog 治理文件停在分支</strong></td><td>低</td><td>docs/17、docs/18 連續第三班未併入 main，決策者在網站上看不到。</td><td>review 後併入 main。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；devlog 本地與遠端一致後才發稿；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest / npm build / 本地 pre-push 閘道。#793 與 #734 的安全／成本審核狀態僅見於 commit message，本班僅轉述標註，不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 對 v0.18.3 主線實跑本地 pre-push 閘道<br><code>cd /opt/data/trustforge && git fetch origin && git checkout b13b7e5 && .githooks/pre-push</code>；通過標準：測試、lint、build、data checks 與 git diff --check 全數通過並留存輸出。</label></li>
+  <li><label><input type="checkbox" disabled> 驗證自動列車鑄出版本的正式環境健康<br><code>檢查正式環境健康端點與 release manifest 之 git sha 是否等於 b13b7e5</code>；通過標準：健康檢查通過且 manifest sha 與主線一致。</label></li>
+  <li><label><input type="checkbox" disabled> 演練發布列車 fail-closed 失敗路徑<br><code>python3 scripts/hourly_release_train.py --help 檢視失敗處置後以壞測試分支演練一次</code>；通過標準：壞版本被擋下且不影響現行正式環境。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉 force-push 事故追蹤（連續兩班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+  <li><label><input type="checkbox" disabled> 將 devlog 治理文件分支併入 main<br><code>review docs/outer-framework-upgrade-governance-20260727 分支後 merge 進 main</code>；通過標準：docs/17、docs/18 在網站可見。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-28 11:01 至 23:02 台灣時間（本班 12 小時）。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自上班基準 98db1f0 前進至 b13b7e5，新增 121 個 commit（88 非 merge、16 個 PR），229 檔變動（+20,834 / −1,087 行）。關鍵 hash：a3428d1 / 86e7746（#802/#805 每小時發布列車）、2498e9b（manifest 綁定精確 sha）、6d41e06、8ad58b7、a623186、527c748、77e0e66（#802 修補樣本，非 merge 修補共 19 筆）、1c8f340（版本自動遞增）、d404dee / b13b7e5（v0.18.2 / v0.18.3）、7cf7901（#808 契約）、2c9adc6（#809 後端）、0f37a38（#810 前端）、decf50f（#811 敘事）、9187e9f（四段合併）、055490e / 473a3a4 / c4dc539 / 4ed80f8（#734 權威化與 PR #820）、8fae3ab（codex-review 修正）、e720d0f（Python 3.11）、880f9dd（core 打包）、a20f081 / 6f7c9de（#793）、aca5f5d（N70 重構）、461a759（措辭修正）、8e74f8d（#800 測試提速）、b3f5e65（#796）、b811179 / 560c812（#794/#798 影子測試）、a07fb83（#807 promotion diff 驗證）、6db51bc（#733 canary cutover）。</p>
+<p><strong>devlog repo：</strong>origin/main 停於 c29497e（本日早班發文），本班窗內無新 commit、無運維操作；遠端分支 docs/outer-framework-upgrade-governance-20260727（10bc7bd、0a4c1e1）仍未併入 main。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+<p><strong>發布註記：</strong>本篇稿件於原班（07-28 夜班）完成撰寫與自檢後未及執行發布流程，由 07-29 早班查證稿內數據與 git 證據一致後代為發布，發布時間晚於觀測窗。</p>
+</section>]]></content>
+  </entry>
   <entry>
     <title>Day 29 · 早班稽核：影子觀測子系統四段落地、資產內在事實 PIT 契約、部署腳本三連修</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-28.html</id>
