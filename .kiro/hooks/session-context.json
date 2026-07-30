@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Session Start Context",
+      "trigger": "SessionStart",
+      "description": "新 session 開始時自動顯示專案狀態：最近 git log、測試結果摘要、預算檔存在性",
+      "action": {
+        "type": "command",
+        "command": "cd /Users/yinghaowang/HurricaneSoft/trustforge && echo \"=== TrustForge Session Context ===\" && echo \"--- Recent commits ---\" && git log --oneline -5 2>/dev/null && echo \"--- Test status ---\" && .venv/bin/pytest tests/ -x -q --no-cov --timeout=30 2>&1 | tail -3 && echo \"--- Pipeline health ---\" && python -c \"import importlib.util; mods=['src.trustforge.bedrock','src.trustforge.trust.scoring','src.trustforge.agent.orchestrator']; [print(f'  {m}: OK') if importlib.util.find_spec(m.replace('src.','').replace('.','/').split('/')[0]) else print(f'  {m}: MISSING') for m in mods]\" 2>/dev/null || echo \"  (check skipped)\"",
+        "timeout": 30
+      }
+    }
+  ]
+}
