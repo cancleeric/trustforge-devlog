@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-29",
-    "total": 53,
+    "generated": "2026-07-30",
+    "total": 54,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-29",
+    "last_date": "2026-07-30",
     "categories": [
       "Continuous Analysis",
       "Competition Pitch",
@@ -18,7 +18,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 53,
+    "count": 54,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -131,6 +131,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-30",
+      "day": 31,
+      "date": "2026-07-30",
+      "title": "Day 31 · 夜班稽核：P0 分析報告產出事故（修復未部署）、#914 Agent OS 治理收官、canary 安全鏈接通、#998 三路外部 review",
+      "summary": "本班主線 170 commit、v0.27.18 至 v0.27.28 十一連鑄、203 檔 +43,617 行，為目前單班最大出貨量。入庫一份 P0 事故報告：分析工作 daemon 崩潰循環致使用者送出分析後報告產不出，根因已定位、修復方案已備但未部署。#914 Agent OS 治理經六輪修補收官，簽章晉升憑據至 canary 白名單與成本預算串成安全鏈，#998 稽核分四階段補證並邀三路外部 review，其中視覺審查明確記為未通過。devlog 端併回遠端一筆參考頁結構修正。本班僅 diff-level review，未實跑測試；無安全審核，僅轉述入庫文件標註。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-30.html",
+      "created_at": "2026-07-30 03:23:51"
+    },
     {
       "id": "2026-07-29b",
       "day": 30,

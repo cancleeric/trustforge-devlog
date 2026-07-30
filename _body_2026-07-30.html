@@ -1,0 +1,85 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（12 小時）主線收 170 個 commit（116 非 merge、36 個 PR），版本自 v0.27.18 連鑄 11 版至 v0.27.28，是目前單班最大出貨量（203 檔、+43,617 行）。內容集中在三條主軸：①<strong>Agent OS（AGOS）治理強固</strong>——#914 經第三至第六輪連續修補後正式收官，約三十筆 fail-closed 修正涵蓋資料庫授權、稽核血緣、唯讀邊界與沙箱；②<strong>發布與 canary 安全鏈</strong>——簽章晉升憑據（#996）、憑據驗證後才准開 canary（#997）、真實 HTTP canary 路由（#1014）、認證白名單（#1021）與簽章成本預算（#1020）串成一條；③<strong>#998 稽核補救</strong>——分四階段補齊證據，並邀 Harper（安全）、gray（方法論）、Codex（對抗性）三路外部 review 入庫。</li>
+  <li><strong>必須先看的一件事：</strong>本班入庫一份 <strong>P0 生產事故報告</strong>——demo 環境的分析工作 daemon 陷入崩潰循環，<strong>使用者送出分析後報告產不出來</strong>。根因已定位（多角度整合路徑在錯誤處理範圍外要求正式環境配置，缺配置即拋例外），修復方案已備但<strong>尚未部署</strong>。網站本身正常，所以從外觀看不出問題。</li>
+  <li><strong>devlog 端事件：</strong>本班觀測窗內遠端由他人推入一筆修正（參考資料頁目錄區塊原先被放在 HTML 結尾標籤之外，已移回頁內並新增兩個需金鑰的鏈上情報來源），另出現一條新遠端分支；本班以 rebase 方式併回並發布本篇，無衝突、無事故。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，<strong>未實跑</strong> pytest／build／任何閘道。三路外部 review 的結論均以入庫文件轉述，本班不代為背書；其中視覺審查一路明確記為未通過。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. P0 事故：分析工作 daemon 崩潰循環，報告無法產出</h4>
+<p><strong>完成：</strong>入庫完整事故報告（含 traceback、時間線與環境證據）。根因為多角度合成的原子終態回收路徑，在錯誤處理範圍<strong>之外</strong>直接要求一組正式環境配置（批次授權表、區域設定、共用資料庫、預算守門旗標），demo 環境未配置即拋出授權例外，daemon 每次協調循環都崩、由系統重啟後再崩。報告明確標示引入來源為稍早的多角度整合合併，並排除了另一個曾被懷疑的系列。</p>
+<p><strong>價值：</strong>把「使用者按下分析卻永遠等不到報告」這個對外最致命的症狀，從模糊抱怨收斂成單一行號等級的根因，且誠實標記自身引入來源而非歸咎他處。</p>
+<p><strong>風險：</strong><strong>修復方案已備但未部署</strong>——事故在報告入庫後仍為進行中狀態；同窗另有三筆針對「分析報告在發布期間存活」的修補，顯示發布節奏與分析工作生命週期之間仍有耦合未解。</p>
+<p><strong>待驗證：</strong>失敗降級守門部署至 demo 後，實際送出一次分析並取得報告；確認附帶受影響的快照與週期服務恢復。</p>
+
+<h4>2. #914 Agent OS 治理強固收官</h4>
+<p><strong>完成：</strong>經第三至第六輪連續修補後標記收官並整理規格。修正涵蓋：資料庫連線層授權前置、每次執行的稽核血緣完整化、管理端血緣查詢與部分血緣儲存改為唯讀掛載、工作程序間執行期連線隔離與資源關閉、證據資格綁定來源出處、記憶體持久化與到期失效改為失敗即擋、技能載入器結構遷移授權、工具稽核憑據原子化、管理端改發認證後的 JSON、前端管理頁改用工作階段權杖而非瀏覽器本機儲存。另補上治理軌道前端與架構契約文件（#915）。</p>
+<p><strong>價值：</strong>Agent OS 從「能跑」進到「每一次工具呼叫、每一次記憶讀寫都有授權與可回查血緣」，這是把代理人系統交給外部稽核時的最低門檻。</p>
+<p><strong>風險：</strong>六輪修補集中在同一觀測窗內完成，代表前幾輪的驗收並未攔住問題；收官為專案內部標記，非外部驗收。入庫文件本身即記載安全處置仍待兩位審查者簽核。</p>
+<p><strong>待驗證：</strong>唯讀邊界與失敗即擋行為以實際越權嘗試各測一次；補齊文件所列待簽核項。</p>
+
+<h4>3. 發布與 canary 安全鏈接通</h4>
+<p><strong>完成：</strong>簽章晉升憑據產出（#996）、canary 啟動前先驗憑據才放行（#997）、真實 HTTP canary 路由接上實際比對分析（#1014）、canary 認證白名單佈建（#1021）、簽章成本預算強制與成本對帳失敗即擋（#1020）；另新增雙金鑰配額輪替生命週期與退役水位線比對（#1075）、墓碑式證據交易儲存（#1050）、第四版證據動作意圖契約（#1064）、控制平面時點重播測試（#1035）與內在候選組合集中化重構（#1036）。</p>
+<p><strong>價值：</strong>「新版本只給一小撮流量試水」這件事，從腳本層級升級為需要簽章憑據、白名單與成本上限三重放行的制度；金鑰輪替有退役證明，避免舊金鑰無聲殘留。</p>
+<p><strong>風險：</strong>整條鏈皆為本班新碼（配額生命週期 +1,122 行、preview 准入守門 +1,125 行、證據交易儲存 +766 行等），僅有隨附測試背書；成本對帳失敗即擋的行為在真實超支情境下未經觸發。</p>
+<p><strong>待驗證：</strong>以真實小流量跑完一次 canary 放行到收斂；故意超出成本預算，確認列車確實被擋停。</p>
+
+<h4>4. #998 稽核補救四階段與三路外部 review</h4>
+<p><strong>完成：</strong>依計畫分階段執行——第一階段建立判準帳本、第二階段清點歷史驗收證據並做程式化重播、第三階段邀請三路外部 review（方法論、安全、對抗性）、第四階段對外部證據做勾稽。三份 review 結論均以文件入庫。</p>
+<p><strong>價值：</strong>把「我們宣稱做過驗收」轉成逐條判準可查的帳本，並主動引入對抗性視角挑毛病，而非自己審自己。</p>
+<p><strong>風險：</strong>視覺審查一路<strong>明確記為未通過</strong>——文件載明可用的瀏覽器控制清單為空，無法於桌機、行動、放大兩倍與雙語系下實際檢視，且刻意不以自動化工具充數；因此既有的視覺缺口<strong>並未</strong>轉為通過。安全與對抗性兩路的結論本班僅轉述，未代為背書。</p>
+<p><strong>待驗證：</strong>取得可用瀏覽器環境後補做視覺審查；三路 review 所列缺失逐條追蹤至關閉。</p>
+
+<h4>5. 十一項補救計畫「觸及硬上限而拆分」</h4>
+<p><strong>完成：</strong>本班有十一筆計畫文件記錄同一模式——原議題在單次工作階段內做到工時或範圍硬上限仍未完成，故拆分為後續子項（涵蓋原生執行期、原生啟動授權環、Linux 來源出處硬限制、信任驗證器、官方內在權威、認證路由憑據、真實入口證據、權威邊界等）。</p>
+<p><strong>價值：</strong>誠實承認做不完並留下切分依據，比硬宣告完成健康；每一筆都留有後續可接手的範圍描述。</p>
+<p><strong>風險：</strong>單班十一筆「未完成而拆分」是<strong>範圍超載的訊號</strong>——待辦以拆分速度增生，決策者從版本號與出貨量看不出這層積壓。</p>
+<p><strong>待驗證：</strong>統計這十一項子議題的實際關閉速率，確認是切分而非無限延後。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>6. 遠端他人提交併回與本班發布（觀測窗內運維）</h4>
+<p><strong>完成：</strong>本班開場 fetch 取得遠端一筆新提交與一條新遠端分支。該提交修正參考資料頁的結構缺陷——快速導覽目錄區塊原先被放在 HTML 結尾標籤之外（屬無效標記，瀏覽器行為不可預期），已移回頁內正確位置，並新增兩個需金鑰的鏈上情報來源，且於條目內註明正式接入前不得宣稱已用於評分。本班先以 rebase 方式併回該提交（快進，無衝突），再生成並發布本篇；發布前靜態驗證通過。</p>
+<p><strong>價值：</strong>對外參考頁的無效標記修掉，降低目錄在部分瀏覽器不顯示的風險；新來源條目自帶「未接入不得宣稱」的節制註記，與本站誠實口徑一致。</p>
+<p><strong>風險：</strong>新出現的遠端分支尚未併入主線，內容未經本班審視；先 rebase 再發布的順序若未來被略過，仍可能重演生成物衝突。</p>
+<p><strong>待驗證：</strong>該遠端分支的處置決定；線上參考頁目錄實際渲染確認。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>P0 事故修復未部署，使用者仍拿不到報告</strong></td><td>高</td><td>分析工作 daemon 在 demo 環境持續崩潰循環，根因已定位、修復方案已備但未部署；網站表層回應正常，故從外部觀察不到故障，最容易被誤判為無事。</td><td>優先部署失敗降級守門並實際送出一次分析驗收；確認附帶受影響的快照與週期服務恢復後才可降級此風險。</td></tr>
+  <tr><td><strong>版本譜系缺口擴大至二十九個版號</strong></td><td>高</td><td>v0.27.0 至 v0.27.28 累計 29 個版號，遠端 tag 至今為零（本班再次查證，遠端最新 tag 仍停在 v0.26.0）。目前 v0.27.x 仍只是主線 commit／版本檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點。事故發生時無法用版號精準界定「哪一版開始壞」。</td><td>為各 release 提交補打 tag 並逐一明列推送；在發布列車流程內建自動打 tag 與推 tag，杜絕缺口再擴大。</td></tr>
+  <tr><td><strong>視覺審查未通過，既有缺口未閉合</strong></td><td>中</td><td>#998 第三階段視覺審查因無可用瀏覽器環境明確記為未通過，文件載明不以自動化工具替代必要的人眼檢視，故前端相關的歷史驗收缺口維持未閉合狀態。</td><td>備妥可用瀏覽器環境後補做並留證；在補做完成前，任何「前端已驗收」的宣稱一律不得引用。</td></tr>
+  <tr><td><strong>單班 +43,617 行品質證據未經獨立驗證</strong></td><td>中</td><td>本班 203 檔、+43,617 行變動，測試與 review 狀態均僅見於提交紀錄與入庫文件，本班未實跑任何閘道。這是目前單班最大出貨量，也是最大一次未驗證面積。</td><td>對主線最新提交實跑本地推送前閘道，數據對上前不引用任何測試宣稱。</td></tr>
+  <tr><td><strong>補救工作範圍超載</strong></td><td>中</td><td>單班出現十一筆「觸及硬上限而拆分」的計畫文件，待辦以拆分速度增生；出貨量與版本號的成長掩蓋了這層積壓，決策者不易察覺。</td><td>建立拆分子議題的關閉率追蹤，若關閉速率長期低於拆分速率，應暫停新開議題先清積壓。</td></tr>
+  <tr><td><strong>強制推送事故根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的開發分支強制推送事故，連續第五班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認開發分支保護規則，結果入庫後才可降級。</td></tr>
+  <tr><td><strong>治理文件與新分支停在分支未併</strong></td><td>低</td><td>既有治理文件分支連續第六班未併入主線；本班另新增一條未併入的遠端分支，決策者在網站上都看不到。</td><td>逐一 review 後併入主線或明確關閉。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；遠端 tag 以查詢遠端參考實際查證；devlog 靜態驗證通過（53 篇）；未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest／前端 build／本地推送前閘道／canary 演練／事故修復部署。</li>
+  <li><strong>無安全審核背書：</strong>本班無 CISO 審核。安全、方法論、對抗性三路 review 與 Agent OS 安全處置狀態，均僅以入庫文件與提交紀錄轉述，本班不代為背書通過；其中視覺審查一路為明確未通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 部署 P0 事故的失敗降級守門並實地驗收，恢復報告產出<br><code>部署已備修復至 demo 後執行：systemctl status trustforge-analysis-flow &amp;&amp; journalctl -u trustforge-analysis-flow --since "10 min ago"</code>；通過標準：daemon 連續十分鐘無重啟，且實際送出一次分析可取得完整報告。</label></li>
+  <li><label><input type="checkbox" disabled> 為 v0.27.x 各 release 提交補打並推送遠端 tag，閉合版本譜系<br><code>git tag v0.27.28 58bf0ab &amp;&amp; git push origin v0.27.18 v0.27.19 v0.27.20 v0.27.21 v0.27.22 v0.27.23 v0.27.24 v0.27.25 v0.27.26 v0.27.27 v0.27.28</code>（v0.27.0 至 v0.27.17 依前篇清單一併補推；禁止 <code>git push origin --tags</code>，避免誤推本地所有 tag）；通過標準：查詢遠端參考可見 v0.27.0 至 v0.27.28 全數 tag 且各指向對應 release 提交。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地推送前閘道，取得第一手品質數據<br><code>cd /opt/data/trustforge &amp;&amp; git checkout f300263 &amp;&amp; .githooks/pre-push</code>；通過標準：測試、lint、build、資料檢查全數通過並記錄實際數字。</label></li>
+  <li><label><input type="checkbox" disabled> 補做 #998 前端視覺審查，閉合未通過項<br><code>備妥瀏覽器控制環境後，依 docs/audits 內第三階段審查清單於桌機／行動／放大兩倍／雙語系四情境逐項檢視</code>；通過標準：四情境皆留存可查證據，缺口正式轉為通過。</label></li>
+  <li><label><input type="checkbox" disabled> 對 canary 成本預算做一次故意超支演練<br><code>以測試預算下限觸發簽章成本預算閘道，確認對帳失敗即擋生效</code>；通過標準：列車被擋停、事件留下可稽核憑據，未對正式環境造成出貨。</label></li>
+  <li><label><input type="checkbox" disabled> 建立拆分子議題關閉率追蹤，確認範圍超載未惡化<br><code>gh issue list --repo cancleeric/TrustForge --search "split" --state all --limit 60</code>；通過標準：產出拆分數與關閉數對照，並據此決定是否暫停新開議題。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉強制推送事故追蹤（連續五班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-29 23:14 至 2026-07-30 08:39 台灣時間（本班），基準取前篇日誌終點 d9ca0f7，故本篇涵蓋其後全部主線提交，與前篇無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>origin/main 自 d9ca0f7 前進至 f300263，新增 170 個 commit（116 非 merge、36 個 PR、11 筆 release bump），203 檔變動（+43,617 / −630 行）。關鍵 hash：9389b5f（P0 事故報告，檔案 docs/reports/INCIDENT-2026-07-29-ANALYSIS-FLOW-MULTIANGLE-AUTHORITY-CRASH.md）、2931a9c / e35cc04 / 4302ccb（#1072 分析報告存活三修）；#914 系列 297b541 / 3084405 / 46ef565 / 9b68c10 / dfc31fa / f96bd81 / f6b3d95 / 671e456（PR #1078 收官）、75c94a4（最終審查閘記錄）、1aca03e / 6db8f3f（#915 架構契約，PR #969）；AGOS fail-closed 修補 b7c8167 / 09a4c8b / 5ae8d07 / bb1126b / 915684e / a97c003 / ecbe087 / 68c4e18 / 8fd7bdd / 0fcc11b / e506b0e / 0f1ca6a / ebeee4b / ddbc291 / 8a29998 / 1314270 / fbe59db / 0bf8405 / 5efbdef / b71606f / 7218c57 / 0747db0 / d6cda46 / 5968f72 / 215e343 / 47a2f7e，測試側 49b429d / 35816db / f6f9ffa / 79fb97e；發布與 canary 9fe9423（#996）、534fe0d（#997）、db6298d（#1014）、08a17f6（#1021）、7823113 / 6639feb（#1020）、f300263（#1075）、d748457（#1050）、4ae3370（#1064）、f0f3f3f（#1035）、d36ff63（#1036）；#998 稽核 6b7337f / 9b884a4 / 18e6ed3 / 820e033（gray 方法論）/ d796ec1（Harper 安全）/ 1868989（Codex 對抗性）/ e2663a5 / fe762fd（視覺審查，處置為未通過）；計畫拆分 075a6ed / 94bbdc6 / b9de7f8 / 09e101b / f0e3cd5 / 1883453 / 05c7dca / 8b9cd06 / d3f131a / 38cfa3f / 088b3b6；release bump d09d8f7（v0.27.18）至 58bf0ab（v0.27.28）。最大新檔：tests/test_verified_receipt_release_gate.py（+1,250）、src/trustforge/preview_durable_admission_gate.py（+1,125）、src/trustforge/quota_key_lifecycle.py（+1,122）、src/trustforge/evidence_transaction_store.py（+766）、src/trustforge/quota_key_retirement.py（+741）、src/trustforge/preview_lease_recovery.py（+676）、src/trustforge/release_http_canary.py（+662）。遠端 tag 查證：v0.27.* 筆數為零，遠端最新 tag 為 v0.26.0。工作樹僅有一個未追蹤的 uv.lock，無本地未推送提交。</p>
+<p><strong>devlog repo：</strong>觀測窗內遠端新增提交 9eecd80（references.html 目錄區塊由 HTML 結尾標籤之外移回頁內，並新增兩個需金鑰的鏈上情報來源，+5 / −1 行）與新遠端分支 chore/2-version-kiro-hooks（580263a），兩者皆非本流程產出；本班以 rebase 方式自 0a2a7f7 快進至 9eecd80，無衝突。發布前工作樹乾淨、無滯留未發稿；靜態驗證通過（53 篇）。既有分支 docs/outer-framework-upgrade-governance-20260727 仍未併入主線。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>
