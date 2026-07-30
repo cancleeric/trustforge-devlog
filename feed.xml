@@ -8,6 +8,80 @@
   <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/"/>
   <subtitle>TrustForge 開發記錄 — 開發歷程公開記錄</subtitle>
   <entry>
+    <title>Day 31 (補發)｜本班無運維變更（已實際查證）</title>
+    <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-30b.html</id>
+    <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-30b.html"/>
+    <updated>2026-07-30T00:00:00+08:00</updated>
+    <published>2026-07-30T00:00:00+08:00</published>
+    <summary>本班（2026-07-30 03:00 UTC）被 cron 漏跑；實際查證主 repo 自 Day 31 終點 f300263 後零新提交、devlog 自 f88ea2f 後零變更，故本班無運維變更。依 CONTRIBUTING 第 3 條註明：Day 31（2026-07-30.html）為上一班產出之滯留稿、已補 commit 並推送，與本篇補發不矛盾。</summary>
+    <category term="平台治理"/>
+    <content type="html"><![CDATA[<header>
+<p class="eyebrow">2026-07-30b · 平台治理</p>
+<h1>Day 31 (補發)｜本班無運維變更（已實際查證）</h1>
+<p class="summary">本班（2026-07-30 03:00 UTC）被 cron 漏跑；實際查證主 repo 自 Day 31 終點 f300263 後零新提交、devlog 自 f88ea2f 後零變更，故本班無運維變更。依 CONTRIBUTING 第 3 條註明：Day 31（2026-07-30.html）為上一班產出之滯留稿、已補 commit 並推送，與本篇補發不矛盾。</p>
+<p class="sub" style="margin-top:-.6rem">分類：平台治理 ｜ 標籤：#devlog #cron跳班補發 #零變更班次</p>
+</header>
+<section class="risk">
+<h3>風險與當責</h3>
+<table>
+<thead><tr><th>項目</th><th>狀態</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td>本班內容真實性</td><td>已實際查證</td><td>主 repo f300263..origin/main = 0 commit；devlog f88ea2f..HEAD = 0 commit（git rev-list 實測）</td></tr>
+<tr><td>cron 跳班根因</td><td>未在本班定位</td><td>本篇只補「班次缺失」本身，跳班根因歸入平台治理待辦，不在此臆測</td></tr>
+<tr><td>與 Day 31 重複</td><td>不矛盾</td><td>Day 31 為上一班滯留稿、已補 commit；本篇為本班補發，共用 Day 31 編號（規範允許同日多篇共用 day）</td></tr>
+<tr><td>線上發布</td><td>待 push 後生效</td><td>commit + push 後 GitHub Pages 自動更新</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="report">
+<h2>老闆版摘要</h2>
+<p>這一班（今天早上的自動班次）cron 沒跑成，我手動補這一篇。補之前我實際去翻了主 repo 和日誌 repo：從 Day 31 收尾到現在，主線一條新 commit 都沒有、日誌端也沒任何變更——所以這班本來就是「沒事發生」的一班，不是漏了什麼重要進度。Day 31 那篇本來是上一班（昨晚）產出、暫存著的稿子，已經在凌晨補 commit 並推上去了，跟這篇補發不衝突。結論：這次跳班沒有造成任何內容遺漏，只是自動化少跑一班，已補齊。</p>
+</section>
+
+<section class="purpose">
+<h2>目的</h2>
+<ul>
+<li>補齊被 cron 漏掉的 2026-07-30 03:00 UTC 班次，使日誌班次序列連續無缺口。</li>
+<li>如實記錄本班觀測窗內主 repo 與 devlog 均無變更（已實際查證，非臆測）。</li>
+<li>依 CONTRIBUTING 第 3 條標註 Day 31 為滯留稿補發、與本篇不矛盾，避免後續讀者誤判重複。</li>
+</ul>
+</section>
+
+<section class="commands">
+<h2>驗證命令（本班無變更之實測依據）</h2>
+<ul>
+<li><code>cd /opt/data/trustforge &amp;&amp; git fetch origin &amp;&amp; git rev-list --count f300263..origin/main</code> → 0（主線靜默）</li>
+<li><code>cd /opt/data/devlog &amp;&amp; git rev-list --count f88ea2f..HEAD</code> → 0（日誌端無新變更）</li>
+<li><code>crontab / cron 排程記錄</code> → 2026-07-30 03:00 UTC 該班次 output 目錄缺檔，確認漏跑</li>
+</ul>
+</section>
+
+<section class="checklist">
+<h2>本班 checklist</h2>
+<ul>
+<li class="done">確認 cron 漏跑班次（output 目錄缺 07-30 03:00 檔）</li>
+<li class="done">實際查證主 repo / devlog 零新變更</li>
+<li class="done">撰寫補發稿並註明與 Day 31 不矛盾</li>
+<li class="done">add_day 註冊 + build feed/sitemap + validate</li>
+<li class="todo">commit + push 至 origin/main</li>
+</ul>
+</section>
+
+<section class="changelog">
+<h2>版本譜系（本班）</h2>
+<p>本班無新版本產出（主 repo 零新提交）。版本譜系維持 Day 31 記錄之 v0.27.18–v0.27.28 區間，未閉合；待下一有變更班次收口，本篇不另開版本號。</p>
+</section>
+
+<section class="refs">
+<h2>參考</h2>
+<ul>
+<li>Day 31（2026-07-30.html）：上一班產出、本班前已補 commit + push 之滯留稿</li>
+<li>CONTRIBUTING.md 第 3 條：補發滯留稿不與新篇矛盾</li>
+</ul>
+</section>]]></content>
+  </entry>
+  <entry>
     <title>Day 31 · 夜班稽核：P0 分析報告產出事故（修復未部署）、#914 Agent OS 治理收官、canary 安全鏈接通、#998 三路外部 review</title>
     <id>https://cancleeric.github.io/trustforge-devlog/days/2026-07-30.html</id>
     <link rel="alternate" href="https://cancleeric.github.io/trustforge-devlog/days/2026-07-30.html"/>
