@@ -1,0 +1,82 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班（夜班）主線收 138 個 commit（83 非 merge、55 個 merge），版本自 v0.27.28 再鑄 11 版至 v0.27.39，207 檔變動（+33,294 / −567 行）。內容集中在四條主軸：①<strong>正式分析執行期與冪等權威</strong>——建立 DynamoDB 背書的正式分析執行權威、冪等儲存核心、作用域投影規劃與執行期 worker（#957 / #958 / #1154）；②<strong>原生密封程式碼與零能力核心代理</strong>——NF2 零能力核心代理上線、密封閉包與建構邊界強化、可封裝溯源套件（#1087 / #1088）；③<strong>失敗即擋安全邊界擴散</strong>——官方狀態邊界強制失敗即擋（#1084）、訓練狀態漂移失敗即擋（#1113）、preview 控制平面不變量硬化；④<strong>發布列車與沙箱硬化</strong>——有界生產切換等待、略過多餘前端部署、Rust 工具鏈與 uv 沙箱安全引導。</li>
+  <li><strong>必須先看的一件事：</strong>前班（07-30 早班）已入庫的 <strong>P0 分析工作 daemon 崩潰循環事故，本班未見修復部署的證據</strong>——本班主線範圍內沒有對該 daemon 降級守門的合併，事故修復是否部署仍屬「未驗證」。網站表層正常，外部觀察者仍看不出問題，因此這項高風險不得以「有新提交」誤判為已解。</li>
+  <li><strong>devlog 端事件：</strong>本班觀測窗內 devlog repo 自身<strong>無任何運維變更</strong>——fetch 後工作樹乾淨、無未推送提交、無衝突、無遠端他人提交需併回（與 07-30b 補發班不同，本班未進行 clone / rebase 修復 / push 修復等操作）。本篇為單純主線稽核產出。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，<strong>未實跑</strong> pytest／build／任何閘道。所有測試與安全狀態僅見於提交紀錄與入庫文件，本班不代為背書；遠端 v0.27.* 系列 tag 經查證仍為零，譜系缺口持續擴大。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. 正式分析執行期與冪等權威（#957 / #958 / #1154）</h4>
+<p><strong>完成：</strong>建立正式分析執行權威核心（#3be4e78）、DynamoDB 背書的正式執行權威（#7062fe8）、作用域投影規劃（#4745f4e）、完整正式分析執行期 worker（#ee70a97），並定義正式執行冪等契約文件（#e0ccb01）；另補上手動問題排除排程配額（#a6cda9e）、指定性正式投影規劃（#4745f4e）。這把「同一份分析可被重複、安全地重跑」從口號變成有冪等保證的基礎設施。</p>
+<p><strong>價值：</strong>正式分析以往重跑即冒重複副作用風險，本班補上冪等與權威層，是日後要把正式分析交付外部稽核的結構性前提。</p>
+<p><strong>風險：</strong>冪等權威依賴 DynamoDB 這類外部狀態，而#7062fe8 為本班新碼，失敗路徑（如權威寫入超時）未經本班實跑觸發；DynamoDB 模式與正式環境佈建是否一致未知。</p>
+<p><strong>待驗證：</strong>以同一份分析輸入連續重跑兩次，確認後者命中冪等而無重複副作用；DynamoDB 權威在正式環境實際可寫可讀。</p>
+
+<h4>2. 原生密封程式碼與零能力核心代理（#1087 / #1088）</h4>
+<p><strong>完成：</strong>新增可封裝溯源套件（#ee353bd）、NF2 零能力核心代理（#b9648a3），並連續強化密封邊界——建構邊界硬化（#5587199）、快照與建構器閉包密封（#3fb7bd8）、工具與主機執行期閉包密封（#99ec92b）、密封工具監控與綱要驗證（#66599f6）、密封閉包與巢狀格式覆蓋（#e28a675）；Linux 來源出處硬限制接上真實主機工具收據（#25b48c9）、原生 Linux 驗收（#7c26416）。</p>
+<p><strong>價值：</strong>把「原生執行期的可追溯與最小能力」從概念推到可密封、可驗證的實作，降低原生程式碼被濫用或來源遭竄改的攻擊面。</p>
+<p><strong>風險：</strong>密封邊界是多輪連續修補（本班出現六筆 fix(native) 序列），表示前幾輪未攔住滲漏；零能力代理的真實降級情境未經本班實跑。</p>
+<p><strong>待驗證：</strong>以嘗試越權的惡意原生呼叫實測密封邊界確實擋下；Linux 主機工具收據在正式環境可取得。</p>
+
+<h4>3. 失敗即擋安全邊界擴散（#1084 / #1113 / preview 控制平面）</h4>
+<p><strong>完成：</strong>官方狀態邊界強制失敗即擋（#5ed88ce，PR #1091 / #1084），隨附開放 API 綱要與資料契約（+346 / +62 行）；訓練狀態漂移失敗即擋（#a35cc0，PR #1113）、無法讀取訓練目錄即偵測（#f9e250b）、綁定持久資料路徑（#e6f969d）、語料掃描硬化（#0a4700a）；preview 控制平面不變量硬化（#9cb6fdc）、關閉審查缺口（#fd9b5e8）、限定規劃器執行（#d803621）。</p>
+<p><strong>價值：</strong>「出錯就擋下而非靜默放行」的設計哲學從單點擴散到官方狀態、訓練狀態與 preview 三個面，是對外可信度的底線。</p>
+<p><strong>風險：</strong>失敗即擋若判準過寬，可能把正常流量誤擋（可用性風險）；#1084 的契約定義寬鬆與否未經本班實跑驗證。</p>
+<p><strong>待驗證：</strong>故意讓官方狀態來源失效，確認請求被擋且留下可稽核憑據；訓練資料漂移時確認狀態進入失敗即擋。</p>
+
+<h4>4. 發布列車與沙箱硬化（#1137 / #1149 / #1132 / uv 引導）</h4>
+<p><strong>完成：</strong>有界生產切換等待硬化（#8c44309，#1137）、略過多餘前端部署（#842ec5b，#1149）、暴露釘選 Rust 工具鏈給發布沙箱（#9de8529，#1132）、相容系統 Python 選擇（#010d919）、沙箱安全 uv 快取（#927d71b）與凍結 uv 引導（#796a238）、EC2 執行期安裝 jsonschema（#5937411）、本地儲存不可用時容忍（#df4807c）。另補雙金鑰配額輪替生命週期（#b4f5a93，#1075）。</p>
+<p><strong>價值：</strong>發布列車的切換不再無限期等待、前端部署不再重複浪費、原生建構的 Rust/uv 工具鏈在沙箱內可重現，直接降低「發布卡死」與「建構飄移」兩類營運事故。</p>
+<p><strong>風險：</strong>有界等待的逾時上限設定若過短，可能在健康切換完成前就放棄；本班未實跑發布列車驗證下限值。</p>
+<p><strong>待驗證：</strong>實跑一次完整發布列車，確認切換在逾時內完成且不重複部署前端；沙箱內 Rust/uv 工具鏈可重現建構。</p>
+
+<h4>5. 多角度生產補救收官與 Hermes 規劃介面（#808-811 / #956 / #1129）</h4>
+<p><strong>完成：</strong>完成多角度生產補救（#714d00f / #7b4f241，#808-811）並更新主張萃取契約雙倍（#bbf7b45 / #32e01be）、關閉補救規格（#e4a3380）；Hermes 規劃撰寫器 UI（#b40e5d1，#1129）、分析規劃預覽（#245d746）、Hermes 預覽控制平面（#17d44b6，#956）、預覽准入儲存執行期部署（#8cdf614 / #6c83421，#1103）、開發主線血緣協調（#3d8b9f2 / #c15662d）。</p>
+<p><strong>價值：</strong>把規劃與預覽從內部能力轉成有 UI 與控制平面的對外可操作功能，且多角度補救終於收官，減少歷史驗收缺口。</p>
+<p><strong>風險：</strong>#808-811 收官為專案內部標記，非外部驗收；Hermes 規劃 UI 含權限敏感操作，其授權邊界本班未實跑越權測試。</p>
+<p><strong>待驗證：</strong>以越權身分操作 Hermes 規劃 UI，確認被正確拒絕；多角度補救清單逐項對照外部證據閉合。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>6. 本班觀測窗內 devlog repo 無運維變更</h4>
+<p><strong>完成：</strong>本班開場 fetch origin 成功，工作樹乾淨、無未推送提交、無衝突檔、無需併回的遠端他人提交；觀測窗內未執行 clone / rebase 修復 / push 修復 / cron 規範更新 / sitemap 衝突處理 / 舊 repo 封存等任何 devlog 運維操作。本篇為單純主線稽核產出，發布前靜態驗證通過。</p>
+<p><strong>價值：</strong>與 07-30b 補發班（當時有遠端他人提交需併回）不同，本班 devlog 端確實靜默，此「無運維變更」結論經實際查證（git status 空、origin/main..HEAD=0、HEAD..origin/main=0），非分身未查證所致。</p>
+<p><strong>風險：</strong>本機 trustforge 鏡像仍停留在舊 HEAD（c3be9c4），與遠端 main（c7dfe68）相差 138 個 commit；此為建置鏡像落後，非 devlog 運維事件，但後續班次若直接以舊鏡像為基準可能誤判缺口，特此註記。</p>
+<p><strong>待驗證：</strong>確認後續班次 fetch 後以 remotes/origin/main 為基準（避免以落後的本機 main 計算範圍）。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>P0 事故修復部署狀態仍為未驗證</strong></td><td>高</td><td>前班入庫的分析工作 daemon 崩潰循環事故，本班主線範圍內未見降級守門合併，修復是否部署屬未驗證；網站表層正常，外部觀察不到，最易被誤判為已解。</td><td>查證 demo 環境是否已部署降級守門並實際送出一次分析取得報告；確認前班所列附帶受影響服務恢復後才可降級此風險。</td></tr>
+  <tr><td><strong>版本譜系缺口擴大至四十個版號</strong></td><td>高</td><td>v0.27.0 至 v0.27.39 累計 40 個版號，遠端 tag 經查證仍為零（本班再次確認遠端最新 tag 停在 v0.26.0）。目前 v0.27.x 仍只是主線 commit／版本檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點。事故發生時無法用版號精準界定「哪一版開始壞」。</td><td>為各 release 提交補打 tag 並逐一明列推送；在發布列車流程內建自動打 tag 與推 tag，杜絕缺口再擴大。</td></tr>
+  <tr><td><strong>單班 +33,294 行品質證據未經獨立驗證</strong></td><td>中</td><td>本班 207 檔、+33,294 行變動，測試與 review 狀態均僅見於提交紀錄，本班未實跑任何閘道；連續兩大班高強度出貨，未驗證面積持續堆疊。</td><td>對主線最新提交實跑本地推送前閘道，數據對上前不引用任何測試宣稱。</td></tr>
+  <tr><td><strong>失敗即擋判準過寬可能誤擋正常流量</strong></td><td>中</td><td>#1084 / #1113 / preview 三處失敗即擋邊界本班未實跑觸發，判準寬鬆度未知；過寬會把健康請求誤擋，造成可用性風險。</td><td>以受控失效情境實測三處邊界，確認只擋異常且留下可稽核憑據。</td></tr>
+  <tr><td><strong>本機 trustforge 鏡像落後，可能誤導後續基準</strong></td><td>低</td><td>本機 main 停在 c3be9c4，與遠端 c7dfe68 相差 138 commit；非 devlog 運維事件，但若後續班次以落後鏡像算範圍會錯估缺口。</td><td>後續班次一律以 remotes/origin/main 為基準並於稽核細節載明。</td></tr>
+  <tr><td><strong>強制推送事故根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的開發分支強制推送事故，連續第六班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認開發分支保護規則，結果入庫後才可降級。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩 repo fetch 皆成功；遠端 tag 以查詢遠端參考實際查證（v0.27.* 筆數為零，最新 v0.26.0）；devlog 靜態驗證待發布前執行。未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest／前端 build／本地推送前閘道／canary 演練／事故修復部署驗證。</li>
+  <li><strong>無安全審核背書：</strong>本班無 CISO 審核。失敗即擋等安全處置狀態均僅以提交紀錄與入庫文件轉述，本班不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 查證 P0 事故降級守門是否已部署並實地驗收<br><code>於 demo 環境執行：systemctl status trustforge-analysis-flow &amp;&amp; journalctl -u trustforge-analysis-flow --since "10 min ago"</code>；通過標準：前班所列 daemon 崩潰循環已停止，實際送出一次分析可取得完整報告。</label></li>
+  <li><label><input type="checkbox" disabled> 為 v0.27.x 各 release 提交補打並推送遠端 tag，閉合版本譜系<br><code>git tag v0.27.39 c7dfe68 &amp;&amp; git push origin v0.27.29 v0.27.30 v0.27.31 v0.27.32 v0.27.33 v0.27.34 v0.27.35 v0.27.36 v0.27.37 v0.27.38 v0.27.39</code>（v0.27.0 至 v0.27.28 依前篇清單一併補推；禁止 <code>git push origin --tags</code>，避免誤推本地所有 tag）；通過標準：查詢遠端參考可見 v0.27.0 至 v0.27.39 全數 tag 且各指向對應 release 提交。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地推送前閘道，取得第一手品質數據<br><code>cd /opt/data/trustforge &amp;&amp; git fetch origin &amp;&amp; git checkout remotes/origin/main &amp;&amp; .githooks/pre-push</code>；通過標準：測試、lint、build、資料檢查全數通過並記錄實際數字。</label></li>
+  <li><label><input type="checkbox" disabled> 實測三處失敗即擋邊界，確認只擋異常不誤擋正常流量<br><code>以受控失效情境分別觸發官方狀態來源失效、訓練資料漂移、preview 不變量違例</code>；通過標準：三處皆擋下異常請求且留下可稽核憑據，正常請求不受影響。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉強制推送事故追蹤（連續六班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-30 23:01 至收稿（台灣時間夜班），基準取前篇日誌終點 f300263，故本篇涵蓋 f300263 之後至 remotes/origin/main（c7dfe68）全部主線提交，與前篇（07-30b，涵蓋至 v0.27.28）無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>remotes/origin/main 自 f300263 前進至 c7dfe68，新增 138 個 commit（83 非 merge、55 個 merge），207 檔變動（+33,294 / −567 行）。版本自 v0.27.28 鑄至 v0.27.39（11 筆 release bump：#b4417d3 v0.27.29、#f0599ad v0.27.30、#0ba5699 v0.27.31、#274b436 v0.27.32、#2acefc7 v0.27.33、#f644432 v0.27.34、#98554fe v0.27.35、#fb3a72f v0.27.36、#6e0ede0 v0.27.37、#b16d38b v0.27.38、#c7dfe68 v0.27.39）。關鍵 hash：正式分析冪等——#3be4e78（冪等權威核心）、#7062fe8（DynamoDB 正式執行權威，PR #1146）、#4745f4e（作用域投影規劃）、#ee70a97（正式分析執行期 worker，PR #1154）、#e0ccb01（冪等契約文件，PR #1141）、#a6cda9e（手動問題排除配額，#1144）；原生密封——#ee353bd（可封裝溯源套件，#1087）、#b9648a3（NF2 零能力核心代理，#1088）、#5587199 / #3fb7bd8 / #99ec92b / #66599f6 / #e28a675（fix(native) 密封序列）、#25b48c9（Linux 來源收據）、#7c26416（原生 Linux 驗收，PR #1150）；失敗即擋——#5ed88ce（官方狀態失敗即擋，PR #1091 / #1084，+346 / +62 行）、#a35cc0（訓練漂移失敗即擋，#1113）、#f9e250b / #e6f969d / #0a4700a（訓練狀態硬化）、#9cb6fdc / #fd9b5e8 / #d803621（preview 控制平面硬化，#956）、#17d44b6（Hermes 預覽控制平面）；發布列車——#8c44309（有界切換等待，#1137）、#842ec5b（略過多餘前端部署，#1149）、#9de8529（Rust 工具鏈沙箱，#1132）、#010d919 / #927d71b / #796a238（uv 沙箱安全引導）、#5937411（EC2 jsonschema，#1130）、#df4807c（本地儲存容忍，#1135）、#b4f5a93（雙金鑰配額輪替，#1075）；多角度補救——#714d00f / #7b4f241（#808-811 收官）、#bbf7b45 / #32e01be（主張萃取契約雙倍）、#e4a3380（關閉補救規格，#808-811）；Hermes 介面——#b40e5d1（規劃撰寫器 UI，#1129）、#245d746（分析規劃預覽）、#8cdf614 / #6c83421（預覽准入儲存執行期，#1103）、#3d8b9f2 / #c15662d（開發主線血緣協調）；#3ef21d1 / #00bc6bd / #87b3636（#1105 Hermes 生產能力發布）。遠端 tag 查證：v0.27.* 筆數為零，遠端最新 tag 為 v0.26.0。本機 main 仍停在 c3be9c4（落後 138 commit），本班未對 trustforge 鏡像做任何修改。工作樹僅有一個未追蹤的 uv.lock，無本地未推送提交。</p>
+<p><strong>devlog repo：</strong>觀測窗內 fetch origin 成功，工作樹乾淨、git status 空、origin/main..HEAD=0、HEAD..origin/main=0，無需併回的遠端他人提交，亦無 clone / rebase 修復 / push 修復 / 規範更新 / sitemap 衝突處理等任何 devlog 運維操作。本篇發布前靜態驗證（validate_devlog.py）將於 commit 前執行；既有未併分支 docs/outer-framework-upgrade-governance-20260727 與 chore/2-version-kiro-hooks 仍未併入主線。</p>
+<p>兩 repo fetch 成功；未記錄任何憑證內容。</p>
+</section>

@@ -3,12 +3,12 @@
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
     "generated": "2026-07-30",
-    "total": 55,
+    "total": 56,
     "first_date": "2026-06-30",
     "last_date": "2026-07-30",
     "categories": [
-      "平台治理",
       "Continuous Analysis",
+      "平台治理",
       "Competition Pitch",
       "Hermes",
       "Release Engineering",
@@ -19,7 +19,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 55,
+    "count": 56,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -135,6 +135,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-30c",
+      "day": 31,
+      "date": "2026-07-30",
+      "title": "Day 31 · 夜班稽核——v0.27.29-39 十一連鑄、正式分析冪等權威與原生密封邊界落地、失敗即擋擴散至官方/訓練/preview 三面",
+      "summary": "主線 138 commit、207 檔 +33,294 行；四主軸：正式分析執行期與冪等權威(#957/#958/#1154)、原生密封與零能力核心代理(#1087/#1088)、失敗即擋擴散(#1084/#1113/preview)、發布列車與沙箱硬化。P0 事故修復部署仍未驗證；版本譜系缺口擴至 40 版。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-30c.html",
+      "created_at": "2026-07-30 15:03:07"
+    },
     {
       "id": "2026-07-30b",
       "day": 31,
