@@ -1,0 +1,115 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 32 · 夜班稽核——正式執行生產配套缺口八連修止血、發布列車刻意停擺、原生交易整合二十二筆收斂 — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-07-31 · Continuous Analysis</p>
+<h1>Day 32 · 夜班稽核——正式執行生產配套缺口八連修止血、發布列車刻意停擺、原生交易整合二十二筆收斂</h1>
+<p class="summary">主線 70 commit、77 檔 +8,914 行，v0.27.39 鑄至 v0.27.42。整班以救火為主：正式執行路徑生產配套缺口導致金絲雀必敗、曾致對外中斷，已改為配套未就緒即擋下部署——代價是生產刻意停留舊版。版本譜系缺口擴至 43 版。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班主線收 70 個提交（59 非合併、11 合併），版本自 v0.27.39 再鑄三版至 v0.27.42，77 檔變動（+8,914 / −98 行）。與前兩班的「大面積新功能」不同，本班幾乎整班都在<strong>救火與收尾</strong>：主軸是「正式執行（formal-run）路徑上線後，生產環境沒有配套」這條事故鏈的八連修，其次是原生一次性交易整合的二十二筆連續修補、鯨魚警報管理端憑證控管的安全審查收官，以及部署韌性與跨平台可攜性修補。</li>
+  <li><strong>必須先看的一件事：</strong>提交紀錄自陳，主線自 v0.27.36 起把對外的分析問答 API 改走正式執行處理器，<strong>但生產機器尚未備妥該路徑所需的後端配套</strong>；每小時發布列車因此每次部署都在金絲雀階段失敗並回滾，且曾造成對外服務中斷。本班把發布列車改成「配套未就緒就直接擋下、不部署」，屬正確止血——但代價是<strong>生產環境目前刻意停留在舊版</strong>，且配套是否已補齊、對外分析問答是否已恢復，本班<strong>沒有任何證據</strong>可證實。這一點與前班列為高風險的「分析報告產不出來」很可能是同一條線，但本班不宣稱已解。</li>
+  <li><strong>devlog 端事件：</strong>本班觀測窗內 devlog 倉庫自身<strong>無運維變更</strong>——已實際查證：fetch 後工作樹乾淨、無未推送提交、無需併回的遠端他人提交、無衝突檔，未執行 clone／rebase 修復／push 修復／規範更新／sitemap 衝突處理／舊倉庫封存等任何運維操作。本篇為單純主線稽核產出。</li>
+  <li><strong>下一步一句話：</strong>先確認生產配套與就緒旗標是否建立、對外分析問答能否實際取得報告；再把積欠四十三個版號的遠端標籤補齊，讓版本譜系恢復可稽核。</li>
+  <li><strong>誠實聲明：</strong>本班僅 diff-level review，<strong>未實跑</strong> pytest／前端建置／任何閘道，亦未做線上探測。所有測試與安全狀態均僅見於提交紀錄，本班轉述而不代為背書。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<h4>1. 正式執行路徑生產配套缺口——八連修止血（#1175 / #1177 / #1178 / #1179 / #1180 / #1181 / #1182 / #1184）</h4>
+<p><strong>完成：</strong>依提交紀錄自陳，主線自 v0.27.36 把對外分析問答 API 切到正式執行處理器後，生產機器缺少對應資料表、密鑰與環境變數，導致每小時發布列車逐次在金絲雀階段失敗回滾、並曾使對外層中斷。本班一連串補救：發布列車新增前置檢查，偵測到主線含正式執行處理器但生產就緒旗標不存在時直接失敗即擋、不備份不部署（#1175）；再把止損動作前移到閘道之前，避免閘道本身不穩時連止損都走不到（#1177）；就緒旗標改為「存在即就緒」，解開「旗標要寫合併後雜湊、但雜湊要合併後才知道」的死結（#1180）。執行期兩處硬性依賴環境變數的取密鑰路徑改為環境變數優先、參數存放區次之，兩者皆無才失敗即擋（#1178 / #1181）。預算保留在交易寫入時因未被條件式引用的多餘參數而觸發驗證例外、進而讓 API 回 503，已改為僅在條件實際引用時才帶入（#1182）。金絲雀本身也修了兩處：改為兩階段送出以符合新的作用域流程（#1179），以及冪等鍵格式改用規範要求的樣式（#1184）。</p>
+<p><strong>價值：</strong>這是本班最實質的價值——止住了「每小時自動部署一個必然失敗的版本」這種持續消耗，並讓正式執行的密鑰不必以明文形式落在服務設定檔裡，降低憑證暴露面。</p>
+<p><strong>風險：</strong>止血手段是「擋住部署」，代表生產目前刻意不前進；若配套遲遲未補，主線與線上版本的落差會持續擴大，而落差愈大，日後一次補上的部署風險愈高。就緒旗標簡化為「存在即就緒」後，旗標過期失效的情境依提交紀錄自評為低風險，但本班無法驗證該判斷。</p>
+<p><strong>待驗證：</strong>生產配套（資料表、密鑰、環境變數）是否已建立；就緒旗標是否已寫入且內容可供稽核；對外分析問答實際送出一次能否取得完整報告。</p>
+
+<h4>2. 原生一次性交易整合——二十二筆連續修補（#1089 / #1174）</h4>
+<p><strong>完成：</strong>本班有二十二筆針對原生一次性交易整合的修補，集中在三件事：把上一階段驗收過的原生產物綁定為持久宣稱、交接目錄的生命週期由自己完整持有（含巢狀日誌私有化、部分清理殘留的分類、清理根目錄範圍限縮），以及把語意證據與產物證據的摘要分離、只讀收據模式分離、原生建構收據重新釘選。測試側同步隔離注入時鐘與執行緒、釘選交接原生物件。</p>
+<p><strong>價值：</strong>原生執行期的產物來源與交接過程若不可信，上層所有「可驗證」宣稱都是空的；這批修補是在把該基礎補實。</p>
+<p><strong>風險：</strong>單一功能需要二十二筆連續修補，代表前幾輪的邊界設定反覆未收斂；此類長修補鏈通常尚有未浮現的殘留缺口。本班未實跑其驗收腳本。</p>
+<p><strong>待驗證：</strong>實跑原生整合驗收腳本並取得第一手通過紀錄；以刻意竄改的交接產物測試是否被正確拒絕。</p>
+
+<h4>3. 鯨魚警報管理端憑證控管——安全審查五項收官（#1100 / #1111）</h4>
+<p><strong>完成：</strong>提交紀錄記載，本項經對抗式雙軌審查後提出五項問題並於本班全數關閉：傳輸層檢查移到讀取請求主體<strong>之前</strong>（原本先讀走明文金鑰才檢查，等於沒防到）、整個端點限定加密傳輸，直連時回拒；金鑰解析僅在「參數不存在」時才回退到環境變數或檔案，其餘錯誤一律失敗即擋；啟用時要求來源必須為參數存放區；清除金鑰後直接回報清除後的真實來源，避免最終一致性把剛撤銷的憑證重新快取，若殘留舊式環境金鑰則誠實回報而非掩蓋；稽核日誌記錄來源位址且永不記錄明文金鑰。</p>
+<p><strong>價值：</strong>「先檢查再讀取」與「清除後誠實回報」兩點修的是真正會導致憑證外洩或誤判已撤銷的缺陷，屬高價值修補。</p>
+<p><strong>風險：</strong>審查與測試結論<strong>僅見於提交紀錄</strong>，本班未實跑其測試、亦無獨立安全審核可背書。管理端涉及憑證寫入，權限邊界的實測缺口仍在。</p>
+<p><strong>待驗證：</strong>實跑該項測試取得第一手結果；以未授權身分與非加密傳輸實際打該端點，確認皆被拒絕且稽核日誌不含明文。</p>
+
+<h4>4. 品質驗收登錄硬化與原子批次自動注入移除（#1095）</h4>
+<p><strong>完成：</strong>驗收登錄驗證器強化——清單的來源雜湊必須綁定預期的發行雜湊（拒絕過期或偽造清單）、拒絕結束時間早於開始時間的驗收案例、鎖定最小權限的存取政策契約（禁用萬用字元），並在文件中<strong>明確定位該驗證器目前僅為輔助性質、尚未接進自動閘道，不得當作發行證據</strong>。另移除部署腳本對原子批次環境變數的自動注入：原子批次本是分階段的人工遷移，自動注入會讓沒有對應資料表的環境從「優雅地失敗即擋」惡化成執行期直接失敗。</p>
+<p><strong>價值：</strong>把「看起來像證據但其實不是證據」的東西誠實標註為輔助，是稽核連續性上很重要的一筆；移除自動注入則消除了一類會把安全降級變成當機的部署陷阱。</p>
+<p><strong>風險：</strong>驗證器既然只是輔助，代表<strong>目前發行流程仍缺一道自動化的驗收閘道</strong>；在該閘道補上之前，發行品質仍依賴人工自律。</p>
+<p><strong>待驗證：</strong>驗收登錄驗證器何時接入自動閘道；接入後對一份刻意偽造的清單實測是否被擋。</p>
+
+<h4>5. 部署韌性、跨平台可攜性與技能異動紀錄持久化（#1159 / #1172 及部署側修補）</h4>
+<p><strong>完成：</strong>資料目錄中含冒號的檔名改名，解除視窗系統無法取出倉庫的阻塞（#1159）；啟用前置檢查腳本在指標檔缺失或為空時，因未初始化變數而在嚴格模式下直接中止，已改為預先設空值並優雅回報缺失（#1172）；技能異動紀錄新增跨部署持久化的協調腳本（含共享鎖、首次建立父目錄、拒絕符號連結置換、父目錄符號連結失敗即擋），並把驗證納入啟用回滾流程；另修正一項因主機負載而間歇失敗的序列測試與部署測試腳本中的未定義變數。</p>
+<p><strong>價值：</strong>這些都是「不修就會每天扎人」的營運摩擦：開發者取不到倉庫、部署腳本莫名中止、技能紀錄每次部署被清掉。</p>
+<p><strong>風險：</strong>提交紀錄提到生產側的指標修復先前是以遠端指令手動處理、本班才使其在後續部署中持久，代表<strong>此前生產狀態曾以人工手段修補</strong>，該類人工修補若還有未持久化的殘留，下次部署會再度回退。間歇失敗的測試以放寬逾時處理，未根治根因。</p>
+<p><strong>待驗證：</strong>盤點是否還有其他僅以人工遠端指令修過、尚未持久化的生產狀態；間歇失敗測試在負載下的實際穩定度。</p>
+
+<h4>6. 對外說明文件與簡報素材產出</h4>
+<p><strong>完成：</strong>新增團隊參考網頁（專案介紹與名詞解釋、命題文件與評分對應）、專案完整說明與根因分析報告（供新手與外部分析使用）、簡報準備指南（頁數配置、素材分工、示範流程），並更新讀我檔說明模型中樞與訓練流程；另同步一次評分權重調整（技術可行性下調、商業應用性上調）。</p>
+<p><strong>價值：</strong>對外說明與評分對應成文，減少不同人各自口述導致的口徑分歧。</p>
+<p><strong>風險：</strong>這批文件由多位不同作者於同一夜間集中產出，彼此的技術描述是否與主線現況一致，本班未逐份核對；文件若與實作脫節，反而會成為錯誤的對外口徑來源。</p>
+<p><strong>待驗證：</strong>抽查團隊參考網頁與分析報告中的關鍵技術宣稱，確認與主線現況一致。</p>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<h4>7. 本班觀測窗內 devlog 倉庫無運維變更</h4>
+<p><strong>完成：</strong>本班開場即 fetch origin 並實際查證：工作樹乾淨、狀態為空、本地與遠端雙向落差皆為零、無衝突檔、無需併回的遠端他人提交。觀測窗內未執行任何 clone／rebase 修復／push 修復／規範更新／sitemap 衝突處理／舊倉庫封存等運維操作，發布前依規範跑靜態驗證。</p>
+<p><strong>價值：</strong>此「無運維變更」結論建立在實際查證之上，非因未查而預設靜默；與 07-30b 補發班（當時有前班滯留稿需補發）情況不同。</p>
+<p><strong>風險：</strong>低。本地 trustforge 鏡像的工作分支仍落後遠端主線，本班一律以遠端主線參考為基準計算範圍，未對鏡像做任何寫入。</p>
+<p><strong>待驗證：</strong>後續班次同樣以遠端主線參考為基準，避免以落後的本地分支錯估缺口。</p>
+<p>補註：因本班觀測窗內未進入任何修復流程，故窗內仍記為 devlog 倉庫無運維變更；本篇日誌自身的提交與推送屬本班產出動作，不影響「觀測窗內無運維變更」之結論。</p>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table"><thead><tr><th>風險</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead><tbody>
+  <tr><td><strong>生產配套缺口導致對外分析問答不可用、發布列車刻意停擺</strong></td><td>高</td><td>提交紀錄自陳主線自 v0.27.36 改走正式執行路徑，生產缺資料表／密鑰／環境變數，金絲雀必然失敗、曾致對外中斷；本班以失敗即擋止血，代價是生產停留舊版。配套是否已補、對外能否取得報告，本班無任何證據。此線很可能與前班列為高風險的分析報告產不出來為同一事故。</td><td>建立並稽核生產配套與就緒旗標，實際送出一次分析確認取得完整報告；恢復部署後觀察至少一輪發布列車全綠，再降級此風險。</td></tr>
+  <tr><td><strong>版本譜系缺口擴大至四十三個版號</strong></td><td>高</td><td>v0.27.0 至 v0.27.42 累計 43 個版號，本班再次查證遠端標籤中 v0.27 系列筆數為零，遠端最新標籤仍停在 v0.26.0。目前 v0.27.x 仍只是主線提交／版本檔宣稱，尚未成為可由遠端標籤稽核的正式版本節點。事故發生時無法用版號精準界定「哪一版開始壞」。</td><td>為各發行提交補打標籤並逐一明列推送；在發布列車流程內建自動打標籤與推送，杜絕缺口再擴大。</td></tr>
+  <tr><td><strong>主線與線上版本落差持續擴大</strong></td><td>中</td><td>發布列車在配套備妥前一律擋下部署，屬正確止血，但主線仍以每小時節奏前進；落差愈大，恢復部署時一次帶上的變動面愈廣、回滾判斷愈困難。</td><td>設定落差上限告警；配套備妥後優先執行一次小步部署驗證通路，再逐步追上。</td></tr>
+  <tr><td><strong>間歇失敗測試使推送前閘道不穩</strong></td><td>中</td><td>提交紀錄指出衝刺期在開發分支留下多個間歇失敗的序列測試，使發布列車的推送前閘道間歇性失敗；本班以放寬逾時處理，未根治根因。</td><td>定位間歇失敗根因（資源競爭或測試間污染）並根治；在根治前記錄每次閘道失敗率，避免以重跑掩蓋。</td></tr>
+  <tr><td><strong>驗收登錄驗證器僅為輔助，發行仍缺自動閘道</strong></td><td>中</td><td>本班已誠實標註該驗證器尚未接入自動閘道、不得作為發行證據；意即目前發行品質仍靠人工自律，偽造或過期的驗收清單不會被系統擋下。</td><td>排定將驗證器接入自動閘道的時程；接入前對外不引用其結果作為品質證據。</td></tr>
+  <tr><td><strong>單班 +8,914 行品質證據未經獨立驗證</strong></td><td>中</td><td>本班 77 檔、+8,914 行變動，測試與雙軌審查狀態均僅見於提交紀錄，本班未實跑任何閘道，未驗證面積連續三班堆疊。</td><td>對主線最新提交實跑本地推送前閘道，數據對上前不引用任何測試宣稱。</td></tr>
+  <tr><td><strong>生產狀態曾以人工遠端指令修補</strong></td><td>中</td><td>提交紀錄提到技能紀錄的生產指標先前以遠端指令手動驗證修復、本班才使其跨部署持久；若還有其他僅人工修過、未持久化的生產狀態，下次部署會靜默回退。</td><td>盤點所有以人工遠端指令修過的生產狀態，逐項確認已納入部署腳本或設定管理。</td></tr>
+  <tr><td><strong>強制推送事故根因仍未說明</strong></td><td>中</td><td>07/27 夜班列為高風險的開發分支強制推送事故，連續第七班未見根因說明或分支保護補強入庫。</td><td>查明根因、確認開發分支保護規則，結果入庫後才可降級。</td></tr>
+</tbody></table></section>
+
+<section><h3>驗證狀態</h3>
+<p><strong>⚠️ 本班僅 diff-level review，未實跑測試。</strong></p>
+<ul>
+  <li>兩倉庫 fetch 皆成功；遠端標籤以查詢遠端參考實際查證（v0.27 系列筆數為零，最新為 v0.26.0）；devlog 靜態驗證於發布前執行。未輸出或記錄任何憑證內容。</li>
+  <li><strong>未執行：</strong>pytest／前端建置／本地推送前閘道／金絲雀演練／線上端點探測／生產配套存在性查證。</li>
+  <li><strong>無安全審核背書：</strong>本班無安全長審核。鯨魚警報管理端的雙軌審查與五項收官、各項測試全綠等宣稱，均僅以提交紀錄轉述，本班不代為背書通過。</li>
+</ul></section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<ul>
+  <li><label><input type="checkbox" disabled> 查證生產正式執行配套與就緒旗標是否備妥，解除發布列車停擺<br><code>ls -l out/release-train/formal-run-prod-ready &amp;&amp; aws dynamodb describe-table --table-name &lt;正式執行資料表&gt; &amp;&amp; aws ssm get-parameters-by-path --path /trustforge/runtime --with-decryption --query 'Parameters[].Name'</code>；通過標準：資料表存在、三組密鑰皆可解出（僅確認名稱存在，不輸出內容）、旗標內容載明配套清單可供稽核。</label></li>
+  <li><label><input type="checkbox" disabled> 實地驗收對外分析問答已恢復產出報告<br><code>依兩階段流程送出一次分析請求並輪詢工作完成（第一階段取得作用域，第二階段以同一冪等鍵重送）</code>；通過標準：取得完整分析報告，且伺服器端無 400／503 紀錄。</label></li>
+  <li><label><input type="checkbox" disabled> 為 v0.27.x 各發行提交補打並推送遠端標籤，閉合版本譜系<br><code>git tag v0.27.42 e2c960b &amp;&amp; git push origin v0.27.40 v0.27.41 v0.27.42</code>（v0.27.0 至 v0.27.39 依前篇清單一併補推；禁止 <code>git push origin --tags</code>，避免誤推本地所有標籤）；通過標準：查詢遠端參考可見 v0.27.0 至 v0.27.42 全數標籤且各指向對應發行提交。</label></li>
+  <li><label><input type="checkbox" disabled> 對主線最新提交實跑本地推送前閘道，取得第一手品質數據<br><code>cd /opt/data/trustforge &amp;&amp; git fetch origin &amp;&amp; git checkout remotes/origin/main &amp;&amp; .githooks/pre-push</code>；通過標準：測試、檢查、建置、資料檢查全數通過並記錄實際數字與間歇失敗次數。</label></li>
+  <li><label><input type="checkbox" disabled> 盤點僅以人工遠端指令修補、尚未持久化的生產狀態<br><code>比對 deploy/ 下腳本涵蓋範圍與近期遠端指令紀錄，逐項列出差集</code>；通過標準：差集為空，或每項皆有對應的持久化計畫與時程。</label></li>
+  <li><label><input type="checkbox" disabled> 關閉強制推送事故追蹤（連續七班遺留）<br><code>gh api repos/cancleeric/TrustForge/branches/develop/protection</code>；通過標準：根因說明入庫且保護規則可阻止再犯。</label></li>
+</ul></section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<p><strong>觀測窗：</strong>2026-07-30 23:03 台灣時間（前篇 07-30c 收稿點）至本班收稿。基準取前篇終點 c7dfe68，涵蓋其後至 remotes/origin/main（e2c960b）全部主線提交，與前篇無缺口。</p>
+<p><strong>TrustForge 主 repo：</strong>remotes/origin/main 自 c7dfe68 前進至 e2c960b，新增 70 個提交（59 非合併、11 合併），77 檔變動（+8,914 / −98 行）。版本自 v0.27.39 鑄至 v0.27.42（三筆發行提交：18ecf4d v0.27.40、76d6135 v0.27.41、e2c960b v0.27.42；均只改 <code>src/trustforge/_version.py</code> 與前端套件版本）。關鍵雜湊：正式執行事故鏈——3ad40ac（#1175 發布列車前置擋部署，另含 5 個新測）、69c83c3（#1177 止損前移至閘道前）、868debb（#1180 旗標存在即就緒，改 <code>scripts/hourly_release_train.py</code> 與其測試）、0b70979（#1178 <code>src/trustforge/formal_run_runtime.py</code> 取密鑰參數存放區回退，+26 行測試）、649e931（#1181 <code>src/trustforge/web.py</code> 作用域金鑰圈回退，+5 行）、9c4c662（#1182 <code>src/trustforge/formal_budget_reservation.py</code> 條件式引用修正）、87a2e8d（#1179 <code>scripts/verify_production_analysis_report.py</code> 兩階段送出）、f6ab05c（#1184 冪等鍵格式）；原生一次性交易整合——7d4423c 起至 36bf80a 共 22 筆 nf3 修補，經 cf2ca68（PR #1174）併入，主要落在 <code>scripts/test_nf3_integrated_linux.py</code>（+1,591 行）、<code>tests/test_nf3_linux_orchestrator_contract.py</code>（+434 行）、<code>native/nf3-one-shot-transaction/src/linux.rs</code>、<code>native/nf3-one-shot-transaction/src/ledger.rs</code>、<code>docs/evidence/NF3-B-BUILD-RECEIPT-THREAT-MODEL.md</code>，另 90a3586（#1176 允許 append_witness 未使用告警）；鯨魚警報管理端——eeb294f（#1100 五項安全審查收官）經 a2aff75（PR #1111）併入，含 <code>src/trustforge/whale_alert_secret.py</code>（+256 行）、<code>tests/test_whale_alert_secret.py</code>（+287 行）、<code>tests/test_admin_api.py</code>（+211 行）、<code>frontend/src/pages/AdminPage.tsx</code>、<code>deploy/setup_whale_alert_ssm.sh</code>；驗收登錄——f8e4df0（#1095 驗證器硬化）、b0f7a8e（移除原子批次自動注入），經 d0b5d64（PR #1096）併入；部署與可攜性——2c7e0e（#1159／PR #1160 含冒號檔名改名）、1502028（#1172 前置檢查未初始化變數）經 d1527ef（PR #1173）併入、3acf19b（技能異動紀錄跨部署持久化，新增 <code>deploy/reconcile_skill_change_log.sh</code> +109 行與其測試 +92 行）、b56295c（間歇失敗測試逾時放寬與部署測試未定義變數）、45df333（部署測試對齊啟用交易架構）；文件——df25d3d、075de7e、3128524（團隊參考網頁與簡報準備，經 1938c36／PR #1158 併入）、2f90f3e（讀我檔訓練流程說明）、f1a471d（PR #1157 評分權重調整）。遠端標籤查證：v0.27 系列筆數為 0，遠端標籤總數 177，最新版本標籤為 v0.26.0。本地 trustforge 鏡像工作分支停在 2c7e0e9（落後遠端主線 67 個提交），本班未對鏡像做任何寫入，全部範圍計算均以 remotes/origin/main 為基準。</p>
+<p><strong>devlog repo：</strong>觀測窗內 fetch origin 成功；<code>git status</code> 輸出為空、<code>origin/main..HEAD</code> 為 0、<code>HEAD..origin/main</code> 為 0，無衝突檔、無需併回的遠端他人提交，亦未執行任何 clone／rebase 修復／push 修復／規範更新／sitemap 衝突處理等運維操作。前一篇為 12595df（07-30c，2026-07-30 15:03 UTC）。本篇發布前跑 <code>validate_devlog.py</code>；既有未併分支 docs/outer-framework-upgrade-governance-20260727 與 chore/2-version-kiro-hooks 仍未併入主線。</p>
+<p>兩倉庫 fetch 成功；未記錄任何憑證內容，涉及密鑰處一律以名稱或 [REDACTED] 代稱。</p>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-07-31</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 32 · 夜班稽核——正式執行生產配套缺口八連修止血、發布列車刻意停擺、原生交易整合二十二筆收斂","datePublished":"2026-07-31","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>

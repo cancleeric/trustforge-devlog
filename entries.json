@@ -2,10 +2,10 @@
   "meta": {
     "site": "TrustForge 開發記錄",
     "version": "v0.14.15",
-    "generated": "2026-07-30",
-    "total": 56,
+    "generated": "2026-07-31",
+    "total": 57,
     "first_date": "2026-06-30",
-    "last_date": "2026-07-30",
+    "last_date": "2026-07-31",
     "categories": [
       "Continuous Analysis",
       "平台治理",
@@ -19,7 +19,7 @@
       "基礎建設",
       "產品體驗"
     ],
-    "count": 56,
+    "count": 57,
     "tags": [
       "agentcore",
       "ai-friendly",
@@ -135,6 +135,20 @@
     ]
   },
   "entries": [
+    {
+      "id": "2026-07-31",
+      "day": 32,
+      "date": "2026-07-31",
+      "title": "Day 32 · 夜班稽核——正式執行生產配套缺口八連修止血、發布列車刻意停擺、原生交易整合二十二筆收斂",
+      "summary": "主線 70 commit、77 檔 +8,914 行，v0.27.39 鑄至 v0.27.42。整班以救火為主：正式執行路徑生產配套缺口導致金絲雀必敗、曾致對外中斷，已改為配套未就緒即擋下部署——代價是生產刻意停留舊版。版本譜系缺口擴至 43 版。",
+      "category": "Continuous Analysis",
+      "tags": [
+        "trustforge",
+        "continuous-analysis"
+      ],
+      "file": "2026-07-31.html",
+      "created_at": "2026-07-31 03:12:18"
+    },
     {
       "id": "2026-07-30c",
       "day": 31,
