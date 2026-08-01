@@ -1,0 +1,123 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班主線收 163 個提交（106 非合併、57 合併），255 檔變動（+17,432 / −1,220 行），時間窗自 2026-08-01 10:39（UTC+8）起算，覆蓋整個班次。內容集中在五條主軸：其一，<strong>把「正式分析」功能在前端重新開閘</strong>；其二，<strong>新增碳盤查模組</strong>（LLM token 碳排放估算、/api/carbon 端點、前端碳足跡頁）；其三，<strong>補齊台灣監管與四條外部鏈上資料來源的 adapter 與文件</strong>；其四，<strong>把「可在生產環境耐久執行的分析」從一次性腳本升級為常駐流程</strong>；其五，<strong>強化安全推送閘與 pre-push CI</strong>，並產出 ISO/IEC 42001 與 EU AI Act 合規治理草案。</li>
+  <li><strong>必須先看的一件事：</strong>本班由 Eric Wang 在前端重新開啟「正式分析」（commit 7970702d，[REDACTED] 帳號）。但<strong>上個班次因「後端從未把工作寫入佇列」而關閘的根因，本班並未修復</strong>：本班次沒有任何提交改動 <code>formal_run_coordinator.py</code> 或 <code>analysis_flow.enqueue_formal_projection</code> 的排隊路徑（僅 refactor 移除套件 import 橋接），後端仍走同一條 <code>_enqueue → enqueue_formal_projection</code> 流程。也就是說，<strong>前端開了、後端佇列行為與上個班次關閘時相同</strong>——使用者按下去仍可能進入「輪詢查無此工作」的狀態。這是「介面開了但底層未修」的風險，必須優先釐清。</li>
+  <li><strong>要盯的一件事：</strong>碳盤查模組（#1278）一次落地 562 行實作 + 258 行測試，並修復了生產建置、左側選單連結、開新分頁、以及 /api/carbon 對 ledger runs.calls 巢狀結構的解析。這是實質可用功能，但本班僅做 diff-level review，未實跑測試與 live 端點，須等下一班或 CI 收斂證據。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<p><strong>1. 正式分析前端重新開閘（#1313 / 7970702d）</strong></p>
+<ul>
+  <li><strong>完成：</strong>前端 <code>analysisWip.ts</code> 的 <code>ANALYSIS_FORMAL_WIP</code> 由 false 改回 true，AnalyzePage 與測試同步調整；並補 <code>AnalyzePage.test.tsx</code> 18 行測試。</li>
+  <li><strong>價值：</strong>回應比賽對外展示需求，讓評審能在 UI 直接觸發正式分析流程。</li>
+  <li><strong>風險：</strong>上個班次關閘的根因（後端未入佇列）未修；本班無提交改動排隊路徑，開閘後使用者可能仍遇到「送出後輪詢查無工作」。</li>
+  <li><strong>待驗證：</strong>需在 staging 實跑一次完整送出→輪詢，確認工作確實進入佇列並回傳 202 + 可查詢狀態；否則應回退為 fail-closed。</li>
+</ul>
+
+<p><strong>2. 碳盤查模組（#1278 / 821880c0 起，含 4 個修復提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>新增 <code>src/trustforge/carbon.py</code>（265 行）、<code>data/carbon_intensity.json</code>（39 行區域電力碳強度）、<code>tests/test_carbon.py</code>（258 行，30 項測試）；修復生產建置、左側選單、<code>target=_blank</code> 開新分頁、/api/carbon 巢狀結構解析與 OpenAPI 路徑重複。</li>
+  <li><strong>價值：</strong>補上 LLM token 碳排放估算與可視化足跡頁，回應永續/ESG 維度。</li>
+  <li><strong>風險：</strong>估算依賴區域碳強度表與 token 計數假設，準確性未經第三方校驗；生產建置雖已修，live 端點行為未實測。</li>
+  <li><strong>待驗證：</strong>實跑 <code>test_carbon.py</code> 全綠；在 staging 打 /api/carbon 確認回傳格式與前端路由一致。</li>
+</ul>
+
+<p><strong>3. 台灣監管與四條外部來源 adapter（#385 系列 / 多提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong><code>src/trustforge/ingestion/taiwan_regulatory.py</code> 落地 FSC / MOPS / TWSE / TPEx 四個台灣來源 adapter，含 SSRF-safe fetch、host 白名單、固定 User-Agent、截斷 sentinel 與 fail-closed；另接 Whale Alert + Arkham、Etherscan、CoinMarketCap、DefiLlama 四條外部主線（connector / credential / admin boundary 工程路線）。測試 fixture 已就位（fsc_penalty、mops_twse、twse_punish、tpex_punish 等）。</li>
+  <li><strong>價值：</strong>對 HOYA BIT 命題補上台灣監管/揭露維度，降低「只接 SEC EDGAR」的缺口。</li>
+  <li><strong>風險：</strong>MOPS 標註為 <code>url_kind="query-page"</code> 且 <code>history_backfillable=False</code>，不假裝有 per-announcement permalink；台灣在地媒體（BlockTempo 等）仍為待辦，未標成已接。對外誠實邊界已寫入 references.html，但未經 live 或人工 console 驗證。</li>
+  <li><strong>待驗證：</strong>實跑台灣 adapter live 模式，確認打真實介面且 key 不寫入 URL / Document / meta / log。</li>
+</ul>
+
+<p><strong>4. 耐久生產分析流程（#882 / bccd87d1）</strong></p>
+<ul>
+  <li><strong>完成：</strong>把「可在生產環境耐久執行的分析」從一次性腳本升級為常駐流程，改動 <code>deploy/deploy_ec2.sh</code> 與相關啟動邏輯；commit message 標註「durable production analysis」。</li>
+  <li><strong>價值：</strong>讓分析流程在 EC2 上可長期、可重啟地運作，支援比賽現場持續產出。</li>
+  <li><strong>風險：</strong>部署腳本變動直接影響生產實例行為，未見對應的部署回滾驗證。</li>
+  <li><strong>待驗證：</strong>在 staging 實跑 deploy_ec2.sh，確認流程起來後能穩定輪詢與產出，且失敗可重啟。</li>
+</ul>
+
+<p><strong>5. AWS 成本與安全邊界（#1267 / d3d76610 等多提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>補上 Lambda live contract、provider secret hardening（不把 key 寫入 URL）、distributed RPS / budget / activation gate；commit 1e49cd8e 以「security: gate competition live activation」新增 <code>competition-lambda-live-contract.json</code> 與測試。</li>
+  <li><strong>價值：</strong>把 AWS Bedrock / Lambda / DynamoDB / SSM 的費用與密鑰外洩風險收斂到 fail-closed 邊界。</li>
+  <li><strong>風險：</strong>activation gate 與預算上限的實際觸發行為未在真實帳號驗證（本班無真實 AWS 憑證環境）。</li>
+  <li><strong>待驗證：</strong>以預算上限與 RPS 上限做一次壓測，確認超額時確實 fail-closed。</li>
+</ul>
+
+<p><strong>6. 安全推送閘強化（#1307 / 29f5af26 + #1319 / 18b8c2fd）</strong></p>
+<ul>
+  <li><strong>完成：</strong>PR #1307 修復 <code>security_gate_push.py</code> 在 main 的可使用性（忽略本地未知 advertised tips，+338 行測試）；PR #1319 把安全閘接上 <code>.githooks/pre-push</code>，push 前強制跑。</li>
+  <li><strong>價值：</strong>把「我有跑」升級成可重驗的 gate 紀錄，降低誤推未稽核內容。</li>
+  <li><strong>風險：</strong>pre-push hook 對開發者本地流程有摩擦；若 hook 失敗模式不清晰，可能被跳過。</li>
+  <li><strong>待驗證：</strong>在乾淨 clone 實測 pre-push 攔截未通過閘的提交。</li>
+</ul>
+
+<p><strong>7. 合規治理文件（ISO/IEC 42001 AIMS + EU AI Act EN 18286 overlay）</strong></p>
+<ul>
+  <li><strong>完成：</strong>新增 <code>docs/reports/ANALYSIS-EN-18286-EU-AI-ACT-GAP-2026-08-01.md</code> 與 <code>docs/plans/PLAN-ISO-IEC-42001-AIMS-IMPROVEMENT-2026-08-01.md</code> 等治理草案。</li>
+  <li><strong>價值：</strong>把治理成熟度從「無文件」推到「有文件化 gap analysis」。</li>
+  <li><strong>風險：</strong>references.html 已明確標註「不宣稱已認證、已符合、已取得 CE / presumption of conformity」；若對外口徑不慎，會從治理參考變成虛假合規聲明。</li>
+  <li><strong>待驗證：</strong>人工確認所有對外頁面與簡報未出現「符合 ISO 42001 / 已通過 EU AI Act」等未經認證表述。</li>
+</ul>
+
+<p><strong>8. 套件邊界重構與版本鑄造（#1253/1254/1232/1257 等多提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>移除套件 import 橋接（c6ca5a35）、收斂 canonical claim identity mint（c9439d44）、商業化邏輯重寫（6bd12829）、成本面（61719131）等結構清理；多個提交將版本鑄到 v0.27.x 區間。</li>
+  <li><strong>價值：</strong>降低內部耦合，讓版本譜系更乾淨。</li>
+  <li><strong>風險：</strong>重構跨 255 檔，回歸面廣；本班僅 diff-level review，未跑完整測試套件。</li>
+  <li><strong>待驗證：</strong>CI 全綠 + 關鍵路徑（信任評分、分析流程）手動 smoke test。</li>
+</ul>
+</section>
+
+<section><h3>devlog 倉庫自身變更</h3>
+<ul>
+  <li><strong>完成：</strong>本班起始時 devlog 落後 origin/main 兩個提交；已執行 <code>git pull --rebase origin main</code> 快進收齊（fast-forward，無衝突）。兩個遠端提交內容為：references.html 新增「九、台灣監管源：已接入與剩餘缺口」與「十、近期新增成果與工程證據」章節（對齊主 repo 本班多項成果），以及一篇第 9 日新增開發記錄。</li>
+  <li><strong>價值：</strong>devlog 自身維持與主 repo 進度同步，避免稽核斷層。</li>
+  <li><strong>風險：</strong>本班新增本篇（第 9 日夜班）後，若後續班次又推送同日夜班條目，需以日期後綴區分，避免覆寫。</li>
+  <li><strong>待驗證：</strong>本篇推送後執行 <code>python3 validate_devlog.py</code> 須 passed；sitemap.xml 由 add_day.py 自動重建，不手編。</li>
+</ul>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table">
+  <thead><tr><th>風險項</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead>
+  <tbody>
+    <tr><td>正式分析開閘但後端佇列未修</td><td>高</td><td>前端 7970702d 重新啟用 ANALYSIS_FORMAL_WIP，但本班無提交修復 formal_run_coordinator 的入佇列路徑；上個班次關閘根因（後端未寫佇列）仍然存在</td><td>下個班次在 staging 實跑送出→輪詢；若工作未進佇列，立即回退 fail-closed 或修復 _enqueue 路徑</td></tr>
+    <tr><td>版本譜系未閉合</td><td>中</td><td>v0.27.x 仍只是主線 commit / VERSION 檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點（遠端無 v0.27.x tag）</td><td>待發布時由負責人以具體 tag（如 v0.27.x）推送，使版本譜系可由遠端稽核</td></tr>
+    <tr><td>碳盤查準確性未校驗</td><td>中</td><td>估算依賴區域碳強度表與 token 計數假設，未經第三方校驗；live 端點未實測</td><td>實跑 test_carbon.py 全綠，並在 staging 打 /api/carbon 確認格式</td></tr>
+    <tr><td>合規聲明外溢風險</td><td>中</td><td>ISO 42001 / EU AI Act 僅為治理草案，references.html 已標註未認證，但對外簡報/頁面可能誤寫「符合」</td><td>人工巡檢所有對外表述，確保不出現未經認證的合規聲明</td></tr>
+    <tr><td>重構回歸面廣</td><td>中</td><td>本班 255 檔變動含套件邊界重構，本班僅 diff-level review，未跑完整測試套件</td><td>確認 CI 全綠，並對信任評分與分析流程做手動 smoke test</td></tr>
+    <tr><td>台灣源 live 未驗證</td><td>低</td><td>adapter 已落地且有 fixture，但 live 模式與 key 不落地保證未實測</td><td>實跑台灣 adapter live，確認打真實介面且憑證不寫入日誌</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section><h3>驗證狀態</h3>
+<ul>
+  <li>本班僅 diff-level review，未實跑測試套件，也未在真實 AWS / 鏈上環境驗證 live 行為。上述「待驗證」項目均待 CI 或下個班次收斂證據。</li>
+  <li>commit message 未標註「CISO review passed」；本班不替任何提交聲稱已通過 CISO 審查。</li>
+  <li>遠端無 v0.27.x tag，版本譜系未閉合（見風險表）。</li>
+</ul>
+</section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<label><input type="checkbox" disabled> 確認正式分析開閘後端是否修好<br><code>git show origin/main:src/trustforge/formal_run_coordinator.py | sed -n '386,415p'</code>；通過標準：提交→輪詢能在 staging 實測拿到 202 且工作可查詢，否則回退 ANALYSIS_FORMAL_WIP=false。</label>
+<label><input type="checkbox" disabled> 實跑碳盤查測試與端點<br><code>cd /opt/data/trustforge && python3 -m pytest tests/test_carbon.py -q</code>；通過標準：全綠，且 /api/carbon 在 staging 回傳預期 JSON。</label>
+<label><input type="checkbox" disabled> 巡檢合規聲明外溢<br><code>cd /opt/data/trustforge && git grep -ni "符合 ISO\|通過 EU AI Act\|certified" docs/ 2>/dev/null</code>；通過標準：僅出現「治理參考／草案」語氣，無未認證的符合聲明。</label>
+<label><input type="checkbox" disabled> 收齊 devlog 推送<br><code>cd /opt/data/devlog && python3 validate_devlog.py &amp;&amp; git push origin main</code>；通過標準：validate passed 且遠端收齊本篇。</label>
+</section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<ul>
+  <li>主 repo 提交區間：<code>907d984f..27e8c017</code>（907d984f = 2026-08-01 10:39:42 +0800 起，至 27e8c017 止），共 163 提交（<code>git rev-list --count</code> 含 57 merge + 106 non-merge），255 檔變動（+17,432 / −1,220）。</li>
+  <li>關鍵提交：7970702d（正式分析開閘）、821880c0（碳盤查 feat）、bccd87d1（#882 耐久生產分析）、29f5af26（#1307 安全閘）、18b8c2fd（#1319 pre-push）、1e49cd8e（#1260 競賽 live gate）、c6ca5a35（#1254 移除 import 橋接）、c9439d44（#960 身份 mint）、3c70ebb6（#1307 修正）、2b156f91（CI pre-push）。</li>
+  <li>後端佇列未修證據：<code>git log 907d984f..27e8c017 -- src/trustforge/formal_run_coordinator.py</code> 無提交；<code>origin/main:src/trustforge/formal_run_coordinator.py</code> 第 386 行 <code>_enqueue</code> 仍呼叫 <code>self._flow.enqueue_formal_projection(...)</code>，與上個班次關閘時路徑相同。</li>
+  <li>台灣 adapter：<code>src/trustforge/ingestion/taiwan_regulatory.py</code> 存在；fixture 含 fsc_penalty.xml / mops_twse.json / twse_punish.json / tpex_punish.json。</li>
+  <li>碳盤查：<code>src/trustforge/carbon.py</code>（265 行）、<code>tests/test_carbon.py</code>（258 行）、<code>data/carbon_intensity.json</code>（39 行）。</li>
+  <li>版本譜系：<code>git ls-remote --tags origin</code> 無 v0.27.x；v0.27.x 僅見於 commit / VERSION 檔宣稱，未閉合為遠端 tag。</li>
+  <li>devlog 自身：起始 <code>git status</code> 落後 origin/main 兩提交（faea3bf、35a049b）；已 <code>git pull --rebase origin main</code> 快進收齊，無衝突。</li>
+</ul>
+</section>
