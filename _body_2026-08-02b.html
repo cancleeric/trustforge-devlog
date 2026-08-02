@@ -1,0 +1,81 @@
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班觀測窗（前一班收稿後至本班開稿）主線只收 4 個提交（2 非合併、2 合併），10 檔變動（+27 / −10 行）——與上一班的 82 提交相比是明顯的收斂班。內容只有兩件事：<strong>版號推進到 v0.27.52</strong>，以及<strong>修掉一個會讓機器部署直接中斷的設定檔語法錯誤</strong>。後者才是本班真正值得看的一項：部署腳本裡授予監控寫入權限的那段權限政策，內容是一段格式不合法的設定文字，雲端服務會拒收；而該腳本設定為「任一步失敗即整體中止」，也就是說<strong>只要有人跑完整的機器部署流程，就會卡在這一步中斷</strong>。</li>
+  <li><strong>必須先看的一件事：</strong>這個錯誤不是本班寫壞的，是<strong>本來就壞著、到本班才被發現並修好</strong>。這帶出一個比錯字本身更重要的推論：<strong>完整的機器部署流程近期很可能沒有真正被跑完過</strong>，否則早該中斷報錯。換句話說，「部署腳本存在」不等於「部署路徑被驗證過」。建議把這件事當成一次流程健檢的觸發點，而不是單純的修錯字。</li>
+  <li><strong>要盯的一件事：</strong>本班把版號推到 v0.27.52，但<strong>隨附的發布說明是空殼</strong>——內文寫著「發布說明待最終審閱」、「事前檢查、審閱、發布、部署與回滾證據待補」。版號動了、佐證沒動。另外，上一班列為最高風險的兩項（正式分析端到端未實測、發布列車預設生產目標已變更）<strong>本班完全沒有新證據，維持原狀未收斂</strong>，本班不替它們的狀態背書。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<p><strong>1. 部署腳本監控權限政策語法修正（#1403）</strong></p>
+<ul>
+  <li><strong>完成：</strong>機器部署腳本中授予監控指標寫入權限的那段權限政策，其陳述清單原本是把鍵值對直接塞進清單裡、缺少一層物件包覆，屬於不合法的結構，雲端權限介面必然拒收；本班補上缺少的物件包覆使其成為合法結構。同段落上下相鄰的其他數段權限政策格式本來就正確，僅此一段有誤。</li>
+  <li><strong>價值：</strong>移除機器部署路徑上的一個必然中斷點。由於該腳本採「任一步失敗即整體中止」，此段先前會讓整個部署在授權階段就停住，後續的部署動作全都不會執行。</li>
+  <li><strong>風險：</strong>此段錯誤存在已有一段時間，卻直到本班才被修，代表完整部署路徑近期缺乏實跑驗證；本次修正本身也僅為程式碼層改動，本班未在真實雲端執行部署驗證其確實通過。</li>
+  <li><strong>待驗證：</strong>在測試帳號實跑一次完整機器部署流程，確認授權階段順利通過且後續步驟均有執行，而非僅檢查該行文字格式正確。</li>
+</ul>
+
+<p><strong>2. 版號推進至 v0.27.52 與版本徽章改為附帶提交識別（#1403）</strong></p>
+<ul>
+  <li><strong>完成：</strong>後端版號檔與前端套件版號同步由 0.27.51 推進至 0.27.52，相依鎖檔一併更新；變更記錄新增對應條目，並新增一份 v0.27.52 發布說明文件。前端主控台頂列的版本徽章改為顯示「版號 · 提交識別前七碼」，該識別由建置時注入的環境變數提供，未注入時顯示為開發字樣；同時移除主控台原本附加在版號後的固定代號字串，對應測試已同步調整。</li>
+  <li><strong>價值：</strong>畫面上可直接看出當前執行的是哪一次建置，對「線上到底跑的是哪版」這類稽核提問，從此有畫面級的直接答案，不必回頭比對部署記錄。</li>
+  <li><strong>風險：</strong>新增的 v0.27.52 發布說明為佔位內容，明文寫著發布說明待最終審閱、且事前檢查與審閱、發布、部署、回滾各項證據皆待補；版號已推進但佐證未同步，形成「版號跑在證據前面」的落差。另外提交識別依賴建置時注入環境變數，若由未注入該變數的路徑建置，線上徽章會顯示開發字樣而非真實識別，反而造成誤判。</li>
+  <li><strong>待驗證：</strong>補齊 v0.27.52 發布說明的實質內容與各項證據連結；並確認實際上線用的前端建置路徑確有注入提交識別，線上徽章顯示真實識別而非開發字樣。</li>
+</ul>
+</section>
+
+<section><h3>devlog 倉庫運維</h3>
+<ul>
+  <li><strong>完成：</strong>本班開稿前先與遠端對帳，確認本地主線與遠端一致（未領先亦未落後）、工作區乾淨無未追蹤檔案，隨後產出並推送本篇。<strong>本班除本篇之外，devlog 倉庫無其他運維操作</strong>——無 clone、無 rebase 修復、無 push 修復、無規範更新、無網站地圖衝突處理、無舊倉庫封存。此結論經實際查證得出，非未查即寫。</li>
+  <li><strong>價值：</strong>維持稽核連續性——上一班收稿至本班開稿之間，devlog 端無任何未記錄的狀態變動，讀者可信賴兩篇之間不存在缺口。</li>
+  <li><strong>風險：</strong>低。倉庫狀態單純，無待收斂項目。</li>
+  <li><strong>待驗證：</strong>本篇推送後遠端確實收齊，且靜態檢查維持通過。</li>
+</ul>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table">
+  <thead><tr><th>風險項</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead>
+  <tbody>
+    <tr><td>完整部署路徑疑似長期未實跑</td><td>高</td><td>部署腳本中一段必然被雲端拒收的權限政策長期存在卻未被觸發發現，而該腳本為任一步失敗即整體中止；合理推論是完整機器部署流程近期未被跑完過，部署能力屬於未驗證狀態</td><td>在測試帳號實跑一次完整機器部署至結束，確認全程無中斷；若確認長期未跑，應把定期實跑納入固定節奏而非僅靠出事才發現</td></tr>
+    <tr><td>正式分析端到端仍未實測</td><td>高</td><td>上一班在程式碼層修復了網頁程序與工作程序寫入不同資料庫檔的根因，但共用路徑若在生產未正確設定故障會原樣重現；本班觀測窗內無任何相關提交，亦未實跑驗證，該風險狀態與上一班相同未收斂</td><td>維持上一班建議：以驗證腳本在測試或生產環境實跑一次完整送出到取得報告；在取得結果前不得視為已解決</td></tr>
+    <tr><td>發布列車預設生產目標已變更且未核對</td><td>高</td><td>上一班將發布列車的預設生產區域與預設生產網址改為比賽用設定，未顯式設定環境變數的執行環境會沿用新預設；本班觀測窗內無相關提交，執行環境的實際變數值仍未經核對</td><td>核對實際執行機器上的目標環境變數值是否與負責人預期一致，並於發布收據中確認本次出車目標</td></tr>
+    <tr><td>版號推進但發布佐證為空殼</td><td>中</td><td>v0.27.52 發布說明明文標示發布說明待最終審閱、事前檢查與審閱、發布、部署、回滾證據皆待補，版號已推進而證據未同步</td><td>補齊該發布說明的實質內容與證據連結，或在證據補齊前不將此版號對外宣告為可發布版本</td></tr>
+    <tr><td>版本譜系未閉合</td><td>中</td><td>遠端 v0.27.x tag 數為零，正式版號僅見於主線提交與版號檔宣稱。目前 v0.27.x 仍只是主線 commit／VERSION 檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點</td><td>待發布時由負責人以明列的具體 tag 推送，使版本譜系可由遠端稽核；不得一次推送全部本地 tag</td></tr>
+    <tr><td>版本徽章可能顯示開發字樣</td><td>低</td><td>徽章的提交識別依賴建置時注入環境變數，未注入時回退為開發字樣；自動化建置流程檔目前為停用狀態，實際上線建置是否確有注入未經本班確認</td><td>確認線上前端徽章顯示的是真實提交識別；若顯示開發字樣，應視為建置來源不明並追查建置路徑</td></tr>
+    <tr><td>本機工作副本停在過期分支</td><td>低</td><td>主 repo 本機工作副本停留在一個落後主線 268 個提交的功能分支，其上 4 個提交的同名工作已於前日以另一組雜湊併入主線，本機這組屬殘留副本</td><td>將本機工作副本切回主線並更新，避免後續班次誤把殘留副本讀成未推送的新工作</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section><h3>驗證狀態</h3>
+<ul>
+  <li>本班僅 diff-level review，未實跑測試套件，也未在真實雲端或生產環境驗證行為。上述「待驗證」項目均待持續整合或下個班次收斂證據。</li>
+  <li>本班提交訊息未標註「CISO review passed」；本班不替任何提交聲稱已通過資安審查。</li>
+  <li>上一班列為高風險的正式分析端到端與發布列車目標兩項，本班觀測窗內無新證據，維持未收斂，本班不宣稱其已解決。</li>
+  <li>遠端無 v0.27.x tag，版本譜系未閉合（見風險表）。</li>
+</ul>
+</section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<label><input type="checkbox" disabled> 實跑完整機器部署確認無中斷<br><code>cd /opt/data/trustforge &amp;&amp; bash -n deploy/deploy_ec2.sh</code>；通過標準：語法檢查無誤後，於測試帳號實跑整份部署至結束，授權階段順利通過且後續步驟均有執行。</label>
+<label><input type="checkbox" disabled> 確認監控權限政策為合法結構<br><code>cd /opt/data/trustforge &amp;&amp; git show origin/main:deploy/deploy_ec2.sh | grep -A1 trustforge-cloudwatch</code>；通過標準：陳述清單內每個元素皆為完整物件，取出的政策文字可被 JSON 解析器接受。</label>
+<label><input type="checkbox" disabled> 補齊 v0.27.52 發布佐證<br><code>cd /opt/data/trustforge &amp;&amp; git show origin/main:docs/RELEASE-NOTES-v0.27.52.md</code>；通過標準：內文不再出現待審閱或待補字樣，且事前檢查、審閱、發布、部署、回滾五項各有可追溯證據。</label>
+<label><input type="checkbox" disabled> 核對線上版本徽章顯示真實識別<br><code>cd /opt/data/trustforge &amp;&amp; grep -n VITE_GIT_SHA deploy/deploy_frontend_nginx.sh</code>；通過標準：實際上線建置路徑確有注入提交識別，線上徽章顯示七碼識別而非開發字樣。</label>
+<label><input type="checkbox" disabled> 清理本機過期工作副本<br><code>cd /opt/data/trustforge &amp;&amp; git status -sb</code>；通過標準：工作副本位於主線且與遠端同步，不再停留於落後數百個提交的功能分支。</label>
+<label><input type="checkbox" disabled> 收齊 devlog 推送<br><code>cd /opt/data/devlog &amp;&amp; python3 validate_devlog.py</code>；通過標準：validate passed，且推送後遠端收齊本篇；推送 tag 時須明列具體 tag，禁止一次推送全部本地 tag。</label>
+</section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<ul>
+  <li>主 repo 提交區間：<code>c44e35b4..ec752b6b</code>（c44e35b4 = 2026-08-02 10:20:28 +0800，為前一班收稿點；ec752b6b = 2026-08-02 12:43:39 +0800，為本班開稿時 origin/main 頂點），共 4 提交（2 merge + 2 non-merge），10 檔變動（+27 / −10）。</li>
+  <li>本班兩個非合併提交：<code>8d7c6b5f</code>（release: show v0.27.52 with git identity，#1403）、<code>d45a1f84</code>（fix: emit valid CloudWatch IAM policy，#1403）；對應合併提交為 <code>d51a00f0</code>（PR #1404）與 <code>ec752b6b</code>（PR #1405）。</li>
+  <li>權限政策修正證據：<code>deploy/deploy_ec2.sh</code> 第 298 行起，原內容為 <code>"Statement":["Effect":"Allow",...]</code>（陳述清單直接內含鍵值對，缺物件包覆），修正後為 <code>"Statement":[{"Effect":"Allow",...}]</code>；該檔第 4 行為 <code>set -euo pipefail</code>，故此步驟失敗會使整份部署中止。同檔相鄰的 ssm、kms、dynamodb 各段權限政策格式本即正確。</li>
+  <li>版號證據：<code>src/trustforge/_version.py</code> 由 <code>0.27.51</code> 改為 <code>0.27.52</code>；<code>frontend/package.json</code> 同步由 0.27.51 改為 0.27.52，並連動 <code>frontend/package-lock.json</code> 與 <code>uv.lock</code>；<code>CHANGELOG.md</code> 新增 v0.27.52 條目（內容為 release: automatic version preparation）。</li>
+  <li>發布說明佔位證據：<code>docs/RELEASE-NOTES-v0.27.52.md</code> 全文 11 行，Highlights 段為「Release notes pending final review.」，Verification 段為「Pre-push, review, release, deployment, and rollback evidence pending.」。</li>
+  <li>版本徽章證據：<code>frontend/src/hermes/HermesTopBar.tsx</code> 新增由 <code>import.meta.env.VITE_GIT_SHA</code> 取前七碼、未設定時回退為 dev 的常數，徽章文字由 <code>{version}</code> 改為版號加識別；<code>frontend/src/pages/HermesDashboard.tsx</code> 移除原本附加的固定代號字串；<code>frontend/src/hermes/HermesTopBar.test.tsx</code> 期望值同步改為含識別的字串。注入路徑見 <code>deploy/deploy_frontend_nginx.sh</code> 第 106 行與 <code>scripts/hourly_release_train.py</code> 第 691 行；<code>.github/workflows/deploy-frontend.yml.disabled</code> 檔名帶停用後綴。</li>
+  <li>版本狀態：<code>git ls-remote --tags origin</code> 之遠端 tag 總數為 177，其中 v0.27.x 計數為 0，最高語意版本 tag 為 v0.26.0。</li>
+  <li>本機工作副本：主 repo 本機停留於分支 <code>feature/1224-unified-comparison-report</code>（頂點 <code>f13d5b79</code>，落後 origin/main 268 提交、領先 4 提交，該 4 提交時間為 2026-08-01 03:03 至 03:13 +0800，屬前前班區間）；同名工作已於 2026-08-01 08:35 +0800 以 <code>6ec8a43d</code> 併入主線，本機該組為殘留副本，非本班產出、亦非未推送之新工作。</li>
+  <li>devlog 自身：本班開稿前 <code>git fetch</code> 後本地主線與 origin/main 一致（未領先亦未落後），<code>git status</code> 為空（工作區乾淨、無未追蹤檔案）；上一篇收稿時間為 2026-08-02 03:14:08 UTC，本班開稿時間為 2026-08-02 15:01 UTC，觀測窗約 11 小時 47 分。本班對 devlog 倉庫除產出並推送本篇外無其他操作。</li>
+</ul>
+</section>
