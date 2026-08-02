@@ -1,0 +1,144 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 34：正式分析後端根因修復與發布目標釘選（82 提交，#1383 六連修） — TrustForge 開發記錄</title>
+<link rel="stylesheet" href="../style.css?v=20260718-format-fix">
+</head><body>
+<main class="day-entry">
+<nav class="top-nav"><a class="back" href="../index.html">← TrustForge Devlog</a></nav>
+<article>
+<header>
+<p class="eyebrow">2026-08-02 · Continuous Analysis</p>
+<h1>Day 34：正式分析後端根因修復與發布目標釘選（82 提交，#1383 六連修）</h1>
+<p class="summary">本班觀測窗主線收 82 提交。正式分析「後端查無工作」根因定位為網頁程序與工作程序使用不同資料庫檔，已改為共用絕對路徑並接上生產配套；發布列車預設生產目標改為比賽用設定（可由環境變數覆寫），需負責人確認。另收尾 Bedrock 全帳號請求速率鎖、回復三道開發閘門、重組報告介面為四層儀表板、落地 53 份技術文件。</p>
+<p class="sub" style="margin-top:-.6rem">分類：Continuous Analysis ｜ 標籤：#trustforge #continuous-analysis</p>
+</header>
+<section><h3>老闆版摘要</h3>
+<ul>
+  <li><strong>今天發生了什麼：</strong>本班觀測窗（前一班收稿後至本班開稿）主線收 82 個提交（53 非合併、29 合併），164 檔變動（+10,970 / −615 行）。重點只有一句話：<strong>上一班列為最高風險的「正式分析前端已開閘、但後端拿不到工作」問題，本班在程式碼層被定位並修掉了</strong>。真正的根因不是佇列沒寫入，而是<strong>網頁程序與正式執行工作程序各自寫到不同的資料庫檔</strong>——送出的工作寫進 A 檔、輪詢去 B 檔查，自然永遠查無此工作。本班把資料庫路徑改為由環境變數指定的共用絕對路徑，並把生產環境的資料表、金鑰前綴、共用路徑一次寫進部署啟用流程。</li>
+  <li><strong>必須先看的一件事：</strong>修復是<strong>程式碼層完成、生產層未驗證</strong>。本班同時把發布列車的「預設生產區域與預設生產網址」改掉了（區域改為美西、網址改為比賽用臨時端點，兩者皆可由環境變數覆寫）。這代表<strong>若部署環境沒有明確設定這兩個變數，自動發布列車會把版本推向新的預設目標，而不是既有正式網域</strong>。這是本班最需要負責人確認的一項——它不是 bug，是刻意為比賽釘住目標，但預設值變更本身就是誤發風險。</li>
+  <li><strong>要盯的一件事：</strong>本班另外補了三道被卡住的開發閘門（相依鎖檔缺版號導致乾淨環境無法啟動、審閱過的候選版本指紋過期、術語文案殘留），以及 Bedrock 全帳號每秒一次請求的分散式鎖收尾。文件端一次落地 53 份技術文件與多份簡報素材。這些量體大但風險低，唯一要盯的是<strong>對外素材是否出現未經認證的合規聲明</strong>。</li>
+</ul></section>
+
+<section><h3>主 repo 變更（TrustForge）</h3>
+
+<p><strong>1. 正式分析後端根因定位與修復（#1383，六個提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>分析流程的資料庫路徑不再固定落在原始碼樹下的相對路徑，改為優先讀取共用絕對路徑環境變數，且明確拒絕相對路徑；部署啟用腳本補上正式執行資料表、金鑰前綴、共用資料庫路徑三項參數的格式檢核與服務環境對帳；生產環境建置腳本改為在資料表加密狀態或時點還原保護未開啟時直接失敗；驗證腳本容忍工作剛建立時的短暫查不到（收到查無資料時改為續輪詢而非直接失敗）。</li>
+  <li><strong>價值：</strong>把「介面開了、後端查無工作」從症狀層推進到根因層並修掉，正式分析具備端到端可跑通的程式碼條件。</li>
+  <li><strong>風險：</strong>共用路徑若在生產環境未設定或設定成不同值，故障會原封不動重現；且本班未在任何真實環境跑過一次完整送出到取得報告的流程。</li>
+  <li><strong>待驗證：</strong>在 staging 或生產以驗證腳本實跑一次，確認回傳工作編號後可輪詢到完成狀態與報告內容。</li>
+</ul>
+
+<p><strong>2. 發布列車目標釘選與範圍隔離（#1383，兩個提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>發布列車的生產區域與生產網址改為可由環境變數覆寫，並新增啟動時的目標檢核（區域必須落在指定兩個美國區域、網址必須是不含路徑的加密連線來源）；另新增「僅主線」發布範圍模式，讓主線可在開發線尚有未併內容時單獨出車，收據會記錄本次採用的發布範圍。</li>
+  <li><strong>價值：</strong>比賽期間可把出車目標鎖死，避免推錯區域；主線熱修不再被開發線進度綁住。</li>
+  <li><strong>風險：</strong>預設值已由既有正式網域改為比賽用臨時端點、區域亦一併變更；未顯式設定環境變數的環境會沿用新預設。</li>
+  <li><strong>待驗證：</strong>確認實際執行發布列車的機器上這兩個變數的值，並確認收據中記錄的目標與預期一致。</li>
+</ul>
+
+<p><strong>3. Bedrock 全帳號請求速率鎖收尾（#1308 / #1347）</strong></p>
+<ul>
+  <li><strong>完成：</strong>新增分散式每秒一次請求鎖模組（含逾時與時鐘偏移容忍），把速率閘從單機提升為全帳號一致；部署面補上專用權限設定腳本與服務環境對帳腳本，並把閘門身分在生產設定快照中統一；新增三組測試檔涵蓋鎖行為、閘道架構與生產接線。</li>
+  <li><strong>價值：</strong>比賽用的雲端推論配額是硬上限，全帳號一致的閘門可避免多程序互相踩線導致整體被限流。</li>
+  <li><strong>風險：</strong>閘門依賴雲端資料表可用性；資料表異常時的降級行為本班未實測。</li>
+  <li><strong>待驗證：</strong>以並發請求壓測確認全帳號實際不超過每秒一次，並確認資料表不可用時為失敗即擋而非放行。</li>
+</ul>
+
+<p><strong>4. 三道開發閘門回復（#1375 / #1376 / #1377）</strong></p>
+<ul>
+  <li><strong>完成：</strong>相依鎖檔中本專案條目缺少版號，導致乾淨工作樹在凍結模式下必須依賴既有共用虛擬環境才能啟動——本班補上版號並新增測試，確保鎖檔可解析且版號與正式版號一致；審閱過的候選版本指紋表重新釘選兩個核心計分檔的雜湊；術語文案移除舊有措辭並統一到信任術語。</li>
+  <li><strong>價值：</strong>新環境與持續整合可在不繼承既有環境的前提下重現建置，降低「只有我的機器跑得起來」風險。</li>
+  <li><strong>風險：</strong>指紋重新釘選代表被審閱過的候選內容已變動，等同重新開啟一次審閱範圍。</li>
+  <li><strong>待驗證：</strong>在全新克隆的工作樹以凍結模式安裝並跑測試，確認不依賴外部既有環境。</li>
+</ul>
+
+<p><strong>5. 分析報告介面改為四層決策儀表板（#1358 及前端六個相關提交）</strong></p>
+<ul>
+  <li><strong>完成：</strong>分析報告視圖重組為四層結構，新增正反論點面板與證據分布圖表元件；右欄摘要面板扁平化、信任分數區塊底色與左欄一致；新手術語提示補齊；專案目標改以彈窗呈現；證據表與驗證器同步擴充欄位。前端本班共 29 檔變動，多數附帶對應測試檔。</li>
+  <li><strong>價值：</strong>把原本堆疊式的報告改成決策者可分層閱讀的版面，降低評審與非技術讀者的理解成本。</li>
+  <li><strong>風險：</strong>報告視圖為使用者主要接觸面，單次大幅重組的回歸面廣；本班未跑前端測試。</li>
+  <li><strong>待驗證：</strong>確認前端測試套件全綠，並以一份真實分析結果做版面目視檢查。</li>
+</ul>
+
+<p><strong>6. 文件與對外素材大批落地（#1392 等）</strong></p>
+<ul>
+  <li><strong>完成：</strong>新增 53 份技術文件（含證據對照表、架構、部署、設定、介面、資料流、維運、信任演算法、前端、資安交接、測試品保等分冊），多份簡報素材轉為網頁版本，說明文件補齊六維資料來源明細表與連接器清單，並清理過期的比賽主機字樣。</li>
+  <li><strong>價值：</strong>把交接與稽核所需的說明集中成可引用的文件集，降低口頭交接依賴。</li>
+  <li><strong>風險：</strong>量體大且未經人工逐份複核，對外素材可能出現未經認證的合規聲明或過期資訊。</li>
+  <li><strong>待驗證：</strong>人工巡檢對外文件與簡報，確認合規相關表述一律標示為治理草案而非已認證。</li>
+</ul>
+
+<p><strong>7. 核心計分與雲端函式安全邊界</strong></p>
+<ul>
+  <li><strong>完成：</strong>聚合層在論述數量上限收斂時保留來源種類多樣性，避免單一來源灌滿名額；雲端函式端收斂比賽供應商啟用缺口，密鑰處理與即時合約測試同步補強。</li>
+  <li><strong>價值：</strong>降低「證據看似很多、其實同源」造成的信任分數偏誤，並把比賽用雲端函式的啟用面收窄。</li>
+  <li><strong>風險：</strong>多樣性保留規則改動會直接影響評分結果分布，未見與既有結果的對照。</li>
+  <li><strong>待驗證：</strong>以同一批輸入比對改動前後的信任分數差異，確認變化在可解釋範圍。</li>
+</ul>
+</section>
+
+<section><h3>devlog 倉庫運維</h3>
+<ul>
+  <li><strong>完成：</strong>本班開稿前先向遠端取回最新狀態，本地主線與遠端一致、無落後提交、無未推送提交、無衝突檔；本班的運維變更即為本篇之產出、生成物重建與推送。</li>
+  <li><strong>價值：</strong>維持稽核連續性，不因主 repo 有無變動而略過本班紀錄。</li>
+  <li><strong>風險：</strong>生成物與遠端衝突為歷史常見失敗點，推送前需先變基收齊。</li>
+  <li><strong>待驗證：</strong>推送後確認遠端已收齊本篇，且線上頁面可正常開啟。</li>
+</ul>
+</section>
+
+<section><h3>風險等級表</h3>
+<table class="risk-table">
+  <thead><tr><th>風險項</th><th>等級</th><th>原因</th><th>建議動作</th></tr></thead>
+  <tbody>
+    <tr><td>發布列車預設生產目標已變更</td><td>高</td><td>預設生產區域與預設生產網址改為比賽用設定，未顯式設定環境變數的執行環境會沿用新預設，可能把版本推向非既有正式網域</td><td>確認實際執行機器上的目標環境變數值，並在收據中核對本次出車的目標與範圍</td></tr>
+    <tr><td>正式分析端到端未實測</td><td>高</td><td>根因（網頁程序與工作程序使用不同資料庫檔）已在程式碼層修復，但共用路徑若在生產未正確設定，故障會原樣重現；本班未實跑任何一次完整流程</td><td>以驗證腳本在 staging 或生產實跑一次送出到取得報告，失敗則維持前端失敗即擋狀態</td></tr>
+    <tr><td>版本譜系未閉合</td><td>中</td><td>遠端 v0.27.x tag 數為零，正式版號僅見於主線提交與版號檔宣稱。目前 v0.27.x 仍只是主線 commit／VERSION 檔宣稱，尚未成為可由遠端 tag 稽核的正式版本節點</td><td>待發布時由負責人以明列的具體 tag 推送，使版本譜系可由遠端稽核；不得一次推送全部本地 tag</td></tr>
+    <tr><td>前端報告大幅重組回歸面廣</td><td>中</td><td>分析報告視圖為主要接觸面，本班 29 檔前端變動含結構重組，僅做 diff-level review，未跑前端測試</td><td>確認前端測試全綠，並以真實分析結果做版面目視檢查</td></tr>
+    <tr><td>合規聲明外溢風險</td><td>中</td><td>本班新增 53 份技術文件與多份對外簡報素材，未經人工逐份複核，可能出現未經認證的合規聲明</td><td>人工巡檢對外文件與簡報，確保合規表述一律標示為治理草案</td></tr>
+    <tr><td>審閱候選指紋重新釘選</td><td>中</td><td>核心計分檔案雜湊變動後重新釘選，等同既有審閱結論的涵蓋範圍被改動</td><td>確認變動內容已重新經過審閱，或在下次審閱時明列此次指紋變更</td></tr>
+    <tr><td>速率鎖降級行為未實測</td><td>低</td><td>全帳號請求速率鎖依賴雲端資料表，資料表異常時的行為本班未驗證</td><td>模擬資料表不可用，確認為失敗即擋而非直接放行</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section><h3>驗證狀態</h3>
+<ul>
+  <li>本班僅 diff-level review，未實跑測試套件，也未在真實雲端或生產環境驗證行為。上述「待驗證」項目均待持續整合或下個班次收斂證據。</li>
+  <li>本班提交訊息未標註「CISO review passed」；本班不替任何提交聲稱已通過資安審查。</li>
+  <li>遠端無 v0.27.x tag，版本譜系未閉合（見風險表）。</li>
+</ul>
+</section>
+
+<section><h3>下一步（可執行 checklist）</h3>
+<label><input type="checkbox" disabled> 確認正式分析端到端可跑通<br><code>cd /opt/data/trustforge &amp;&amp; python3 scripts/verify_production_analysis_report.py --help</code>；通過標準：對目標環境實跑後能取得工作編號並輪詢到完成狀態與報告內容，否則將前端維持失敗即擋。</label>
+<label><input type="checkbox" disabled> 核對發布列車生產目標<br><code>cd /opt/data/trustforge &amp;&amp; git show origin/main:scripts/hourly_release_train.py | grep -n "PRODUCTION_REGION\|PRODUCTION_URL"</code>；通過標準：執行機器上的目標環境變數已顯式設定且與負責人預期一致。</label>
+<label><input type="checkbox" disabled> 驗證乾淨工作樹可凍結安裝<br><code>cd /opt/data/trustforge &amp;&amp; python3 -m pytest tests/test_version.py -q</code>；通過標準：全綠，且相依鎖檔中本專案版號與正式版號一致。</label>
+<label><input type="checkbox" disabled> 巡檢對外文件合規表述<br><code>cd /opt/data/trustforge &amp;&amp; git grep -ni "符合 ISO\|通過 EU AI Act\|certified" docs/ 2>/dev/null</code>；通過標準：僅出現治理參考或草案語氣，無未經認證的符合聲明。</label>
+<label><input type="checkbox" disabled> 收齊 devlog 推送<br><code>cd /opt/data/devlog &amp;&amp; python3 validate_devlog.py</code>；通過標準：validate passed，且推送後遠端收齊本篇；推送 tag 時須明列具體 tag，禁止一次推送全部本地 tag。</label>
+</section>
+
+<section><h3>稽核細節（資料來源）</h3>
+<ul>
+  <li>主 repo 提交區間：<code>27e8c017..c44e35b4</code>（27e8c017 = 2026-08-01 22:41:29 +0800，為前一班收稿點；c44e35b4 = 2026-08-02 10:20:28 +0800，為本班開稿時 origin/main 頂點），共 82 提交（29 merge + 53 non-merge），164 檔變動（+10,970 / −615）。</li>
+  <li>#1383 六連修：<code>f5868d5c</code>（部署啟用接上正式執行生產權威）、<code>ebdcfb3d</code>（資料表加密與時點還原未開啟即失敗）、<code>0a029058</code>（釘選比賽發布目標）、<code>db7cfb12</code>（新增僅主線發布範圍）、<code>47442c07</code>（共用分析投影資料庫路徑）、<code>6ca18229</code>（容忍工作可見性延遲）。</li>
+  <li>根因證據：<code>src/trustforge/analysis_flow.py</code> 的 <code>_db_path()</code> 原本無條件回傳原始碼樹下的 <code>out/trustforge.sqlite3</code>；<code>47442c07</code> 改為優先讀取 <code>TRUSTFORGE_SHARED_ANALYSIS_DB_PATH</code> 並在非絕對路徑時擲出例外，同時新增兩項測試涵蓋預設共用路徑與相對路徑拒絕。</li>
+  <li>發布目標變更證據：<code>scripts/hourly_release_train.py</code> 的 <code>PRODUCTION_REGION</code> 與 <code>PRODUCTION_URL</code> 由硬寫常數改為環境變數讀取，預設區域由 ap-southeast-2 改為 us-west-2、預設網址由既有正式網域改為比賽用臨時端點；新增 <code>require_competition_target()</code> 於執行起始檢核。</li>
+  <li>部署面新增檔案：<code>deploy/setup_formal_run_production.py</code>、<code>deploy/reconcile_formal_run_service_env.sh</code>、<code>deploy/setup_bedrock_rps_iam.sh</code>、<code>deploy/reconcile_bedrock_rps_service_env.sh</code>；修改 <code>deploy/activate_release.sh</code>、<code>deploy/deploy_ec2.sh</code>、<code>deploy/install_hermes_scheduler.sh</code>。</li>
+  <li>Bedrock 速率鎖：<code>c689cd8c</code> 新增 <code>src/trustforge/bedrock_rps_lock.py</code>（245 行）與 <code>tests/test_bedrock_distributed_rps_lock.py</code>（328 行）；<code>b14be77e</code>、<code>e28908ca</code>、<code>8fae1c3f</code>、<code>4f2ad8e3</code>、<code>22780838</code> 為後續收斂。</li>
+  <li>閘門回復：<code>afa3a2e5</code>（<code>uv.lock</code> 本專案條目補上 version 欄並新增鎖檔可解析性測試）、<code>da49bee6</code> 與 <code>90588c05</code>（<code>data/contracts/reviewed-shadow-candidate.v1.json</code> 重新釘選 <code>aggregation.py</code> 與 <code>scoring.py</code> 雜湊）、<code>74dbac63</code> 與 <code>730cc338</code>（術語文案）。</li>
+  <li>前端：<code>4c05e874</code>（報告四層儀表板，新增 <code>ProConPanel.tsx</code>）、<code>60c4c440</code>、<code>3000c794</code>、<code>6b8460f2</code>、<code>50d49e2b</code>、<code>af7e18a3</code>、<code>e7623aed</code>；本班前端共 29 檔變動。</li>
+  <li>文件：<code>docs/technical-docs/</code> 新增 53 檔（00-evidence-map 至 11-testing-qa 等分冊）；<code>30fbb90f</code> 補齊說明文件六維資料來源明細表。</li>
+  <li>版本狀態：<code>src/trustforge/_version.py</code> 於區間兩端皆為 0.27.51，本班未升版；<code>git ls-remote --tags origin</code> 之 v0.27.x 計數為 0。</li>
+  <li>前班記載更正：前一篇記載正式分析旗標「由 false 改回 true」，實際 <code>7970702d</code> 的 diff 為 true 改為 false（該旗標為「尚在施工中」語意，改為 false 即代表開閘）。原篇對「已開閘」的結論正確，僅旗標值方向記反，於本篇更正。本班確認該旗標於 c44e35b4 仍為 false。</li>
+  <li>devlog 自身：本班開稿前 <code>git fetch</code> 後本地主線與 origin/main 一致（無 ahead／behind），工作區乾淨；上一篇收稿時間為 2026-08-01 15:09:31 UTC。</li>
+</ul>
+</section>
+
+</article>
+<footer>TrustForge by HurricaneSoft（颶風軟體）· 2026-08-02</footer>
+</main><script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Day 34：正式分析後端根因修復與發布目標釘選（82 提交，#1383 六連修）","datePublished":"2026-08-02","author":{"@type":"Organization","name":"HurricaneSoft"},"articleSection":"Continuous Analysis"}
+</script>
+<script src="../day-common.js?v=20260718-format-fix"></script>
+</body></html>
